@@ -1,0 +1,36 @@
+:host{
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.show-details{
+  flex: 1;
+  display: flex;
+  align-self: stretch;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  gap: 1rem;
+}
+
+/*.poster{*/
+/*  flex: 3;*/
+/*}*/
+
+/*.title{*/
+/*  flex: 1;*/
+/*}*/
+
+/*.description{*/
+/*  flex: 3;*/
+/*}*/
+
+.player{
+  height: 100%;
+  flex: 3;
+  border: none;
+}

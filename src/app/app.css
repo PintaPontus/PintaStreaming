@@ -1,0 +1,63 @@
+:host{
+  width: 100vw;
+  /*width: 100dvw;*/
+  height: 100vh;
+  /*height: 100dvh;*/
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+}
+
+router-outlet {
+  margin: 0;
+  padding: 0;
+  width: 0;
+  height: 0;
+}
+
+
+.title {
+  grid-column: span 2 / span 2;
+  grid-column-start: 1;
+  grid-row-start: 1;
+  display: flex;
+  justify-content: start;
+  padding-left: 2.5rem;
+  align-items: center;
+  font-size: 2.5rem;
+}
+
+.menu {
+  grid-column: span 7 / span 7;
+  grid-column-start: 3;
+  grid-row-start: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  padding-left: 1.5rem;
+}
+
+.menu-item {
+  justify-self: start;
+  font-size: 1.4rem;
+}
+
+.search{
+  margin-left: auto;
+  font-size: 2.5rem;
+  margin-right: 3rem;
+  background: unset;
+  border: none;
+  cursor: pointer;
+}
+
+
+.content {
+  grid-column: span 9 / span 9;
+  grid-row: span 8 / span 8;
+  grid-column-start: 1;
+  grid-row-start: 2;
+}

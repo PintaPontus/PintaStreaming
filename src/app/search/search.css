@@ -1,0 +1,35 @@
+.search-dialog{
+  background: dimgrey;
+}
+.search-input{
+  background: dimgrey;
+  width: 100%;
+}
+.search-results-list{
+
+}
+.search-result{
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: row;
+  gap: 1rem;
+}
+.search-result-title{
+  font-size: 1.5rem;
+}
+.search-result-poster-container{
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+.search-result-poster{
+  width: 40px;
+}
+.search-result-item-divider{
+  margin: 0.3rem 0;
+}

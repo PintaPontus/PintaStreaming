@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "MovieStreaming": {
+    "PintaStreaming": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -25,6 +25,7 @@
               }
             ],
             "styles": [
+              "src/custom-theme.scss",
               "src/styles.css"
             ]
           },
@@ -56,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "MovieStreaming:build:production"
+              "buildTarget": "PintaStreaming:build:production"
             },
             "development": {
-              "buildTarget": "MovieStreaming:build:development"
+              "buildTarget": "PintaStreaming:build:development"
             }
           },
           "defaultConfiguration": "development"

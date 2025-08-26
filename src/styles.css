@@ -1,1 +1,26 @@
-/* You can add global styles to this file, and also import other style files */
+*{
+  color: #e4eeff;
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  box-sizing: border-box;
+}
+
+body{
+  background-color: #2b2d30;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  width: 100vw;
+  /*width: 100dvw;*/
+  height: 100vh;
+  /*height: 100dvh;*/
+  padding: 0;
+  margin: 0;
+}
+
+a{
+  text-decoration: none;
+}
+
+html, body { height: 100%; }

@@ -1,0 +1,8 @@
+<div class="show-details">
+  <div class="poster">
+    <img class="poster" [src]="`https://image.tmdb.org/t/p/w300/${showInfo().poster_path}`" alt="poster">
+  </div>
+  <h1 class="title">{{showInfo().title}}</h1>
+  <h3 class="description">{{showInfo().overview}}</h3>
+</div>
+<iframe class="player" allowfullscreen [src]="videoUrl()"></iframe>
