@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import {ShowDetails, ShowSearchList} from '../interfaces/show';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieDBService {
-
-  private movieDBApiKey = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiMDY4ZWU1NTVmMDA2YjY2MTQ1Y2Q1NTEyMDYwOWI5OSIsIm5iZiI6MTc1NjEzODAxMy45OTQsInN1YiI6IjY4YWM4YTFkNmZhN2JjM2FkYmE5YTc4MyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1IrB7kgYfmZCtO2Zgp39u_kcrIO9267GHZ-ljKugvOI';
 
   async getInfoMovie(id: string): Promise<ShowDetails> {
     return await this.get<ShowDetails>(`https://api.themoviedb.org/3/movie/${id}`);
@@ -44,7 +43,7 @@ export class MovieDBService {
     [key: string]: string | null;
   }) {
     const httpHeaders = new Headers();
-    httpHeaders.set('Authorization', `Bearer ${(this.movieDBApiKey)}`)
+    httpHeaders.set('Authorization', `Bearer ${(environment.movieDBKey)}`)
     if (headers) {
       Object.entries(headers).forEach(([key, value]) => {
         if (value) {
