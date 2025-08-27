@@ -1,0 +1,22 @@
+<mat-form-field class="text-field movies-box">
+  <mat-label class="text-label">Movies</mat-label>
+  <textarea #autosize="cdkTextareaAutosize"
+            [(ngModel)]="moviesText"
+            cdkAutosizeMinRows="1"
+            cdkTextareaAutosize
+            matInput></textarea>
+</mat-form-field>
+<div class="actions-box">
+  <button (click)="refreshShows()" class="action-button" matFab>
+    <mat-icon>refresh</mat-icon>
+  </button>
+  <button (click)="updateShows()" class="action-button" extended matFab>Update Shows</button>
+</div>
+<mat-form-field class="text-field tv-series-box">
+  <mat-label class="text-label">TV Series</mat-label>
+  <textarea #autosize="cdkTextareaAutosize"
+            [(ngModel)]="tvSeriesText"
+            cdkAutosizeMinRows="1"
+            cdkTextareaAutosize
+            matInput></textarea>
+</mat-form-field>

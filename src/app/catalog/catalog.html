@@ -1,1 +1,6 @@
-<p>catalog works!</p>
+@for (category of displayCategories(); track category.id; let idx = $index) {
+  @if (idx > 0) {
+    <mat-divider class="catalog-divider"></mat-divider>
+  }
+  <app-carousel [title]="category.name" [link]="category.link" [type]="category.type"></app-carousel>
+}

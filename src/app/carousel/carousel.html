@@ -1,0 +1,8 @@
+<h1 class="carousel-title">{{ title }}</h1>
+<div class="shows-list">
+  @for (show of shows().results; track show.id) {
+    <app-carousel-card [show]="show" [type]="type"
+                       [isAvailable]="streamService.isAvailable(show.id,type)">
+    </app-carousel-card>
+  }
+</div>

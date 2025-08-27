@@ -1,6 +1,7 @@
 <mat-dialog-content class="search-dialog">
   <mat-form-field class="search-input">
-    <input matInput [(ngModel)]="textSearch" (input)="searchItems()" placeholder="Type to search" />
+    <input (input)="searchItems()" [(ngModel)]="textSearch" class="search-input-box" matInput
+           placeholder="Type to search"/>
   </mat-form-field>
   <mat-list class="search-results-list">
     @for (item of items.results; track item.id; let idx = $index) {

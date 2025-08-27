@@ -1,0 +1,25 @@
+:host {
+  height: 100%;
+  padding: 2rem;
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+.text-field {
+  flex: 2;
+}
+
+.actions-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.action-button {
+  margin: 10px;
+  font-size: 1.5rem;
+}

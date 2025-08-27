@@ -9,28 +9,23 @@
 
 .show-details{
   flex: 1;
-  display: flex;
-  align-self: stretch;
-  flex-direction: column;
-  justify-content: start;
-  align-items: start;
-  gap: 1rem;
 }
 
-/*.poster{*/
-/*  flex: 3;*/
-/*}*/
+.genres-list {
+  padding-top: 0.5rem;
+  padding-right: 1rem;
+}
 
-/*.title{*/
-/*  flex: 1;*/
-/*}*/
+.show-details-divider {
+  margin: 1rem 0;
+}
 
-/*.description{*/
-/*  flex: 3;*/
-/*}*/
+.poster {
+  max-width: 200px;
+}
 
 .player{
   height: 100%;
-  flex: 3;
+  flex: 4;
   border: none;
 }

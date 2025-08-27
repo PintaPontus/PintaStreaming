@@ -2,9 +2,13 @@
   background: dimgrey;
 }
 .search-input{
-  background: dimgrey;
   width: 100%;
 }
+
+.search-input-box {
+  width: 100%;
+}
+
 .search-results-list{
 
 }

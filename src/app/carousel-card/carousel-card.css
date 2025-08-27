@@ -1,0 +1,14 @@
+.poster {
+  max-width: 200px;
+}
+
+.unavailable-show {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.show-card {
+  display: inline-block;
+  white-space: normal;
+  max-width: 200px;
+}

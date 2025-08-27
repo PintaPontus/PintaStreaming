@@ -1,8 +1,24 @@
-<div class="show-details">
-  <div class="poster">
-    <img class="poster" [src]="`https://image.tmdb.org/t/p/w300/${showInfo().poster_path}`" alt="poster">
-  </div>
-  <h1 class="title">{{showInfo().title}}</h1>
-  <h3 class="description">{{showInfo().overview}}</h3>
-</div>
-<iframe class="player" allowfullscreen [src]="videoUrl()"></iframe>
+<iframe [src]="sanitizer.bypassSecurityTrustResourceUrl(videoUrl())" allowfullscreen class="player"></iframe>
+<mat-card appearance="outlined" class="show-details">
+  <mat-card-header>
+    <mat-card-title-group>
+      <mat-card-title>{{ showInfo().title }}</mat-card-title>
+      <mat-card-subtitle>
+        <mat-chip-set aria-label="Fish selection" class="genres-list">
+          @for (genre of showInfo().genres; track genre.id) {
+            <mat-chip class="genre" disabled>{{ genre.name }}</mat-chip>
+          }
+          @if (showInfo().adult) {
+            <mat-chip class="genre" disabled>18</mat-chip>
+          }
+        </mat-chip-set>
+      </mat-card-subtitle>
+      <img [src]="`https://image.tmdb.org/t/p/w500/${showInfo().poster_path}`" alt="poster" class="poster"
+           mat-card-xl-image>
+    </mat-card-title-group>
+  </mat-card-header>
+  <mat-divider class="show-details-divider"></mat-divider>
+  <mat-card-content>
+    {{ showInfo().overview }}
+  </mat-card-content>
+</mat-card>
