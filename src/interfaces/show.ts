@@ -7,6 +7,8 @@ export interface ShowDetails {
   adult: boolean;
   id: string;
   title: string;
+  name: string;
+  original_title: string;
   overview: string;
   poster_path: string;
   backdrop_path: string;
@@ -31,6 +33,7 @@ export interface ShowResultItem {
   adult: boolean;
   overview: string;
   vote_average: number;
+  media_type: string;
 }
 
 export interface ShowResourceLibrary {

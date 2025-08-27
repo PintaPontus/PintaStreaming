@@ -4,7 +4,7 @@
            placeholder="Type to search"/>
   </mat-form-field>
   <mat-list class="search-results-list">
-    @for (item of items.results; track item.id; let idx = $index) {
+    @for (item of items().results; track item.id; let idx = $index) {
       @if (idx > 0) {
         <mat-divider class="search-result-item-divider"></mat-divider>
       }
@@ -13,7 +13,11 @@
           <div class="search-result-poster-container">
             <img class="search-result-poster" [src]="`https://image.tmdb.org/t/p/w300/${item.poster_path}`" alt="">
           </div>
-          <a class="search-result-title" [routerLink]="[`/player/${item.id}`]" (click)="closeSearch()">{{ item.title || item.name || item.original_title }}</a>
+          <a class="search-result-title"
+             [routerLink]="getPlayerUrl(item)"
+             (click)="closeSearch()">
+            {{ item.title || item.name || item.original_title }}
+          </a>
         </div>
       </mat-list-item>
     } @empty {

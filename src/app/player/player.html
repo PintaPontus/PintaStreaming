@@ -1,8 +1,8 @@
-<iframe [src]="sanitizer.bypassSecurityTrustResourceUrl(videoUrl())" allowfullscreen class="player"></iframe>
+<iframe [src]="getVideoUrl()" allowfullscreen class="player"></iframe>
 <mat-card appearance="outlined" class="show-details">
   <mat-card-header>
     <mat-card-title-group>
-      <mat-card-title>{{ showInfo().title }}</mat-card-title>
+      <mat-card-title>{{ showInfo().title || showInfo().name || showInfo().original_title }}</mat-card-title>
       <mat-card-subtitle>
         <mat-chip-set aria-label="Fish selection" class="genres-list">
           @for (genre of showInfo().genres; track genre.id) {
