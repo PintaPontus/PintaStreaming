@@ -16,11 +16,13 @@ export class App implements OnInit {
 
   protected readonly title = signal('PintaStreaming');
   user: Signal<User | null> = signal(null);
+  isAdmin: Signal<boolean> = signal(false);
   readonly dialog = inject(MatDialog);
   private firebaseService = inject(FirebaseService);
 
   async ngOnInit() {
     this.user = await this.firebaseService.getUserDetails();
+    this.isAdmin = await this.firebaseService.isAdmin();
   }
 
   async login() {
@@ -32,5 +34,4 @@ export class App implements OnInit {
       width: '800px'
     });
   }
-
 }

@@ -1,10 +1,11 @@
 import {Injectable, signal, WritableSignal} from '@angular/core';
 import {initializeApp} from "firebase/app";
-import {addDoc, collection, getDocs, getFirestore, limit, orderBy, query} from "firebase/firestore";
+import {addDoc, collection, doc, getDoc, getDocs, getFirestore, limit, orderBy, query} from "firebase/firestore";
 import {browserSessionPersistence, getAuth, GoogleAuthProvider, setPersistence, signInWithPopup} from "firebase/auth";
 import {environment} from '../environments/environment';
 import {ShowResource, ShowResourceLibrary} from '../interfaces/show';
 import {User} from '@firebase/auth';
+import {UsersDetails} from '../interfaces/users';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,7 @@ export class FirebaseService {
   private provider = new GoogleAuthProvider();
 
   private userDetails: WritableSignal<User | null> = signal(null);
+  private isAdminFlag: WritableSignal<boolean> = signal(false);
 
   async loginWithGoogle() {
     this.auth.languageCode = 'it';
@@ -40,6 +42,7 @@ export class FirebaseService {
       const result = await signInWithPopup(this.auth, this.provider);
       // const credential = GoogleAuthProvider.credentialFromResult(result);
       this.userDetails.set(result.user);
+      await this.fetchIsAdmin();
       return this.userDetails.asReadonly();
     } catch (error: any) {
       const errorCode = error.code;
@@ -63,6 +66,32 @@ export class FirebaseService {
       movies: newMovies,
       tvSeries: newTvSeries,
     });
+  }
+
+  async isAdmin() {
+    await this.fetchIsAdmin();
+    return this.isAdminFlag.asReadonly();
+  }
+
+  private async fetchIsAdmin() {
+    console.log("isAdmin check");
+    const user = await this.getUserDetails();
+    const userUID = user()?.uid;
+
+    if (!userUID || userUID === '') {
+      this.isAdminFlag.set(false);
+      return;
+    }
+
+    const docRef = doc(this.db, "users", userUID || '');
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const user = docSnap.data() as UsersDetails;
+      this.isAdminFlag.set(user.role === 'admin');
+    } else {
+      this.isAdminFlag.set(false);
+    }
   }
 
   async fetchShows() {

@@ -3,7 +3,7 @@
   <a [routerLink]="['/']" class="menu-item" extended matFab>Home</a>
   <a [routerLink]="['catalog/movies']" class="menu-item" extended matFab>Film</a>
   <a [routerLink]="['catalog/tv-series']" class="menu-item" extended matFab>Serie TV</a>
-  @if (user() !== null) {
+  @if (user() !== null && isAdmin()) {
     <a matFab extended class="menu-item" [routerLink]="['/admin']">Admin</a>
   }
 <!--  <a class="menu-item" [routerLink]="['/player/438631']">TEST PLAYER</a>-->
