@@ -18,21 +18,29 @@ router-outlet {
 }
 
 
-.title {
-  grid-column: span 2 / span 2;
+.logo-container {
+  grid-column: span 3 / span 3;
   grid-column-start: 1;
   grid-row-start: 1;
   display: flex;
   justify-content: start;
-  padding-left: 2.5rem;
+  padding-left: 2rem;
   align-items: center;
   font-size: 2.5rem;
-  overflow: hidden;
+  gap: 1rem;
+}
+
+.logo-title {
+  font-size: 2.5rem;
+}
+
+.logo {
+  max-height: 3.5rem;
 }
 
 .menu {
-  grid-column: span 7 / span 7;
-  grid-column-start: 3;
+  grid-column: span 6 / span 6;
+  grid-column-start: 4;
   grid-row-start: 1;
   display: flex;
   align-items: center;

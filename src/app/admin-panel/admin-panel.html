@@ -1,22 +1,28 @@
-<mat-form-field class="text-field movies-box">
-  <mat-label class="text-label">Movies</mat-label>
-  <textarea #autosize="cdkTextareaAutosize"
-            [(ngModel)]="moviesText"
-            cdkAutosizeMinRows="1"
-            cdkTextareaAutosize
-            matInput></textarea>
-</mat-form-field>
+<div class="shows-input-container">
+  <h2 class="shows-input-title">Movies</h2>
+  <mat-form-field class="shows-input-field">
+    <mat-label>Movies</mat-label>
+    <textarea #autosize="cdkTextareaAutosize"
+              [(ngModel)]="moviesText"
+              cdkAutosizeMinRows="1"
+              cdkTextareaAutosize
+              matInput></textarea>
+  </mat-form-field>
+</div>
 <div class="actions-box">
   <button (click)="refreshShows()" class="action-button" matFab>
     <mat-icon>refresh</mat-icon>
   </button>
   <button (click)="updateShows()" class="action-button" extended matFab>Update Shows</button>
 </div>
-<mat-form-field class="text-field tv-series-box">
-  <mat-label class="text-label">TV Series</mat-label>
-  <textarea #autosize="cdkTextareaAutosize"
-            [(ngModel)]="tvSeriesText"
-            cdkAutosizeMinRows="1"
-            cdkTextareaAutosize
-            matInput></textarea>
-</mat-form-field>
+<div class="shows-input-container">
+  <h2 class="shows-input-title">TV Series</h2>
+  <mat-form-field class="shows-input-field">
+    <mat-label>TV Series</mat-label>
+    <textarea #autosize="cdkTextareaAutosize"
+              [(ngModel)]="tvSeriesText"
+              cdkAutosizeMinRows="1"
+              cdkTextareaAutosize
+              matInput></textarea>
+  </mat-form-field>
+</div>

@@ -1,4 +1,11 @@
-<div class="title"><a class="title-link" [routerLink]="['/']">Pinta is streaming shit</a></div>
+<a [routerLink]="['/']" class="logo-container">
+  <div class="logo-img-container">
+    <img alt="logo" class="logo" src="images/b-reduced.png">
+  </div>
+  <h1 class="logo-title">
+    PintaStreaming
+  </h1>
+</a>
 <div class="menu">
   <a [routerLink]="['/']" class="menu-item" extended matFab>Home</a>
   <a [routerLink]="['catalog/movies']" class="menu-item" extended matFab>Film</a>

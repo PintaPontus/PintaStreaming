@@ -43,10 +43,11 @@ export class AdminPanel implements OnInit {
     this.tvSeriesText.set(JSON.stringify(this.tvSeries()));
   }
 
-  refreshShows() {
-    this.streamService.refreshShows();
+  async refreshShows() {
+    await this.streamService.refreshShows();
     this.moviesText.set(JSON.stringify(this.movies()));
     this.tvSeriesText.set(JSON.stringify(this.tvSeries()));
+    this.openSnackBar("Shows refreshed!");
   }
 
   async updateShows() {

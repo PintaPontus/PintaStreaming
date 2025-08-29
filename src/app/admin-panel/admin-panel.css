@@ -6,8 +6,24 @@
   align-items: stretch;
 }
 
-.text-field {
-  flex: 2;
+.shows-input-container {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1.2rem;
+}
+
+.shows-input-title {
+  font-size: 1.6rem;
+  padding: 0;
+  margin: 0;
+}
+
+.shows-input-field {
+  width: 100%;
+  height: 100%;
 }
 
 .actions-box {
