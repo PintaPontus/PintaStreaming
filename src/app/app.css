@@ -19,12 +19,8 @@ router-outlet {
 
 
 .logo-container {
-  grid-column: span 3 / span 3;
-  grid-column-start: 1;
-  grid-row-start: 1;
   display: flex;
   justify-content: start;
-  padding-left: 2rem;
   align-items: center;
   font-size: 2.5rem;
   gap: 1rem;
@@ -39,14 +35,14 @@ router-outlet {
 }
 
 .menu {
-  grid-column: span 6 / span 6;
-  grid-column-start: 4;
+  grid-column: span 9 / span 9;
+  grid-column-start: 1;
   grid-row-start: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 3rem;
-  padding-left: 1.5rem;
+  padding: 0 3rem;
+  gap: 2rem;
 }
 
 .menu-item {
@@ -56,7 +52,6 @@ router-outlet {
 
 .actions-box {
   margin-left: auto;
-  margin-right: 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
