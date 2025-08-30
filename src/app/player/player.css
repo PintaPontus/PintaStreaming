@@ -20,6 +20,14 @@
   margin: 1rem 0;
 }
 
+.show-details-actions {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
 .poster {
   max-width: 200px;
 }

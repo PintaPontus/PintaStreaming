@@ -21,4 +21,8 @@
   <mat-card-content>
     {{ showInfo().overview }}
   </mat-card-content>
+  <mat-card-actions class="show-details-actions">
+    <a [href]="getInfoUrl()" class="material-symbols-outlined">info</a>
+    <a [href]="getVideoUrl()" class="material-symbols-outlined">open_in_new</a>
+  </mat-card-actions>
 </mat-card>

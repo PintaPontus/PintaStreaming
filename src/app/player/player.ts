@@ -5,6 +5,7 @@ import {DomSanitizer, Title} from '@angular/platform-browser';
 import {ShowDetails} from '../../interfaces/show';
 import {
   MatCard,
+  MatCardActions,
   MatCardContent,
   MatCardHeader,
   MatCardSubtitle,
@@ -25,23 +26,25 @@ import {MatChip, MatChipSet} from '@angular/material/chips';
     MatCardTitleGroup,
     MatDivider,
     MatChipSet,
-    MatChip
+    MatChip,
+    MatCardActions
   ],
   templateUrl: './player.html',
   styleUrl: './player.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Player implements OnInit{
+export class Player implements OnInit {
 
   private route = inject(ActivatedRoute);
   private movieDBService = inject(MovieDBService);
   videoUrl = signal('');
+  infoUrl = signal('');
   private title = inject(Title);
-  showInfo= signal({} as ShowDetails);
+  showInfo = signal({} as ShowDetails);
   protected sanitizer = inject(DomSanitizer);
 
   async ngOnInit() {
-    this.route.paramMap.subscribe(async params=>{
+    this.route.paramMap.subscribe(async params => {
       const showID = Number.parseInt(params.get('id')!);
       const showCategory = params.get('category')!;
 
@@ -59,12 +62,8 @@ export class Player implements OnInit{
     return this.sanitizer.bypassSecurityTrustResourceUrl(this.videoUrl());
   }
 
-  private getURLParams() {
-    const urlParams = new URLSearchParams()
-    urlParams.append("primaryColor", "115298")
-    urlParams.append("secondaryColor", "2b2d30")
-    urlParams.append("lang", "it")
-    return urlParams;
+  getInfoUrl() {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.infoUrl());
   }
 
   private async playMovie(showID: number) {
@@ -72,6 +71,7 @@ export class Player implements OnInit{
     this.showInfo.set(newShowInfo);
     this.title.setTitle('PintaStreaming - ' + newShowInfo.title);
     this.videoUrl.set(`https://vixsrc.to/movie/${showID}?${this.getURLParams()}`);
+    this.infoUrl.set(`https://www.themoviedb.org/movie/${showID}`);
   }
 
   private async playTvSeries(showID: number) {
@@ -79,6 +79,14 @@ export class Player implements OnInit{
     this.showInfo.set(newShowInfo);
     this.title.setTitle('PintaStreaming - ' + newShowInfo.title);
     this.videoUrl.set(`https://vixsrc.to/tv/${showID}?${this.getURLParams()}`);
+    this.infoUrl.set(`https://www.themoviedb.org/tv/${showID}`);
   }
 
+  private getURLParams() {
+    const urlParams = new URLSearchParams()
+    urlParams.append("primaryColor", "115298")
+    urlParams.append("secondaryColor", "2b2d30")
+    urlParams.append("lang", "it")
+    return urlParams;
+  }
 }
