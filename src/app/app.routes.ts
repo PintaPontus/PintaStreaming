@@ -19,6 +19,10 @@ export const routes: Routes = [
     component: Player,
   },
   {
+    path: 'player/:category/:id/:season/:episode',
+    component: Player,
+  },
+  {
     path: 'admin',
     component: AdminPanel,
   },

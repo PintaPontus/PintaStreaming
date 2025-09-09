@@ -32,8 +32,42 @@
   max-width: 200px;
 }
 
-.player{
+.player-container {
   height: 100%;
   flex: 4;
+  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+
+.player-title {
+  margin: 0;
+}
+
+.player{
+  flex: 1;
   border: none;
+}
+
+.episode-selector-container {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+}
+
+.episode-selector {
+  overflow-x: auto;
+}
+
+.episode-selector-container > h3 {
+  margin: 0;
+}
+
+.season-title {
+  margin-top: 0;
 }

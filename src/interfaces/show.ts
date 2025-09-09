@@ -16,6 +16,16 @@ export interface ShowDetails {
     id: number,
     name: string,
   }];
+  seasons: undefined | ShowSeason[]
+}
+
+export interface ShowSeason {
+  id: number,
+  air_date: string,
+  episode_count: number,
+  name: string,
+  season_number: number,
+  overview: string,
 }
 
 

@@ -1,4 +1,30 @@
-<iframe [src]="getVideoUrl()" allowfullscreen class="player"></iframe>
+<div class="player-container">
+  <!--  @if (category() === 'tv-series') {-->
+  <!--    <h1 class="player-title">{{ getEpisodeTitle() }}</h1>-->
+  <!--  }-->
+  <iframe [src]="getVideoUrl()" allowfullscreen class="player"></iframe>
+  @if (category() === 'tv-series') {
+    <div class="episode-selector-container">
+      <h3>Season:</h3>
+      <mat-button-toggle-group class="episode-selector">
+        @for (seas of seasons(); track seas.id) {
+          <mat-button-toggle [checked]="seas.season_number === currentSeason()"
+                             (click)="selectSeason(seas.season_number)">
+            {{ seas.season_number }}
+          </mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+      <h3>Episode:</h3>
+      <mat-button-toggle-group class="episode-selector">
+        @for (ep of episodes(); track ep.id) {
+          <mat-button-toggle [checked]="ep.id === currentEpisode()" (click)="selectEpisode(ep.id)">
+            {{ ep.id }}
+          </mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+    </div>
+  }
+</div>
 <mat-card appearance="outlined" class="show-details">
   <mat-card-header>
     <mat-card-title-group>
@@ -21,6 +47,13 @@
   <mat-card-content>
     {{ showInfo().overview }}
   </mat-card-content>
+  @if (category() === 'tv-series') {
+    <mat-divider class="show-details-divider"></mat-divider>
+    <mat-card-content>
+      <h3 class="season-title">{{ getSeasonTitle() }}</h3>
+      <p>{{ getSeasonDescription() || 'No description available' }}</p>
+    </mat-card-content>
+  }
   <mat-card-actions class="show-details-actions">
     <a [href]="getInfoUrl()" class="material-symbols-outlined">info</a>
     <a [href]="getVideoUrl()" class="material-symbols-outlined">open_in_new</a>
