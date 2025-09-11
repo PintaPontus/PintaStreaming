@@ -12,11 +12,30 @@ export interface ShowDetails {
   overview: string;
   poster_path: string;
   backdrop_path: string;
-  genres: [{
-    id: number,
-    name: string,
-  }];
+  genres: ShowGenre[];
   seasons: undefined | ShowSeason[]
+  translations: ShowTranslationsList;
+}
+
+export interface ShowGenre {
+  id: number,
+  name: string
+}
+
+export interface ShowTranslationsList {
+  "id": number,
+  "translations": ShowTranslation[]
+}
+
+export interface ShowTranslation {
+  iso_3166_1: string,
+  iso_639_1: string,
+  name: string,
+  english_name: string,
+  data: {
+    title: string,
+    overview: string,
+  }
 }
 
 export interface ShowSeason {
@@ -56,8 +75,8 @@ export interface ShowResource {
   tmdb_id: number;
 }
 
-export interface CatalogCategory {
-  title: string;
-  link: string;
-  type: ShowTypeEnum;
+export interface ShowLanguage {
+  iso_639_1: string;
+  english_name: string;
+  name: string;
 }

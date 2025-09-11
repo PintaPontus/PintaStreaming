@@ -1,5 +1,4 @@
 *{
-  color: #e4eeff;
   font-family: "Roboto", sans-serif;
   font-optical-sizing: auto;
   font-weight: normal;
@@ -9,6 +8,7 @@
 }
 
 body{
+  color: #e4eeff;
   background-color: #2b2d30;
   font-family: Roboto, "Helvetica Neue", sans-serif;
   width: 100vw;
@@ -20,6 +20,7 @@ body{
 }
 
 a{
+  color: unset;
   text-decoration: none;
 }
 

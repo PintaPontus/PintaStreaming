@@ -2,14 +2,17 @@
   <h2 class="shows-input-title">Movies</h2>
   <mat-form-field class="shows-input-field">
     <mat-label>Movies</mat-label>
-    <textarea #autosize="cdkTextareaAutosize"
-              [(ngModel)]="moviesText"
+    <textarea [(ngModel)]="moviesText"
               cdkAutosizeMinRows="1"
               cdkTextareaAutosize
               matInput></textarea>
   </mat-form-field>
 </div>
 <div class="actions-box">
+  <a class="action-button" extended href="https://vixsrc.to/api/list/movie?lang=it" matFab target="_blank">Get
+    Movies</a>
+  <a class="action-button" extended href="https://vixsrc.to/api/list/tv?lang=it" matFab target="_blank">Get Tv
+    Series</a>
   <button (click)="refreshShows()" class="action-button" matFab>
     <mat-icon>refresh</mat-icon>
   </button>
@@ -19,8 +22,7 @@
   <h2 class="shows-input-title">TV Series</h2>
   <mat-form-field class="shows-input-field">
     <mat-label>TV Series</mat-label>
-    <textarea #autosize="cdkTextareaAutosize"
-              [(ngModel)]="tvSeriesText"
+    <textarea [(ngModel)]="tvSeriesText"
               cdkAutosizeMinRows="1"
               cdkTextareaAutosize
               matInput></textarea>

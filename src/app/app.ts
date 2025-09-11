@@ -5,10 +5,14 @@ import {Search} from './search/search';
 import {FirebaseService} from './firebase.service';
 import {MatFabButton} from '@angular/material/button';
 import {User} from '@firebase/auth';
+import {MatBottomSheet} from '@angular/material/bottom-sheet';
+import {LanguageSelection} from './language-selection/language-selection';
+import {MatTooltip} from '@angular/material/tooltip';
+import {MovieDBService} from './movie-db.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MatFabButton],
+  imports: [RouterOutlet, RouterLink, MatFabButton, MatTooltip],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -19,6 +23,9 @@ export class App implements OnInit {
   isAdmin: Signal<boolean> = signal(false);
   readonly dialog = inject(MatDialog);
   private firebaseService = inject(FirebaseService);
+  private movieDbService = inject(MovieDBService);
+  language = this.movieDbService.getLanguage();
+  private bottomSheet = inject(MatBottomSheet);
 
   async ngOnInit() {
     this.user = await this.firebaseService.getUserDetails();
@@ -33,5 +40,9 @@ export class App implements OnInit {
     this.dialog.open(Search, {
       width: '800px'
     });
+  }
+
+  openLanguages() {
+    this.bottomSheet.open(LanguageSelection);
   }
 }

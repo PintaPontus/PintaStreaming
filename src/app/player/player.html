@@ -3,7 +3,7 @@
   <!--    <h1 class="player-title">{{ getEpisodeTitle() }}</h1>-->
   <!--  }-->
   <iframe [src]="getVideoUrl()" allowfullscreen class="player"></iframe>
-  @if (category() === 'tv-series') {
+  @if (routeData().type === 'tv-series') {
     <div class="episode-selector-container">
       <h3>Season:</h3>
       <mat-button-toggle-group class="episode-selector">
@@ -28,7 +28,7 @@
 <mat-card appearance="outlined" class="show-details">
   <mat-card-header>
     <mat-card-title-group>
-      <mat-card-title>{{ showInfo().title || showInfo().name || showInfo().original_title }}</mat-card-title>
+      <mat-card-title>{{ getShowTitle() }}</mat-card-title>
       <mat-card-subtitle>
         <mat-chip-set aria-label="Fish selection" class="genres-list">
           @for (genre of showInfo().genres; track genre.id) {
@@ -45,9 +45,9 @@
   </mat-card-header>
   <mat-divider class="show-details-divider"></mat-divider>
   <mat-card-content>
-    {{ showInfo().overview }}
+    {{ getShowOverview() }}
   </mat-card-content>
-  @if (category() === 'tv-series') {
+  @if (routeData().type === 'tv-series') {
     <mat-divider class="show-details-divider"></mat-divider>
     <mat-card-content>
       <h3 class="season-title">{{ getSeasonTitle() }}</h3>

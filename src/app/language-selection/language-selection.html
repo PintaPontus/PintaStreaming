@@ -1,0 +1,7 @@
+<mat-nav-list>
+  @for (lang of languages(); track lang) {
+    <a mat-list-item (click)="setLanguage(lang.iso_639_1)">
+      <span matListItemTitle>{{ lang.name || lang.english_name }}</span>
+    </a>
+  }
+</mat-nav-list>

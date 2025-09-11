@@ -15,6 +15,8 @@
   }
   <span class="actions-box">
     <button (click)="openSearch()" class="action material-symbols-outlined">search</button>
+    <button (click)="openLanguages()" [matTooltip]="language()"
+            class="action material-symbols-outlined">translate</button>
     @if (user() === null) {
       <button class="action material-symbols-outlined" (click)="login()">login</button>
     } @else {

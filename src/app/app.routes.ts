@@ -15,12 +15,18 @@ export const routes: Routes = [
     title: 'PintaStreaming',
   },
   {
-    path: 'player/:category/:id',
+    path: 'player/tv-series/:id/:season/:episode',
     component: Player,
+    data: {
+      type: 'tv-series',
+    },
   },
   {
-    path: 'player/:category/:id/:season/:episode',
+    path: 'player/movies/:id',
     component: Player,
+    data: {
+      type: 'movies',
+    }
   },
   {
     path: 'admin',

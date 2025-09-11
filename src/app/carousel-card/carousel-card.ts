@@ -21,6 +21,9 @@ export class CarouselCard {
   @Input() isAvailable!: boolean;
 
   getPlayerLink(id: number) {
+    if (this.type === ShowTypeEnum.TV_SERIES) {
+      return `/player/${this.type}/${id}/1/1`;
+    }
     return `/player/${this.type}/${id}`;
   }
 }

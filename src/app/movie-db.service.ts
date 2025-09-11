@@ -1,18 +1,48 @@
-import {Injectable} from '@angular/core';
-import {ShowDetails, ShowResultsList} from '../interfaces/show';
+import {Injectable, signal, WritableSignal} from '@angular/core';
+import {ShowDetails, ShowLanguage, ShowResultsList, ShowTranslationsList} from '../interfaces/show';
 import {environment} from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieDBService {
+  private language: WritableSignal<string> = signal(this.initLanguage());
+
+  setLanguage(langId: string) {
+    this.language.set(langId)
+    localStorage.setItem('language', JSON.stringify(this.language()));
+  }
+
+  initLanguage() {
+    const memorizedLanguage = localStorage.getItem('language');
+    return memorizedLanguage ? JSON.parse(memorizedLanguage) : 'it';
+  }
+
+
+  getLanguage() {
+    return this.language.asReadonly()
+  }
+
+  async getLanguages() {
+    return await this.get<ShowLanguage[]>(`https://api.themoviedb.org/3/configuration/languages`)
+  }
 
   async getInfoMovie(id: number | null): Promise<ShowDetails> {
-    return await this.get<ShowDetails>(`https://api.themoviedb.org/3/movie/${id !== null ? id : 0}`);
+    const showId = id !== null ? id : 0;
+    const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/movie/${showId}`);
+    if (this.language()) {
+      showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/movie/${showId}/translations`);
+    }
+    return showDetails;
   }
 
   async getInfoTvSeries(id: number): Promise<ShowDetails> {
-    return await this.get<ShowDetails>(`https://api.themoviedb.org/3/tv/${id !== null ? id : 0}`);
+    const showId = id !== null ? id : 0;
+    const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/tv/${showId}`);
+    if (this.language()) {
+      showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/tv/${showId}/translations`);
+    }
+    return showDetails;
   }
 
   async search(textSearch: string): Promise<ShowResultsList> {
@@ -22,7 +52,11 @@ export class MovieDBService {
     return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/search/multi?${params}`);
   }
 
-  async get<T>(url: string): Promise<T>{
+  async getShows(link: string) {
+    return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/${link}`);
+  }
+
+  private async get<T>(url: string): Promise<T> {
     try {
       const response = await fetch(
         url,
@@ -52,17 +86,5 @@ export class MovieDBService {
       })
     }
     return httpHeaders;
-  }
-
-  async getPopularMovies() {
-    return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/movie/popular`);
-  }
-
-  async getPopularTvSeries() {
-    return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/tv/popular`);
-  }
-
-  async getShows(link: string) {
-    return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/${link}`);
   }
 }
