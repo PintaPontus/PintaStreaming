@@ -12,7 +12,7 @@ import {UsersDetails} from '../interfaces/users';
 })
 export class FirebaseService {
 
-  private firebaseConfig = {
+  private readonly firebaseConfig = {
     apiKey: environment.firebaseKey,
     authDomain: "pintastreaming.firebaseapp.com",
     projectId: "pintastreaming",
@@ -23,24 +23,23 @@ export class FirebaseService {
   };
 
   // Initialize Firebase
-  private app = initializeApp(this.firebaseConfig);
+  private readonly app = initializeApp(this.firebaseConfig);
 
   // Initialize Firebase Authentication and get a reference to the service
-  private auth = getAuth(this.app);
+  private readonly auth = getAuth(this.app);
 
-  private db = getFirestore(this.app);
+  private readonly db = getFirestore(this.app);
 
-  private provider = new GoogleAuthProvider();
+  private readonly provider = new GoogleAuthProvider();
 
-  private userDetails: WritableSignal<User | null> = signal(null);
-  private isAdminFlag: WritableSignal<boolean> = signal(false);
+  private readonly userDetails: WritableSignal<User | null> = signal(null);
+  private readonly isAdminFlag: WritableSignal<boolean> = signal(false);
 
   async loginWithGoogle() {
     this.auth.languageCode = 'it';
     try {
       await setPersistence(this.auth, browserSessionPersistence);
       const result = await signInWithPopup(this.auth, this.provider);
-      // const credential = GoogleAuthProvider.credentialFromResult(result);
       this.userDetails.set(result.user);
       await this.fetchIsAdmin();
       return this.userDetails.asReadonly();
@@ -74,7 +73,6 @@ export class FirebaseService {
   }
 
   private async fetchIsAdmin() {
-    console.log("isAdmin check");
     const user = await this.getUserDetails();
     const userUID = user()?.uid;
 
@@ -102,8 +100,6 @@ export class FirebaseService {
     );
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs[0].data();
-    console.log(querySnapshot);
-    console.log(data);
     return data as ShowResourceLibrary;
   }
 

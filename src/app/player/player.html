@@ -1,8 +1,5 @@
 <div class="player-container">
-  <!--  @if (category() === 'tv-series') {-->
-  <!--    <h1 class="player-title">{{ getEpisodeTitle() }}</h1>-->
-  <!--  }-->
-  <iframe [src]="getVideoUrl()" allowfullscreen class="player"></iframe>
+  <iframe [src]="getVideoUrl()" allowfullscreen class="video-player" title="video-player"></iframe>
   @if (routeData().type === 'tv-series') {
     <div class="episode-selector-container">
       <h3>Season:</h3>

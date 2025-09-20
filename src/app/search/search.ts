@@ -26,7 +26,7 @@ import {RouterLink} from '@angular/router';
 export class Search{
   textSearch: string = '';
 
-  private movieDBService = inject(MovieDBService);
+  private readonly movieDBService = inject(MovieDBService);
   readonly dialogRef = inject(MatDialogRef<Search>);
   items = signal({} as ShowResultsList);
 
@@ -43,6 +43,9 @@ export class Search{
 
   getPlayerUrl(item: ShowResultItem) {
     const type = item.media_type === 'tv' ? ShowTypeEnum.TV_SERIES : ShowTypeEnum.MOVIES;
+    if (type === ShowTypeEnum.TV_SERIES) {
+      return `/player/${type}/${item.id}/1/1`;
+    }
     return `/player/${type}/${item.id}`;
   }
 }

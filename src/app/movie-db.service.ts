@@ -6,7 +6,7 @@ import {environment} from '../environments/environment';
   providedIn: 'root'
 })
 export class MovieDBService {
-  private language: WritableSignal<string> = signal(this.initLanguage());
+  private readonly language: WritableSignal<string> = signal(this.initLanguage());
 
   setLanguage(langId: string) {
     this.language.set(langId)
@@ -15,7 +15,7 @@ export class MovieDBService {
 
   initLanguage() {
     const memorizedLanguage = localStorage.getItem('language');
-    return memorizedLanguage ? JSON.parse(memorizedLanguage) : 'it';
+    return memorizedLanguage ? JSON.parse(memorizedLanguage) : environment.defaultLanguage;
   }
 
 
@@ -27,8 +27,7 @@ export class MovieDBService {
     return await this.get<ShowLanguage[]>(`https://api.themoviedb.org/3/configuration/languages`)
   }
 
-  async getInfoMovie(id: number | null): Promise<ShowDetails> {
-    const showId = id !== null ? id : 0;
+  async getInfoMovie(showId: number): Promise<ShowDetails> {
     const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/movie/${showId}`);
     if (this.language()) {
       showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/movie/${showId}/translations`);
@@ -36,8 +35,7 @@ export class MovieDBService {
     return showDetails;
   }
 
-  async getInfoTvSeries(id: number): Promise<ShowDetails> {
-    const showId = id !== null ? id : 0;
+  async getInfoTvSeries(showId: number): Promise<ShowDetails> {
     const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/tv/${showId}`);
     if (this.language()) {
       showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/tv/${showId}/translations`);
