@@ -40,9 +40,9 @@ import {PlayerRouteInfo} from '../../interfaces/routesInfo';
 })
 export class Player implements OnInit {
 
-  private route = inject(ActivatedRoute);
+  private readonly route = inject(ActivatedRoute);
   routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
-  private movieDBService = inject(MovieDBService);
+  private readonly movieDBService = inject(MovieDBService);
   videoUrl = signal('');
   infoUrl = signal('');
   seasons = computed(() => this.showInfo().seasons || []);
@@ -57,8 +57,8 @@ export class Player implements OnInit {
   });
   currentSeason = signal(1);
   currentEpisode = signal(1);
-  private router = inject(Router);
-  private title = inject(Title);
+  private readonly router = inject(Router);
+  private readonly title = inject(Title);
   showInfo = signal({} as ShowDetails);
   language = this.movieDBService.getLanguage();
   showTranslation = computed(() => {
@@ -69,7 +69,7 @@ export class Player implements OnInit {
   });
   protected sanitizer = inject(DomSanitizer);
 
-  async ngOnInit() {
+  ngOnInit() {
     this.route.paramMap.subscribe(async params => {
       const showID = Number.parseInt(params.get('id')!);
       if (this.routeData().type === 'movies') {
@@ -123,10 +123,16 @@ export class Player implements OnInit {
   }
 
   selectSeason(id: number) {
-    this.router.navigate(['/player/tv-series', this.showInfo().id, id, this.currentEpisode()]);
+    let finalEpisode = this.currentEpisode();
+    if (this.seasons().find(s => s.season_number === id)!.episode_count < finalEpisode) {
+      finalEpisode = 1;
+    }
+    // noinspection JSIgnoredPromiseFromCall
+    this.router.navigate(['/player/tv-series', this.showInfo().id, id, finalEpisode]);
   }
 
   selectEpisode(id: number) {
+    // noinspection JSIgnoredPromiseFromCall
     this.router.navigate(['/player/tv-series', this.showInfo().id, this.currentSeason(), id]);
   }
 
