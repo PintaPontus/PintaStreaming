@@ -53,9 +53,11 @@ export class FirebaseService {
     }
   }
 
-  async getUserDetails() {
-    await this.auth.authStateReady();
-    this.userDetails.set(this.auth.currentUser);
+  getUserDetails() {
+    this.auth.authStateReady()
+      .then(_ => {
+        this.userDetails.set(this.auth.currentUser);
+      });
     return this.userDetails.asReadonly();
   }
 
@@ -67,14 +69,14 @@ export class FirebaseService {
     });
   }
 
-  async isAdmin() {
-    await this.fetchIsAdmin();
+  isAdmin() {
+    this.fetchIsAdmin();
     return this.isAdminFlag.asReadonly();
   }
 
   private async fetchIsAdmin() {
-    const user = await this.getUserDetails();
-    const userUID = user()?.uid;
+    await this.auth.authStateReady();
+    const userUID = this.userDetails()?.uid;
 
     if (!userUID || userUID === '') {
       this.isAdminFlag.set(false);

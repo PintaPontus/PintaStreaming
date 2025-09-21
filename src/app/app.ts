@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, Signal, signal} from '@angular/core';
+import {Component, inject, Signal, signal} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {Search} from './search/search';
@@ -16,21 +16,17 @@ import {MovieDBService} from './movie-db.service';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App implements OnInit {
+export class App {
 
   protected readonly title = signal('PintaStreaming');
-  user: Signal<User | null> = signal(null);
-  isAdmin: Signal<boolean> = signal(false);
+  private readonly firebaseService = inject(FirebaseService);
+  user: Signal<User | null> = this.firebaseService.getUserDetails();
+  isAdmin: Signal<boolean> = this.firebaseService.isAdmin();
+  private readonly movieDbService = inject(MovieDBService);
   readonly dialog = inject(MatDialog);
-  private firebaseService = inject(FirebaseService);
-  private movieDbService = inject(MovieDBService);
-  language = this.movieDbService.getLanguage();
-  private bottomSheet = inject(MatBottomSheet);
 
-  async ngOnInit() {
-    this.user = await this.firebaseService.getUserDetails();
-    this.isAdmin = await this.firebaseService.isAdmin();
-  }
+  language = this.movieDbService.getLanguage();
+  private readonly bottomSheet = inject(MatBottomSheet);
 
   async login() {
     await this.firebaseService.loginWithGoogle();
