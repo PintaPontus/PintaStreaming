@@ -20,9 +20,12 @@
     @if (user() === null) {
       <button class="action material-symbols-outlined" (click)="login()">login</button>
     } @else {
-      <div class="user-pic-container">
+      <div class="user-pic-container" [matMenuTriggerFor]="userMenu">
         <img class="user-pic" [src]="user()?.photoURL" alt="">
       </div>
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item (click)="logout()">Logout</button>
+      </mat-menu>
     }
   </span>
 </div>

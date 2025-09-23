@@ -1,7 +1,14 @@
 import {Injectable, signal, WritableSignal} from '@angular/core';
 import {initializeApp} from "firebase/app";
 import {addDoc, collection, doc, getDoc, getDocs, getFirestore, limit, orderBy, query} from "firebase/firestore";
-import {browserSessionPersistence, getAuth, GoogleAuthProvider, setPersistence, signInWithPopup} from "firebase/auth";
+import {
+  browserSessionPersistence,
+  getAuth,
+  GoogleAuthProvider,
+  setPersistence,
+  signInWithPopup,
+  signOut
+} from "firebase/auth";
 import {environment} from '../environments/environment';
 import {ShowResource, ShowResourceLibrary} from '../interfaces/show';
 import {User} from '@firebase/auth';
@@ -50,6 +57,20 @@ export class FirebaseService {
       const credential = GoogleAuthProvider.credentialFromError(error);
       console.error(errorCode, errorMessage, email, credential);
       return null;
+    }
+  }
+
+  async logout() {
+    this.auth.languageCode = 'it';
+    try {
+      await signOut(this.auth);
+      this.userDetails.set(null);
+      this.isAdminFlag.set(false);
+    } catch (error: any) {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      const email = error.customData.email;
+      console.error(errorCode, errorMessage, email);
     }
   }
 

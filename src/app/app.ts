@@ -9,10 +9,11 @@ import {MatBottomSheet} from '@angular/material/bottom-sheet';
 import {LanguageSelection} from './language-selection/language-selection';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MovieDBService} from './movie-db.service';
+import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, MatFabButton, MatTooltip],
+  imports: [RouterOutlet, RouterLink, MatFabButton, MatTooltip, MatMenuTrigger, MatMenu, MatMenuItem],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -30,6 +31,10 @@ export class App {
 
   async login() {
     await this.firebaseService.loginWithGoogle();
+  }
+
+  async logout() {
+    await this.firebaseService.logout();
   }
 
   openSearch() {
