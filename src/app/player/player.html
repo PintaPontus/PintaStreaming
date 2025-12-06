@@ -42,6 +42,10 @@
   </mat-card-header>
   <mat-divider class="show-details-divider"></mat-divider>
   <mat-card-content>
+    {{ getShowCompanies() }}
+  </mat-card-content>
+  <mat-divider class="show-details-divider"></mat-divider>
+  <mat-card-content>
     {{ getShowOverview() }}
   </mat-card-content>
   @if (routeData().type === 'tv-series') {

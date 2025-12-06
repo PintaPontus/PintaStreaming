@@ -90,15 +90,33 @@ export class Player implements OnInit {
   }
 
   getShowTitle() {
-    return this.showTranslation()?.data.title
-      || this.showInfo().title
-      || this.showInfo().name
-      || this.showInfo().original_title;
+    const showInfoSnap = this.showInfo();
+    const showTransSnap = this.showTranslation();
+
+    let showYear = (
+      showInfoSnap.release_date
+      || showInfoSnap.first_air_date
+    )?.split('-')[0];
+
+    let showTitle = showTransSnap?.data.title
+      || showInfoSnap.title
+      || showInfoSnap.name
+      || showInfoSnap.original_title;
+
+    return showYear
+      ? `${showYear} - ${showTitle}`
+      : `${showTitle}`;
   }
 
   getShowOverview() {
     return this.showTranslation()?.data.overview
       || this.showInfo().overview;
+  }
+
+  getShowCompanies() {
+    return this.showInfo().production_companies
+      .map(c => c.name)
+      .join(', ');
   }
 
   getCurrentSeason() {

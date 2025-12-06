@@ -12,6 +12,10 @@ export interface ShowDetails {
   overview: string;
   poster_path: string;
   backdrop_path: string;
+  release_date: string;
+  first_air_date: string;
+  last_air_date: string;
+  production_companies: ShowCompany[];
   genres: ShowGenre[];
   seasons: undefined | ShowSeason[]
   translations: ShowTranslationsList;
@@ -36,6 +40,13 @@ export interface ShowTranslation {
     title: string,
     overview: string,
   }
+}
+
+export interface ShowCompany {
+  id: number,
+  logo_path: string,
+  name: string,
+  origin_country: string,
 }
 
 export interface ShowSeason {
