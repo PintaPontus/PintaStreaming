@@ -59,12 +59,18 @@ export class Player implements OnInit {
   currentEpisode = signal(1);
   showInfo = signal({} as ShowDetails);
   seasons = computed(() => this.showInfo().seasons || []);
+  private readonly route = inject(ActivatedRoute);
+  routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
+  private readonly movieDBService = inject(MovieDBService);
+  language = this.movieDBService.getLanguage();
   showTranslation = computed(() => {
     const language = this.language() || 'en';
     return this.showInfo().translations?.translations.find(t =>
       t.iso_639_1 === language
     )
   });
+  private readonly firebaseService = inject(FirebaseService);
+  userInfos = this.firebaseService.getUserInfosDetails();
   isFavorite = computed(() => {
     return !!(this.userInfos()?.favorites || [])
       .find(f =>
@@ -72,12 +78,6 @@ export class Player implements OnInit {
         && f.type === this.routeData().type
       )
   });
-  private readonly route = inject(ActivatedRoute);
-  language = this.movieDBService.getLanguage();
-  routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
-  private readonly movieDBService = inject(MovieDBService);
-  private readonly firebaseService = inject(FirebaseService);
-  userInfos = this.firebaseService.getUserInfosDetails();
   private readonly router = inject(Router);
   private readonly title = inject(Title);
   private readonly sanitizer = inject(DomSanitizer);
