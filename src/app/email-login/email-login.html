@@ -1,0 +1,16 @@
+<div class="login-form">
+  <mat-form-field class="login-field email-field">
+    <mat-label>Email</mat-label>
+    <input [(ngModel)]="textEmail" matInput value="">
+  </mat-form-field>
+
+  <mat-form-field class="login-field password-field">
+    <mat-label>Password</mat-label>
+    <input [(ngModel)]="textPassword" matInput value="">
+  </mat-form-field>
+
+  <div class="actions-box">
+    <a (click)="login()" class="action-button login-button" extended matFab>Accedi</a>
+    <a (click)="signup()" class="action-button signup-button" extended matFab>Registrati</a>
+  </div>
+</div>

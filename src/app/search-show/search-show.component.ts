@@ -20,14 +20,14 @@ import {RouterLink} from '@angular/router';
     RouterLink,
     MatDivider,
   ],
-  templateUrl: './search.html',
-  styleUrl: './search.css'
+  templateUrl: './search-show.component.html',
+  styleUrl: './search-show.component.css'
 })
-export class Search{
+export class SearchShow {
   textSearch: string = '';
 
   private readonly movieDBService = inject(MovieDBService);
-  readonly dialogRef = inject(MatDialogRef<Search>);
+  readonly dialogRef = inject(MatDialogRef<SearchShow>);
   items = signal({} as ShowResultsList);
 
   async searchItems() {

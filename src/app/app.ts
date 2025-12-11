@@ -1,7 +1,7 @@
 import {Component, inject, Signal, signal} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
-import {Search} from './search/search';
+import {SearchShow} from './search-show/search-show.component';
 import {FirebaseService} from './firebase.service';
 import {MatFabButton} from '@angular/material/button';
 import {User} from '@firebase/auth';
@@ -10,6 +10,7 @@ import {LanguageSelection} from './language-selection/language-selection';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MovieDBService} from './movie-db.service';
 import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
+import {EmailLogin} from './email-login/email-login';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +22,7 @@ export class App {
 
   protected readonly title = signal('PintaStreaming');
   private readonly firebaseService = inject(FirebaseService);
-  user: Signal<User | null> = this.firebaseService.getUserDetails();
+  user: Signal<User | undefined> = this.firebaseService.getUserSessionDetails();
   isAdmin: Signal<boolean> = this.firebaseService.isAdmin();
   private readonly movieDbService = inject(MovieDBService);
   readonly dialog = inject(MatDialog);
@@ -29,7 +30,11 @@ export class App {
   language = this.movieDbService.getLanguage();
   private readonly bottomSheet = inject(MatBottomSheet);
 
-  async login() {
+  async loginWithEmail() {
+    this.bottomSheet.open(EmailLogin);
+  }
+
+  async loginWithGoogle() {
     await this.firebaseService.loginWithGoogle();
   }
 
@@ -38,7 +43,7 @@ export class App {
   }
 
   openSearch() {
-    this.dialog.open(Search, {
+    this.dialog.open(SearchShow, {
       width: '800px'
     });
   }

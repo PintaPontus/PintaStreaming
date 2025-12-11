@@ -1,3 +1,11 @@
+@if ((userInfos()?.continueToWatch || []).length > 0) {
+  <app-carousel [showList]="userInfos()?.continueToWatch" [title]="'Continua a guardare'"></app-carousel>
+  <mat-divider class="catalog-divider"></mat-divider>
+}
+@if ((userInfos()?.favorites || []).length > 0) {
+  <app-carousel [showList]="userInfos()?.favorites" [title]="'La mia lista'"></app-carousel>
+  <mat-divider class="catalog-divider"></mat-divider>
+}
 @for (category of displayCategories(); track category.id; let idx = $index) {
   @if (idx > 0) {
     <mat-divider class="catalog-divider"></mat-divider>

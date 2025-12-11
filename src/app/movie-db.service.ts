@@ -1,12 +1,24 @@
 import {Injectable, signal, WritableSignal} from '@angular/core';
-import {ShowDetails, ShowLanguage, ShowResultsList, ShowTranslationsList} from '../interfaces/show';
+import {
+  ShowDetails,
+  ShowLanguage,
+  ShowReference,
+  ShowResultsList,
+  ShowTranslationsList,
+  ShowTypeEnum
+} from '../interfaces/show';
 import {environment} from '../environments/environment';
+import {UserListItem} from '../interfaces/users';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieDBService {
   private readonly language: WritableSignal<string> = signal(this.initLanguage());
+
+  // =========
+  // LANGUAGES
+  // =========
 
   setLanguage(langId: string) {
     this.language.set(langId)
@@ -18,7 +30,6 @@ export class MovieDBService {
     return memorizedLanguage ? JSON.parse(memorizedLanguage) : environment.defaultLanguage;
   }
 
-
   getLanguage() {
     return this.language.asReadonly()
   }
@@ -27,8 +38,17 @@ export class MovieDBService {
     return await this.get<ShowLanguage[]>(`https://api.themoviedb.org/3/configuration/languages`)
   }
 
+  // =================
+  // SINGLE SHOW INFOS
+  // =================
+
+  async getInfoShow(showId: number, type: ShowTypeEnum): Promise<ShowDetails> {
+    return type === ShowTypeEnum.MOVIES ? this.getInfoMovie(showId) : this.getInfoTvSeries(showId)
+  }
+
   async getInfoMovie(showId: number): Promise<ShowDetails> {
     const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/movie/${showId}`);
+    showDetails.id = this.castNumber(showDetails.id.toString())!
     if (this.language()) {
       showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/movie/${showId}/translations`);
     }
@@ -37,11 +57,16 @@ export class MovieDBService {
 
   async getInfoTvSeries(showId: number): Promise<ShowDetails> {
     const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/tv/${showId}`);
+    showDetails.id = this.castNumber(showDetails.id.toString())!
     if (this.language()) {
       showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/tv/${showId}/translations`);
     }
     return showDetails;
   }
+
+  // ===========
+  // SHOWS LISTS
+  // ===========
 
   async search(textSearch: string): Promise<ShowResultsList> {
     const params = new URLSearchParams();
@@ -50,9 +75,35 @@ export class MovieDBService {
     return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/search/multi?${params}`);
   }
 
-  async getShows(link: string) {
-    return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/${link}`);
+  async getShowsFromCategory(link: string, type: ShowTypeEnum) {
+    const categoryShows = await this.get<ShowResultsList>(`https://api.themoviedb.org/3/${link}`);
+    return categoryShows.results.map(cs => {
+      return {
+        id: cs.id,
+        type: type,
+        item: cs
+      } as ShowReference
+    });
   }
+
+  async getShowListDetails(continueShows: UserListItem[]) {
+    const detailedShows = continueShows.map(async cs => {
+      return {
+        id: cs.id,
+        type: cs.type,
+        time: cs.currentTime,
+        season: cs.season,
+        episode: cs.episode,
+        details: await this.getInfoShow(cs.id, cs.type)
+      } as ShowReference
+    });
+
+    return await Promise.all(detailedShows);
+  }
+
+  // =====
+  // UTILS
+  // =====
 
   private async get<T>(url: string): Promise<T> {
     try {
@@ -84,5 +135,9 @@ export class MovieDBService {
       })
     }
     return httpHeaders;
+  }
+
+  private castNumber(number: string | null | undefined) {
+    return !number || Number.isNaN(Number.parseInt(number)) ? undefined : Number.parseInt(number);
   }
 }

@@ -1,12 +1,13 @@
 <div class="player-container">
-  <iframe [src]="getVideoUrl()" allowfullscreen class="video-player" title="video-player"></iframe>
+  <iframe [src]="getVideoFrameUrl()" allowfullscreen class="video-player" id="show-player-frame"
+          title="video-player"></iframe>
   @if (routeData().type === 'tv-series') {
     <div class="episode-selector-container">
       <h3>Season:</h3>
       <mat-button-toggle-group class="episode-selector">
         @for (seas of seasons(); track seas.id) {
           <mat-button-toggle [checked]="seas.season_number === currentSeason()"
-                             (click)="selectSeason(seas.season_number)">
+                             (click)="goToSelectedSeason(seas.season_number)">
             {{ seas.season_number }}
           </mat-button-toggle>
         }
@@ -14,7 +15,7 @@
       <h3>Episode:</h3>
       <mat-button-toggle-group class="episode-selector">
         @for (ep of episodes(); track ep.id) {
-          <mat-button-toggle [checked]="ep.id === currentEpisode()" (click)="selectEpisode(ep.id)">
+          <mat-button-toggle (click)="goToSelectedEpisode(ep.id)" [checked]="ep.id === currentEpisode()">
             {{ ep.id }}
           </mat-button-toggle>
         }
@@ -25,9 +26,10 @@
 <mat-card appearance="outlined" class="show-details">
   <mat-card-header>
     <mat-card-title-group>
-      <mat-card-title>{{ getShowTitle() }}</mat-card-title>
+      <mat-card-title>{{ getShowCardTitle() }}</mat-card-title>
       <mat-card-subtitle>
-        <mat-chip-set aria-label="Fish selection" class="genres-list">
+        {{ getShowCardSubtitle() }}
+        <mat-chip-set class="chips-list">
           @for (genre of showInfo().genres; track genre.id) {
             <mat-chip class="genre" disabled>{{ genre.name }}</mat-chip>
           }
@@ -42,21 +44,38 @@
   </mat-card-header>
   <mat-divider class="show-details-divider"></mat-divider>
   <mat-card-content>
-    {{ getShowCompanies() }}
+    <mat-card-subtitle>
+      Case di produzione
+    </mat-card-subtitle>
+    <mat-chip-set class="chips-list">
+      @for (company of getShowCardCompanies(); track company.id) {
+        <mat-chip class="genre" disabled>{{ company.name }}</mat-chip>
+      }
+    </mat-chip-set>
+    <!--    {{ getShowCardCompanies() }}-->
   </mat-card-content>
   <mat-divider class="show-details-divider"></mat-divider>
   <mat-card-content>
-    {{ getShowOverview() }}
+    <mat-card-subtitle>
+      Trama
+    </mat-card-subtitle>
+    {{ getShowCardOverview() }}
   </mat-card-content>
   @if (routeData().type === 'tv-series') {
     <mat-divider class="show-details-divider"></mat-divider>
     <mat-card-content>
-      <h3 class="season-title">{{ getSeasonTitle() }}</h3>
-      <p>{{ getSeasonDescription() || 'No description available' }}</p>
+      <mat-card-subtitle>{{ getShowCardSeasonTitle() }}</mat-card-subtitle>
+      {{ getShowCardSeasonDescription() || 'No description available' }}
     </mat-card-content>
   }
   <mat-card-actions class="show-details-actions">
-    <a [href]="getInfoUrl()" class="material-symbols-outlined">info</a>
-    <a [href]="getVideoUrl()" class="material-symbols-outlined">open_in_new</a>
+    @if (!!userInfos()) {
+      <!--    TODO: IMPLEMENT BOOKMARKS-->
+        <!--    <span (click)="addShowToList()" class="show-details-action material-symbols-outlined">bookmark</span>-->
+      <span (click)="toggleShowToFavorites()"
+            class="show-details-action material-symbols-outlined">{{ isFavorite() ? 'heart_minus' : 'heart_plus' }}</span>
+    }
+    <a [href]="getShowInfoUrl()" class="show-details-action material-symbols-outlined">info</a>
+    <a [href]="getVideoFrameUrl()" class="show-details-action material-symbols-outlined">open_in_new</a>
   </mat-card-actions>
 </mat-card>

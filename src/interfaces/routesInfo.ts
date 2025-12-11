@@ -1,3 +1,5 @@
+import {ShowTypeEnum} from './show';
+
 export interface PlayerRouteInfo {
-  type: string
+  type: ShowTypeEnum
 }

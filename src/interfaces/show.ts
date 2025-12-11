@@ -3,9 +3,21 @@ export enum ShowTypeEnum {
   TV_SERIES = 'tv-series',
 }
 
+// SHOW REFERENCE
+
+export interface ShowReference {
+  id: number,
+  type: ShowTypeEnum
+  season?: number,
+  episode?: number,
+  time?: number,
+  details?: ShowDetails,
+  item?: ShowResultItem
+}
+
 export interface ShowDetails {
   adult: boolean;
-  id: string;
+  id: number;
   title: string;
   name: string;
   original_title: string;
@@ -18,7 +30,7 @@ export interface ShowDetails {
   production_companies: ShowCompany[];
   genres: ShowGenre[];
   seasons: undefined | ShowSeason[]
-  translations: ShowTranslationsList;
+  translations: ShowTranslationsList | undefined;
 }
 
 export interface ShowGenre {
@@ -58,6 +70,7 @@ export interface ShowSeason {
   overview: string,
 }
 
+// SHOW SEARCH RESULTS
 
 export interface ShowResultsList {
   results: ShowResultItem[];
@@ -76,6 +89,8 @@ export interface ShowResultItem {
   media_type: string;
 }
 
+// AVAILABLE SHOWS TO STREAM
+
 export interface ShowResourceLibrary {
   date: Date;
   movies: ShowResource[];
@@ -85,6 +100,8 @@ export interface ShowResourceLibrary {
 export interface ShowResource {
   tmdb_id: number;
 }
+
+// LANGUAGES
 
 export interface ShowLanguage {
   iso_639_1: string;

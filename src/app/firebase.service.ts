@@ -1,18 +1,31 @@
-import {Injectable, signal, WritableSignal} from '@angular/core';
+import {computed, Injectable, Signal, signal, WritableSignal} from '@angular/core';
 import {initializeApp} from "firebase/app";
-import {addDoc, collection, doc, getDoc, getDocs, getFirestore, limit, orderBy, query} from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  limit,
+  orderBy,
+  query,
+  setDoc
+} from "firebase/firestore";
 import {
   browserSessionPersistence,
+  createUserWithEmailAndPassword,
   getAuth,
   GoogleAuthProvider,
   setPersistence,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut
 } from "firebase/auth";
 import {environment} from '../environments/environment';
 import {ShowResource, ShowResourceLibrary} from '../interfaces/show';
 import {User} from '@firebase/auth';
-import {UsersDetails} from '../interfaces/users';
+import {UserListItem, UsersDetails} from '../interfaces/users';
 
 @Injectable({
   providedIn: 'root'
@@ -39,47 +52,149 @@ export class FirebaseService {
 
   private readonly provider = new GoogleAuthProvider();
 
-  private readonly userDetails: WritableSignal<User | null> = signal(null);
-  private readonly isAdminFlag: WritableSignal<boolean> = signal(false);
+  private readonly userSessionDetails: WritableSignal<User | undefined> = signal(undefined);
+  private readonly userInfosDetails: WritableSignal<UsersDetails | undefined> = signal(undefined);
+  private readonly isAdminFlag: Signal<boolean> = computed(() => this.userInfosDetails()?.role === 'admin');
+
+  // ============
+  // LOGIN ACTION
+  // ============
+
+  async loginWithEmail(email: string, password: string) {
+    await setPersistence(this.auth, browserSessionPersistence);
+    const result = await signInWithEmailAndPassword(this.auth, email, password);
+    await this.setupLoggedUser(result.user);
+  }
+
+  async signupWithEmail(email: string, password: string) {
+    await setPersistence(this.auth, browserSessionPersistence);
+    const result = await createUserWithEmailAndPassword(this.auth, email, password);
+    await this.setupLoggedUser(result.user);
+  }
 
   async loginWithGoogle() {
     this.auth.languageCode = 'it';
-    try {
-      await setPersistence(this.auth, browserSessionPersistence);
-      const result = await signInWithPopup(this.auth, this.provider);
-      this.userDetails.set(result.user);
-      await this.fetchIsAdmin();
-      return this.userDetails.asReadonly();
-    } catch (error: any) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      const email = error.customData.email;
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      console.error(errorCode, errorMessage, email, credential);
-      return null;
-    }
+    await setPersistence(this.auth, browserSessionPersistence);
+    const result = await signInWithPopup(this.auth, this.provider);
+    await this.setupLoggedUser(result.user);
   }
 
   async logout() {
-    this.auth.languageCode = 'it';
-    try {
-      await signOut(this.auth);
-      this.userDetails.set(null);
-      this.isAdminFlag.set(false);
-    } catch (error: any) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      const email = error.customData.email;
-      console.error(errorCode, errorMessage, email);
+    await signOut(this.auth);
+    this.userSessionDetails.set(undefined);
+    this.userInfosDetails.set(undefined);
+  }
+
+  async setupLoggedUser(user: User) {
+
+    this.userSessionDetails.set(user);
+    const currentUser = await this.fetchCurrentUser();
+
+    if (!currentUser()) {
+      await setDoc(
+        doc(this.db, "users", this.userSessionDetails()!.uid!),
+        {
+          role: 'user',
+          continueToWatch: [],
+          favorites: []
+        } as UsersDetails);
     }
   }
 
-  getUserDetails() {
+  // ============
+  // USER DETAILS
+  // ============
+
+  getUserSessionDetails() {
     this.auth.authStateReady()
       .then(_ => {
-        this.userDetails.set(this.auth.currentUser);
+        this.userSessionDetails.set(this.auth.currentUser || undefined);
       });
-    return this.userDetails.asReadonly();
+    return this.userSessionDetails.asReadonly();
+  }
+
+  getUserInfosDetails() {
+    this.fetchCurrentUser();
+    return this.userInfosDetails.asReadonly();
+  }
+
+  isAdmin() {
+    return this.isAdminFlag;
+  }
+
+  async fetchCurrentUser() {
+    await this.auth.authStateReady();
+    const userUID = this.userSessionDetails()?.uid;
+
+    if (!userUID || userUID === '') {
+      return this.userInfosDetails;
+    }
+
+    const docRef = doc(this.db, "users", userUID);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      return this.userInfosDetails;
+    }
+
+    const docData = docSnap.data() as UsersDetails;
+
+    this.userInfosDetails.set(docData);
+
+    return this.userInfosDetails;
+  }
+
+  async updateUser(userSnap: UsersDetails) {
+    this.userInfosDetails.set(userSnap);
+    await setDoc(doc(this.db, "users", this.userSessionDetails()!.uid!), userSnap);
+  }
+
+  // ==========
+  // USER SHOWS
+  // ==========
+
+  async addToContinueToWatch(newShow: UserListItem) {
+    const userSnap = (await this.fetchCurrentUser())();
+
+    if (!userSnap) {
+      return;
+    }
+
+    userSnap.continueToWatch = this.addShowToContinueList(newShow, userSnap.continueToWatch)
+
+    this.updateUser(userSnap)
+  }
+
+  async removeContinueToWatch(oldShow: UserListItem) {
+    const userSnap = (await this.fetchCurrentUser())();
+
+    if (!userSnap) {
+      return;
+    }
+
+    userSnap.continueToWatch = this.removeShowToCommonList(oldShow, userSnap.continueToWatch)
+
+    this.updateUser(userSnap)
+  }
+
+  async toggleToFavorite(newShow: UserListItem) {
+    const userSnap = (await this.fetchCurrentUser())();
+
+    if (!userSnap) {
+      return;
+    }
+
+    let currentFavorites = userSnap.favorites || [];
+
+    if (currentFavorites.find(f => f.id === newShow.id && f.type === newShow.type)) {
+      currentFavorites = this.removeShowToCommonList(newShow, currentFavorites);
+    } else {
+      currentFavorites = this.addShowToCommonList(newShow, currentFavorites);
+    }
+
+    userSnap.favorites = currentFavorites;
+
+    this.updateUser(userSnap)
   }
 
   async updateShows(newMovies: ShowResource[], newTvSeries: ShowResource[]) {
@@ -90,30 +205,44 @@ export class FirebaseService {
     });
   }
 
-  isAdmin() {
-    this.fetchIsAdmin();
-    return this.isAdminFlag.asReadonly();
+  private addShowToContinueList(newShow: UserListItem, showList: UserListItem[] | undefined) {
+    showList = this.addShowToCommonList(newShow, showList);
+
+    showList.slice(0, 20);
+
+    return showList;
   }
 
-  private async fetchIsAdmin() {
-    await this.auth.authStateReady();
-    const userUID = this.userDetails()?.uid;
-
-    if (!userUID || userUID === '') {
-      this.isAdminFlag.set(false);
-      return;
+  private addShowToCommonList(newShow: UserListItem, showList: UserListItem[] | undefined) {
+    if (!showList) {
+      showList = []
     }
 
-    const docRef = doc(this.db, "users", userUID || '');
-    const docSnap = await getDoc(docRef);
+    showList.push(newShow);
 
-    if (docSnap.exists()) {
-      const user = docSnap.data() as UsersDetails;
-      this.isAdminFlag.set(user.role === 'admin');
-    } else {
-      this.isAdminFlag.set(false);
-    }
+    const showsMap = new Map();
+
+    showList.forEach(currShow => {
+      const existingShow = showsMap.get(currShow.id) as UserListItem | undefined;
+
+      showsMap.set(
+        currShow.type + currShow.id,
+        existingShow && (existingShow.lastUpdate || 0) > (currShow.lastUpdate || 0)
+          ? existingShow
+          : currShow
+      )
+    })
+
+    showList = Array.from(showsMap.values());
+
+    showList.sort((a, b) => b.lastUpdate - a.lastUpdate);
+
+    return showList;
   }
+
+  // =======================
+  // STREAMMABLE SHOWS LISTS
+  // =======================
 
   async fetchShows() {
     const q = query(
@@ -124,6 +253,18 @@ export class FirebaseService {
     const querySnapshot = await getDocs(q);
     const data = querySnapshot.docs[0].data();
     return data as ShowResourceLibrary;
+  }
+
+  private removeShowToCommonList(oldShow: UserListItem, showList: UserListItem[] | undefined) {
+    if (!showList) {
+      showList = []
+    }
+
+    showList = showList.filter(f => f.id !== oldShow.id || f.type !== oldShow.type);
+
+    showList.sort((a, b) => b.lastUpdate - a.lastUpdate);
+
+    return showList;
   }
 
 }

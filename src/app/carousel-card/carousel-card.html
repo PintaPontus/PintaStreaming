@@ -1,8 +1,10 @@
 <a
   [class]="!isAvailable ? 'unavailable-show' : ''"
-  [matTooltip]="show.title || show.name || show.original_title"
-  [routerLink]="isAvailable ? getPlayerLink(show.id) : null">
+  [matTooltip]="getShowTitle()"
+  [queryParams]="isAvailable ? getPlayerParams() : null"
+  [routerLink]="isAvailable ? getPlayerLink(show.id) : null"
+>
   <mat-card appearance="raised" class="movie-card">
-    <img [src]="`https://image.tmdb.org/t/p/w500/${show.poster_path}`" alt="" class="poster" mat-card-image>
+    <img [src]="`https://image.tmdb.org/t/p/w500/${getShowPosterPath()}`" alt="" class="poster" mat-card-image>
   </mat-card>
 </a>

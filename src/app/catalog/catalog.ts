@@ -5,6 +5,7 @@ import {StreamService} from '../stream.service';
 import {ShowTypeEnum} from '../../interfaces/show';
 import {Carousel} from '../carousel/carousel';
 import {MatDivider} from '@angular/material/divider';
+import {FirebaseService} from '../firebase.service';
 
 @Component({
   selector: 'app-catalog',
@@ -20,6 +21,7 @@ export class Catalog implements OnInit {
   private route = inject(ActivatedRoute);
   private title = inject(Title);
   private streamService = inject(StreamService);
+  private firebaseService = inject(FirebaseService);
 
   private readonly categories = [
     {
@@ -50,8 +52,14 @@ export class Catalog implements OnInit {
 
   displayCategories = signal(this.categories);
 
-  async ngOnInit() {
+  userInfos = this.firebaseService.getUserInfosDetails()
+
+  ngOnInit() {
     this.streamService.refreshShows();
+    this.setupCategoryFilter();
+  }
+
+  private setupCategoryFilter() {
     this.route.paramMap.subscribe(async params => {
       const category = params.get('category');
       switch (category) {
@@ -70,4 +78,5 @@ export class Catalog implements OnInit {
       }
     });
   }
+
 }

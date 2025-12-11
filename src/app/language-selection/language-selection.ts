@@ -15,8 +15,8 @@ import {ShowLanguage} from '../../interfaces/show';
 })
 export class LanguageSelection implements OnInit {
   languages = signal([] as ShowLanguage[]);
-  private movieDbService = inject(MovieDBService);
-  private bottomSheet = inject(MatBottomSheet);
+  private readonly movieDbService = inject(MovieDBService);
+  private readonly bottomSheet = inject(MatBottomSheet);
 
   setLanguage(langId: string) {
     this.bottomSheet.dismiss();
