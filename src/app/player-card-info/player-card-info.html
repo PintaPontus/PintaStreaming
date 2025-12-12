@@ -1,0 +1,31 @@
+<mat-accordion multi>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>Case di produzione</mat-panel-title>
+    </mat-expansion-panel-header>
+    <mat-chip-set class="chips-list">
+      @for (company of this.showInfo().production_companies; track company.id) {
+        <mat-chip class="genre" disabled>{{ company.name }}</mat-chip>
+      }
+    </mat-chip-set>
+  </mat-expansion-panel>
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>Trama</mat-panel-title>
+    </mat-expansion-panel-header>
+    {{ showCardOverview() }}
+  </mat-expansion-panel>
+  @if (showType() === 'tv-series') {
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Stagione
+        </mat-panel-title>
+        <mat-panel-description>
+          {{ showCardSeasonTitle() }}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+      {{ this.currentSeasonInfo()?.overview || 'No description available' }}
+    </mat-expansion-panel>
+  }
+</mat-accordion>

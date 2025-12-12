@@ -9,6 +9,7 @@ import {FormsModule} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatFabButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-admin-panel',
@@ -73,4 +74,6 @@ export class AdminPanel implements OnInit {
   getTextTVSeries() {
     return JSON.stringify(this.tvSeries());
   }
+
+  protected readonly environment = environment;
 }

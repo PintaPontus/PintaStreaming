@@ -1,0 +1,37 @@
+<mat-card appearance="outlined">
+  <mat-card-header>
+    <mat-card-title-group>
+      <mat-card-title>{{ cardTitle() }}</mat-card-title>
+      <mat-card-subtitle>
+        {{ cardSubtitle() }}
+        <mat-chip-set class="chips-list">
+          @for (genre of showInfo().genres; track genre.id) {
+            <mat-chip class="genre" disabled>{{ genre.name }}</mat-chip>
+          }
+          @if (showInfo().adult) {
+            <mat-chip class="genre" disabled>18</mat-chip>
+          }
+        </mat-chip-set>
+      </mat-card-subtitle>
+      <img [src]="`https://image.tmdb.org/t/p/w500/${showInfo().poster_path}`" alt="poster" class="poster"
+           mat-card-xl-image>
+    </mat-card-title-group>
+  </mat-card-header>
+  <mat-divider class="show-details-divider"></mat-divider>
+  <app-player-card-info
+    [showInfo]="showInfo()"
+    [showType]="showType()"
+    [showTranslation]="showTranslation()"
+    [currentSeasonInfo]="currentSeasonInfo()"
+  ></app-player-card-info>
+  <mat-card-actions class="show-details-actions">
+    @if (!!userInfos()) {
+      <!--    TODO: IMPLEMENT BOOKMARKS-->
+        <!--    <span (click)="addShowToList()" class="show-details-action material-symbols-outlined">bookmark</span>-->
+      <span (click)="toggleShowToFavorites()"
+            class="show-details-action material-symbols-outlined">{{ isFavorite() ? 'heart_minus' : 'heart_plus' }}</span>
+    }
+    <a [href]="infoUrl()" class="show-details-action material-symbols-outlined">info</a>
+    <a [href]="videoUrl()" class="show-details-action material-symbols-outlined">open_in_new</a>
+  </mat-card-actions>
+</mat-card>

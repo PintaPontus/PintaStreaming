@@ -1,6 +1,9 @@
 <div class="player-container">
-  <iframe [src]="getVideoFrameUrl()" allowfullscreen class="video-player" id="show-player-frame"
-          title="video-player"></iframe>
+  <div class="video-player">
+    @if (videoUrl()) {
+      <iframe [src]="videoUrl()" allowfullscreen class="video-player-frame" title="video-player"></iframe>
+    }
+  </div>
   @if (routeData().type === 'tv-series') {
     <div class="episode-selector-container">
       <h3>Season:</h3>
@@ -23,59 +26,10 @@
     </div>
   }
 </div>
-<mat-card appearance="outlined" class="show-details">
-  <mat-card-header>
-    <mat-card-title-group>
-      <mat-card-title>{{ getShowCardTitle() }}</mat-card-title>
-      <mat-card-subtitle>
-        {{ getShowCardSubtitle() }}
-        <mat-chip-set class="chips-list">
-          @for (genre of showInfo().genres; track genre.id) {
-            <mat-chip class="genre" disabled>{{ genre.name }}</mat-chip>
-          }
-          @if (showInfo().adult) {
-            <mat-chip class="genre" disabled>18</mat-chip>
-          }
-        </mat-chip-set>
-      </mat-card-subtitle>
-      <img [src]="`https://image.tmdb.org/t/p/w500/${showInfo().poster_path}`" alt="poster" class="poster"
-           mat-card-xl-image>
-    </mat-card-title-group>
-  </mat-card-header>
-  <mat-divider class="show-details-divider"></mat-divider>
-  <mat-card-content>
-    <mat-card-subtitle>
-      Case di produzione
-    </mat-card-subtitle>
-    <mat-chip-set class="chips-list">
-      @for (company of getShowCardCompanies(); track company.id) {
-        <mat-chip class="genre" disabled>{{ company.name }}</mat-chip>
-      }
-    </mat-chip-set>
-    <!--    {{ getShowCardCompanies() }}-->
-  </mat-card-content>
-  <mat-divider class="show-details-divider"></mat-divider>
-  <mat-card-content>
-    <mat-card-subtitle>
-      Trama
-    </mat-card-subtitle>
-    {{ getShowCardOverview() }}
-  </mat-card-content>
-  @if (routeData().type === 'tv-series') {
-    <mat-divider class="show-details-divider"></mat-divider>
-    <mat-card-content>
-      <mat-card-subtitle>{{ getShowCardSeasonTitle() }}</mat-card-subtitle>
-      {{ getShowCardSeasonDescription() || 'No description available' }}
-    </mat-card-content>
-  }
-  <mat-card-actions class="show-details-actions">
-    @if (!!userInfos()) {
-      <!--    TODO: IMPLEMENT BOOKMARKS-->
-        <!--    <span (click)="addShowToList()" class="show-details-action material-symbols-outlined">bookmark</span>-->
-      <span (click)="toggleShowToFavorites()"
-            class="show-details-action material-symbols-outlined">{{ isFavorite() ? 'heart_minus' : 'heart_plus' }}</span>
-    }
-    <a [href]="getShowInfoUrl()" class="show-details-action material-symbols-outlined">info</a>
-    <a [href]="getVideoFrameUrl()" class="show-details-action material-symbols-outlined">open_in_new</a>
-  </mat-card-actions>
-</mat-card>
+<app-player-card
+  class="show-details"
+  [showInfo]="showInfo()"
+  [showType]="routeData().type"
+  [currentSeason]="currentSeason()"
+  [videoUrl]="videoUrl()"
+></app-player-card>

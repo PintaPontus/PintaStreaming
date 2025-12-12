@@ -11,31 +11,6 @@
   flex: 1;
 }
 
-.chips-list {
-  padding-top: 0.5rem;
-  padding-right: 1rem;
-}
-
-.show-details-divider {
-  margin: 1rem 0;
-}
-
-.show-details-actions {
-  display: flex;
-  justify-content: right;
-  align-items: center;
-  padding: 1rem;
-  gap: 1rem;
-}
-
-.show-details-action {
-  cursor: pointer;
-}
-
-.poster {
-  max-width: 200px;
-}
-
 .player-container {
   height: 100%;
   flex: 4;
@@ -46,14 +21,14 @@
   align-items: stretch;
 }
 
-
-.player-title {
-  margin: 0;
-}
-
 .video-player {
   flex: 1;
+}
+
+.video-player-frame {
   border: none;
+  width: 100%;
+  height: 100%;
 }
 
 .episode-selector-container {

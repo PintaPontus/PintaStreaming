@@ -1,0 +1,24 @@
+.chips-list {
+  padding-top: 0.5rem;
+  padding-right: 1rem;
+}
+
+.show-details-divider {
+  margin: 1rem 0;
+}
+
+.show-details-actions {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.show-details-action {
+  cursor: pointer;
+}
+
+.poster {
+  max-width: 200px;
+}

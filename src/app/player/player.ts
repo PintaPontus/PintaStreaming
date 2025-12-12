@@ -1,51 +1,31 @@
-import {ChangeDetectionStrategy, Component, computed, inject, OnInit, Signal, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, Signal, signal, WritableSignal} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MovieDBService} from '../movie-db.service';
-import {DomSanitizer, Title} from '@angular/platform-browser';
-import {ShowDetails} from '../../interfaces/show';
-import {
-  MatCard,
-  MatCardActions,
-  MatCardContent,
-  MatCardHeader,
-  MatCardSubtitle,
-  MatCardTitle,
-  MatCardTitleGroup
-} from '@angular/material/card';
-import {MatDivider} from '@angular/material/divider';
-import {MatChip, MatChipSet} from '@angular/material/chips';
+import {DomSanitizer, SafeResourceUrl, Title} from '@angular/platform-browser';
+import {ShowDetails, ShowTypeEnum} from '../../interfaces/show';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {PlayerRouteInfo} from '../../interfaces/routesInfo';
 import {PlayerEvents} from '../../interfaces/playerEvents';
 import {FirebaseService} from '../firebase.service';
 import {UserListItem} from '../../interfaces/users';
+import {PlayerCard} from '../player-card/player-card';
+import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-player',
   imports: [
-    MatCard,
-    MatCardHeader,
-    MatCardTitle,
-    MatCardContent,
-    MatCardSubtitle,
-    MatCardTitleGroup,
-    MatDivider,
-    MatChipSet,
-    MatChip,
-    MatCardActions,
     MatButtonToggleGroup,
-    MatButtonToggle
+    MatButtonToggle,
+    PlayerCard,
   ],
   templateUrl: './player.html',
-  styleUrl: './player.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './player.css'
 })
 export class Player implements OnInit {
 
   checkpointTimeoutFlag = false
-  videoUrl = signal('');
-  infoUrl = signal('');
+  videoUrl: WritableSignal<SafeResourceUrl | undefined> = signal(undefined);
   episodes = computed(() => {
     const currentSeasonInfo = this.getCurrentSeason()
     return currentSeasonInfo?.episode_count
@@ -63,21 +43,7 @@ export class Player implements OnInit {
   routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
   private readonly movieDBService = inject(MovieDBService);
   language = this.movieDBService.getLanguage();
-  showTranslation = computed(() => {
-    const language = this.language() || 'en';
-    return this.showInfo().translations?.translations.find(t =>
-      t.iso_639_1 === language
-    )
-  });
   private readonly firebaseService = inject(FirebaseService);
-  userInfos = this.firebaseService.getUserInfosDetails();
-  isFavorite = computed(() => {
-    return !!(this.userInfos()?.favorites || [])
-      .find(f =>
-        f.id === this.showInfo().id
-        && f.type === this.routeData().type
-      )
-  });
   private readonly router = inject(Router);
   private readonly title = inject(Title);
   private readonly sanitizer = inject(DomSanitizer);
@@ -86,10 +52,10 @@ export class Player implements OnInit {
     this.route.paramMap.subscribe(async params => {
       const showID = Number.parseInt(params.get('id')!);
       const startTime = this.castNumber(this.route.snapshot.queryParamMap.get("time"))
-      if (this.routeData().type === 'movies') {
+      if (this.routeData().type === ShowTypeEnum.MOVIES) {
         await this.setupMoviePlayer(showID, startTime);
       }
-      if (this.routeData().type === 'tv-series') {
+      if (this.routeData().type === ShowTypeEnum.TV_SERIES) {
         const paramSeason = this.castNumber(params.get('season'));
         const paramEpisode = this.castNumber(params.get('episode'));
         if (!paramSeason || !paramEpisode) {
@@ -102,85 +68,6 @@ export class Player implements OnInit {
       }
     });
     this.listenPlayerEvents()
-  }
-
-  // ===============
-  // SHOW CARD INFOS
-  // ===============
-
-  getShowCardTitle() {
-    const showInfoSnap = this.showInfo();
-    const showTransSnap = this.showTranslation();
-
-    return showTransSnap?.data.title
-      || showInfoSnap.title
-      || showInfoSnap.name
-      || showInfoSnap.original_title;
-  }
-
-  getShowCardSubtitle() {
-    const showInfoSnap = this.showInfo();
-
-    let showYear = (
-      showInfoSnap.release_date
-      || showInfoSnap.first_air_date
-    )?.split('-')[0];
-
-    let showSeasonsCount
-
-    if (this.routeData().type === 'tv-series') {
-      showSeasonsCount = `${this.seasons().length} Stagioni`
-    } else {
-      showSeasonsCount = 'Film'
-    }
-
-    return showYear
-      ? `${showYear} - ${showSeasonsCount}`
-      : `${showSeasonsCount}`;
-  }
-
-  getShowCardOverview() {
-    return this.showTranslation()?.data.overview
-      || this.showInfo().overview;
-  }
-
-  getShowCardCompanies() {
-    return this.showInfo().production_companies
-    // .map(c => c.name)
-    // .join(', ');
-  }
-
-  getShowCardSeasonTitle() {
-    const currSeason = this.getCurrentSeason();
-    return currSeason?.name || ("Season " + currSeason?.season_number);
-  }
-
-  getShowCardSeasonDescription() {
-    return this.getCurrentSeason()?.overview || "";
-  }
-
-  // ====================
-  // SHOW DETAILS ACTIONS
-  // ====================
-
-  addShowToList() {
-
-  }
-
-  toggleShowToFavorites() {
-    this.firebaseService.toggleToFavorite({
-      id: this.showInfo().id,
-      type: this.routeData().type,
-      lastUpdate: Date.now()
-    } as UserListItem)
-  }
-
-  getShowInfoUrl() {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(this.infoUrl());
-  }
-
-  getVideoFrameUrl() {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(this.videoUrl());
   }
 
   // ======================
@@ -207,7 +94,7 @@ export class Player implements OnInit {
 
   private listenPlayerEvents() {
     window?.addEventListener('message', (event) => {
-      if (event.origin !== 'https://vixsrc.to') {
+      if (event.origin !== environment.videoStreamingDomain) {
         return;
       }
       const plEvent = JSON.parse(event.data) as PlayerEvents;
@@ -246,22 +133,28 @@ export class Player implements OnInit {
     } as UserListItem;
   }
 
-// ========
+  // ========
   // PRIVATES
   // ========
 
   private async setupMoviePlayer(showID: number, time?: number) {
     const newShowInfo = await this.movieDBService.getInfoMovie(showID);
     this.updateShowInfo(newShowInfo);
-    this.videoUrl.set(`https://vixsrc.to/movie/${showID}?${this.getURLParams(time)}`);
-    this.infoUrl.set(`https://www.themoviedb.org/movie/${showID}`);
+    this.videoUrl.set(
+      this.sanitizer.bypassSecurityTrustResourceUrl(
+        `${environment.videoStreamingDomain}/movie/${showID}?${this.getURLParams(time)}`
+      )
+    );
   }
 
   private async setupTvSeriesPlayer(showID: number, time?: number) {
     const newShowInfo = await this.movieDBService.getInfoTvSeries(showID);
     this.updateShowInfo(newShowInfo);
-    this.videoUrl.set(`https://vixsrc.to/tv/${showID}/${(this.currentSeason())}/${this.currentEpisode()}?${this.getURLParams(time)}`);
-    this.infoUrl.set(`https://www.themoviedb.org/tv/${showID}`);
+    this.videoUrl.set(
+      this.sanitizer.bypassSecurityTrustResourceUrl(
+        `${environment.videoStreamingDomain}/tv/${showID}/${(this.currentSeason())}/${this.currentEpisode()}?${this.getURLParams(time)}`
+      )
+    );
   }
 
   private updateShowInfo(showInfo: ShowDetails) {

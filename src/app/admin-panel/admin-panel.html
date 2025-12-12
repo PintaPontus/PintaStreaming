@@ -9,9 +9,11 @@
   </mat-form-field>
 </div>
 <div class="actions-box">
-  <a class="action-button" extended href="https://vixsrc.to/api/list/movie?lang=it" matFab target="_blank">Get
+  <a class="action-button" extended [href]="environment.videoStreamingDomain + '/api/list/movie?lang=it'" matFab
+     target="_blank">Get
     Movies</a>
-  <a class="action-button" extended href="https://vixsrc.to/api/list/tv?lang=it" matFab target="_blank">Get Tv
+  <a class="action-button" extended [href]="environment.videoStreamingDomain + '/api/list/tv?lang=it'" matFab
+     target="_blank">Get Tv
     Series</a>
   <button (click)="refreshShows()" class="action-button" matFab>
     <mat-icon>refresh</mat-icon>
