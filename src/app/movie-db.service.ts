@@ -117,7 +117,7 @@ export class MovieDBService {
 
       return await response.json() as T;
     }catch (e) {
-      console.error(e);
+      console.error('Error while retrieving data: ', e);
     }
     return {} as T;
   }

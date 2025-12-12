@@ -5,6 +5,10 @@ import {MatFabButton} from '@angular/material/button';
 import {FirebaseService} from '../firebase.service';
 import {MatBottomSheet} from '@angular/material/bottom-sheet';
 import {FormsModule} from '@angular/forms';
+import firebase from 'firebase/compat/app';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatDialogTitle} from '@angular/material/dialog';
+import FirebaseError = firebase.FirebaseError;
 
 @Component({
   selector: 'app-email-login',
@@ -13,7 +17,8 @@ import {FormsModule} from '@angular/forms';
     MatLabel,
     MatInput,
     MatFabButton,
-    FormsModule
+    FormsModule,
+    MatDialogTitle
   ],
   templateUrl: './email-login.html',
   styleUrl: './email-login.css'
@@ -24,15 +29,28 @@ export class EmailLogin {
   textPassword: string = '';
   private readonly firebaseService = inject(FirebaseService);
   private readonly bottomSheet = inject(MatBottomSheet);
+  private snackBar = inject(MatSnackBar);
 
   async login() {
-    await this.firebaseService.loginWithEmail(this.textEmail, this.textPassword)
+    try {
+      await this.firebaseService.loginWithEmail(this.textEmail, this.textPassword)
+    } catch (e) {
+      this.handleLoginError(e as FirebaseError)
+    }
     this.bottomSheet.dismiss();
   }
 
   async signup() {
-    await this.firebaseService.signupWithEmail(this.textEmail, this.textPassword)
+    try {
+      await this.firebaseService.signupWithEmail(this.textEmail, this.textPassword)
+    } catch (e) {
+      this.handleLoginError(e as FirebaseError)
+    }
     this.bottomSheet.dismiss();
   }
 
+  private handleLoginError(e: FirebaseError) {
+    console.error('Email login error: ', e.code, e.message);
+    this.snackBar.open(e.message, "OK", {duration: 2000});
+  }
 }

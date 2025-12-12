@@ -31,7 +31,9 @@ export class App {
   private readonly bottomSheet = inject(MatBottomSheet);
 
   async loginWithEmail() {
-    this.bottomSheet.open(EmailLogin);
+    this.dialog.open(EmailLogin, {
+      width: '800px'
+    });
   }
 
   async loginWithGoogle() {

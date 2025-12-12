@@ -1,9 +1,10 @@
 .login-form {
-  margin: 2rem;
+  margin: 0.7rem 2rem 2rem;
   display: flex;
   align-items: center;
   justify-content: stretch;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
 .login-field {
