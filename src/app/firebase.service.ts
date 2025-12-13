@@ -145,7 +145,9 @@ export class FirebaseService {
   }
 
   async updateUser(userSnap: UsersDetails) {
-    this.userInfosDetails.set(userSnap);
+    this.userInfosDetails.set({
+      ...userSnap,
+    });
     await setDoc(doc(this.db, "users", this.userSessionDetails()!.uid!), userSnap);
   }
 
@@ -154,7 +156,7 @@ export class FirebaseService {
   // ==========
 
   async addToContinueToWatch(newShow: UserListItem) {
-    const userSnap = (await this.fetchCurrentUser())();
+    const userSnap = this.userInfosDetails();
 
     if (!userSnap) {
       return;
@@ -162,11 +164,11 @@ export class FirebaseService {
 
     userSnap.continueToWatch = this.addShowToContinueList(newShow, userSnap.continueToWatch)
 
-    this.updateUser(userSnap)
+    await this.updateUser(userSnap)
   }
 
   async removeContinueToWatch(oldShow: UserListItem) {
-    const userSnap = (await this.fetchCurrentUser())();
+    const userSnap = this.userInfosDetails();
 
     if (!userSnap) {
       return;
@@ -174,11 +176,11 @@ export class FirebaseService {
 
     userSnap.continueToWatch = this.removeShowToCommonList(oldShow, userSnap.continueToWatch)
 
-    this.updateUser(userSnap)
+    await this.updateUser(userSnap)
   }
 
   async toggleToFavorite(newShow: UserListItem) {
-    const userSnap = (await this.fetchCurrentUser())();
+    const userSnap = this.userInfosDetails();
 
     if (!userSnap) {
       return;
@@ -194,7 +196,7 @@ export class FirebaseService {
 
     userSnap.favorites = currentFavorites;
 
-    this.updateUser(userSnap)
+    await this.updateUser(userSnap)
   }
 
   async updateShows(newMovies: ShowResource[], newTvSeries: ShowResource[]) {
