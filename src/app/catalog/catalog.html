@@ -1,14 +1,22 @@
-@if ((userInfos()?.continueToWatch || []).length > 0) {
-  <app-carousel [showList]="userInfos()?.continueToWatch" [title]="'Continua a guardare'"></app-carousel>
+@if (continueToWatch().length > 0) {
+  <app-carousel
+    [title]="'Continua a guardare'"
+    [listType]="UserListTypeEnum.CONTINUE"
+    [showList]="continueToWatch()"
+  ></app-carousel>
   <mat-divider class="catalog-divider"></mat-divider>
 }
-@if ((userInfos()?.favorites || []).length > 0) {
-  <app-carousel [showList]="userInfos()?.favorites" [title]="'La mia lista'"></app-carousel>
+@if (favorites().length > 0) {
+  <app-carousel
+    [title]="'La mia lista'"
+    [listType]="UserListTypeEnum.FAVORITES"
+    [showList]="favorites()"
+  ></app-carousel>
   <mat-divider class="catalog-divider"></mat-divider>
 }
 @for (category of displayCategories(); track category.id; let idx = $index) {
   @if (idx > 0) {
     <mat-divider class="catalog-divider"></mat-divider>
   }
-  <app-carousel [title]="category.name" [link]="category.link" [type]="category.type"></app-carousel>
+  <app-carousel [title]="category.name" [link]="category.link" [showType]="category.type"></app-carousel>
 }

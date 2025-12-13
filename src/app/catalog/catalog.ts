@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {ActivatedRoute} from '@angular/router';
 import {StreamService} from '../stream.service';
@@ -6,6 +6,7 @@ import {ShowTypeEnum} from '../../interfaces/show';
 import {Carousel} from '../carousel/carousel';
 import {MatDivider} from '@angular/material/divider';
 import {FirebaseService} from '../firebase.service';
+import {UserListTypeEnum} from '../../interfaces/users';
 
 @Component({
   selector: 'app-catalog',
@@ -17,6 +18,8 @@ import {FirebaseService} from '../firebase.service';
   styleUrl: './catalog.css'
 })
 export class Catalog implements OnInit {
+
+  protected readonly UserListTypeEnum = UserListTypeEnum;
 
   private route = inject(ActivatedRoute);
   private title = inject(Title);
@@ -53,6 +56,14 @@ export class Catalog implements OnInit {
   displayCategories = signal(this.categories);
 
   userInfos = this.firebaseService.getUserInfosDetails()
+
+  continueToWatch = computed(() =>
+    this.userInfos()?.continueToWatch || []
+  )
+
+  favorites = computed(() =>
+    this.userInfos()?.favorites || []
+  )
 
   ngOnInit() {
     this.streamService.refreshShows();

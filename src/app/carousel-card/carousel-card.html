@@ -1,10 +1,29 @@
 <a
-  [class]="!isAvailable ? 'unavailable-show' : ''"
-  [matTooltip]="getShowTitle()"
-  [queryParams]="isAvailable ? getPlayerParams() : null"
-  [routerLink]="isAvailable ? getPlayerLink(show.id) : null"
+  [class]="!isAvailable() ? 'unavailable-show' : ''"
+  [matTooltip]="showTitle()"
+  [queryParams]="isAvailable() ? playerParams() : null"
+  [routerLink]="isAvailable() ? playerLink() : null"
 >
-  <mat-card appearance="raised" class="movie-card">
-    <img [src]="`https://image.tmdb.org/t/p/w500/${getShowPosterPath()}`" alt="" class="poster" mat-card-image>
+  <mat-card appearance="raised" class="show-card">
+    <img [src]="`https://image.tmdb.org/t/p/w500/${showPosterPath()}`" alt="" class="poster" mat-card-image>
+    @if (this.listType() !== UserListTypeEnum.SUGGESTIONS) {
+      <button
+        matIconButton
+        [matMenuTriggerFor]="showCardActionsMenu"
+        class="actions-button material-symbols-outlined"
+        (click)="$event.preventDefault(); $event.stopPropagation()"
+        (mousedown)="$event.preventDefault(); $event.stopPropagation()"
+      >more_vert
+      </button>
+      <mat-menu #showCardActionsMenu="matMenu">
+        @if (this.listType() === UserListTypeEnum.CONTINUE) {
+          <button mat-menu-item (click)="removeFromContinue()">Rimuovi da continua a guardare</button>
+        }
+        @if (this.listType() === UserListTypeEnum.FAVORITES) {
+          <button mat-menu-item (click)="removeFromFavorites()">Rimuovi dalla mia lista</button>
+        }
+      </mat-menu>
+    }
   </mat-card>
 </a>
+

@@ -6,6 +6,13 @@ export interface UsersDetails {
   favorites: UserListItem[];
 }
 
+export enum UserListTypeEnum {
+  CONTINUE = 'continueToWatch',
+  FAVORITES = 'favorites',
+  CUSTOM_LIST = 'customList',
+  SUGGESTIONS = 'suggestions',
+}
+
 export interface UserListItem {
   id: number;
   type: ShowTypeEnum;

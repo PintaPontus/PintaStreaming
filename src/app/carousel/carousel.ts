@@ -1,9 +1,9 @@
-import {Component, inject, Input, OnInit, signal, WritableSignal} from '@angular/core';
+import {Component, inject, input, InputSignal, OnInit, signal, WritableSignal} from '@angular/core';
 import {ShowReference, ShowTypeEnum} from '../../interfaces/show';
 import {StreamService} from '../stream.service';
 import {MovieDBService} from '../movie-db.service';
 import {CarouselCard} from '../carousel-card/carousel-card';
-import {UserListItem} from '../../interfaces/users';
+import {UserListItem, UserListTypeEnum} from '../../interfaces/users';
 
 @Component({
   selector: 'app-carousel',
@@ -15,10 +15,11 @@ import {UserListItem} from '../../interfaces/users';
 })
 export class Carousel implements OnInit {
 
-  @Input() title!: string;
-  @Input() link: string | undefined;
-  @Input() type: ShowTypeEnum | undefined;
-  @Input() showList: UserListItem[] | undefined;
+  title: InputSignal<string | undefined> = input();
+  link: InputSignal<string | undefined> = input();
+  listType = input(UserListTypeEnum.SUGGESTIONS);
+  showType: InputSignal<ShowTypeEnum | undefined> = input();
+  showList: InputSignal<UserListItem[] | undefined> = input();
 
   movieDBService = inject(MovieDBService);
   streamService = inject(StreamService);
@@ -26,10 +27,14 @@ export class Carousel implements OnInit {
   shows: WritableSignal<ShowReference[]> = signal([]);
 
   ngOnInit() {
-    if (this.link && this.type) {
-      this.setupCategoryShows(this.link, this.type)
-    } else if (this.showList) {
-      this.setupShowList(this.showList)
+    const currLink = this.link();
+    const currType = this.showType();
+    const currShowList = this.showList();
+
+    if (currLink && currType) {
+      this.setupCategoryShows(currLink, currType)
+    } else if (currShowList) {
+      this.setupShowList(currShowList)
     }
   }
 
@@ -42,4 +47,5 @@ export class Carousel implements OnInit {
     const categoryShows = await this.movieDBService.getShowsFromCategory(categoryLink, type)
     this.shows.set(categoryShows)
   }
+
 }
