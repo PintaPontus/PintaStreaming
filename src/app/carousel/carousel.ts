@@ -29,7 +29,6 @@ export class Carousel {
 
   constructor() {
     effect(async () => {
-      console.log('REFRESH CAROUSEL');
       const currLink = this.link();
       const currType = this.showType();
       const currShowList = this.showList();
@@ -44,7 +43,6 @@ export class Carousel {
       }
 
       if (loadId === this._loadId) {
-        console.log('SETTING CAROUSEL: ', result);
         this.shows.set(result);
       }
     });
