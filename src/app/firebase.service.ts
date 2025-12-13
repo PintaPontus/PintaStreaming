@@ -144,11 +144,15 @@ export class FirebaseService {
     return this.userInfosDetails;
   }
 
-  async updateUser(userSnap: UsersDetails) {
-    this.userInfosDetails.set({
-      ...userSnap,
-    });
-    await setDoc(doc(this.db, "users", this.userSessionDetails()!.uid!), userSnap);
+  async updateUser() {
+    await setDoc(
+      doc(
+        this.db,
+        "users",
+        this.userSessionDetails()!.uid!
+      ),
+      this.userInfosDetails()
+    );
   }
 
   // ==========
@@ -156,90 +160,97 @@ export class FirebaseService {
   // ==========
 
   async addToContinueToWatch(newShow: UserListItem) {
-    const userSnap = this.userInfosDetails();
+    this.userInfosDetails.update(userSnap => {
+      if (!userSnap) {
+        return userSnap;
+      }
 
-    if (!userSnap) {
-      return;
-    }
+      const continueToWatch = this.addShowToContinueList(newShow, userSnap.continueToWatch)
 
-    userSnap.continueToWatch = this.addShowToContinueList(newShow, userSnap.continueToWatch)
-
-    await this.updateUser(userSnap)
+      return {
+        ...userSnap,
+        continueToWatch
+      };
+    });
+    await this.updateUser()
   }
 
   async removeContinueToWatch(oldShow: UserListItem) {
-    const userSnap = this.userInfosDetails();
+    this.userInfosDetails.update(userSnap => {
+      if (!userSnap) {
+        return userSnap;
+      }
 
-    if (!userSnap) {
-      return;
-    }
+      const continueToWatch = this.removeShowToCommonList(oldShow, userSnap.continueToWatch)
 
-    userSnap.continueToWatch = this.removeShowToCommonList(oldShow, userSnap.continueToWatch)
-
-    await this.updateUser(userSnap)
-  }
-
-  async toggleToFavorite(newShow: UserListItem) {
-    const userSnap = this.userInfosDetails();
-
-    if (!userSnap) {
-      return;
-    }
-
-    let currentFavorites = userSnap.favorites || [];
-
-    if (currentFavorites.find(f => f.id === newShow.id && f.type === newShow.type)) {
-      currentFavorites = this.removeShowToCommonList(newShow, currentFavorites);
-    } else {
-      currentFavorites = this.addShowToCommonList(newShow, currentFavorites);
-    }
-
-    userSnap.favorites = currentFavorites;
-
-    await this.updateUser(userSnap)
-  }
-
-  async updateShows(newMovies: ShowResource[], newTvSeries: ShowResource[]) {
-    await addDoc(collection(this.db, "shows"), {
-      date: new Date(),
-      movies: newMovies,
-      tvSeries: newTvSeries,
+      return {
+        ...userSnap,
+        continueToWatch
+      };
     });
+    await this.updateUser()
+  }
+
+  async toggleToFavorite(selectedShow: UserListItem) {
+    this.userInfosDetails.update(userSnap => {
+      if (!userSnap) {
+        return userSnap;
+      }
+
+      const favoritesBase = userSnap.favorites || [];
+      const exists = favoritesBase.some(f => f.id === selectedShow.id && f.type === selectedShow.type);
+
+      const favorites = exists
+        ? this.removeShowToCommonList(selectedShow, favoritesBase)
+        : this.addShowToCommonList(selectedShow, favoritesBase);
+
+      return {
+        ...userSnap,
+        favorites
+      };
+    });
+    await this.updateUser()
   }
 
   private addShowToContinueList(newShow: UserListItem, showList: UserListItem[] | undefined) {
-    showList = this.addShowToCommonList(newShow, showList);
-
-    showList.slice(0, 20);
-
-    return showList;
+    const updatedList = this.addShowToCommonList(newShow, showList);
+    return updatedList.slice(0, 20);
   }
 
   private addShowToCommonList(newShow: UserListItem, showList: UserListItem[] | undefined) {
-    if (!showList) {
-      showList = []
-    }
+    const baseList = showList ? [...showList] : [];
 
-    showList.push(newShow);
+    baseList.push(newShow);
 
     const showsMap = new Map();
 
-    showList.forEach(currShow => {
-      const existingShow = showsMap.get(currShow.id) as UserListItem | undefined;
+    baseList.forEach(currShow => {
+      const key = `${currShow.type}-${currShow.id}`;
+      const existingShow = showsMap.get(key) as UserListItem | undefined;
 
       showsMap.set(
-        currShow.type + currShow.id,
+        key,
         existingShow && (existingShow.lastUpdate || 0) > (currShow.lastUpdate || 0)
           ? existingShow
           : currShow
       )
     })
 
-    showList = Array.from(showsMap.values());
+    const result = Array.from(showsMap.values());
 
-    showList.sort((a, b) => b.lastUpdate - a.lastUpdate);
+    result.sort((a, b) => b.lastUpdate - a.lastUpdate);
 
-    return showList;
+    return result;
+  }
+
+  private removeShowToCommonList(oldShow: UserListItem, showList: UserListItem[] | undefined) {
+    const baseList = showList ? [...showList] : [];
+
+    const filteredList = baseList.filter(f => f.id !== oldShow.id || f.type !== oldShow.type);
+
+    filteredList.sort((a, b) => b.lastUpdate - a.lastUpdate);
+
+    return filteredList;
   }
 
   // =======================
@@ -257,16 +268,12 @@ export class FirebaseService {
     return data as ShowResourceLibrary;
   }
 
-  private removeShowToCommonList(oldShow: UserListItem, showList: UserListItem[] | undefined) {
-    if (!showList) {
-      showList = []
-    }
-
-    showList = showList.filter(f => f.id !== oldShow.id || f.type !== oldShow.type);
-
-    showList.sort((a, b) => b.lastUpdate - a.lastUpdate);
-
-    return showList;
+  async updateShows(newMovies: ShowResource[], newTvSeries: ShowResource[]) {
+    await addDoc(collection(this.db, "shows"), {
+      date: new Date(),
+      movies: newMovies,
+      tvSeries: newTvSeries,
+    });
   }
 
 }
