@@ -25,7 +25,6 @@ export class Carousel {
   streamService = inject(StreamService);
 
   shows: WritableSignal<ShowReference[]> = signal([])
-  private _loadId = 0;
 
   constructor() {
     effect(async () => {
@@ -33,17 +32,10 @@ export class Carousel {
       const currType = this.showType();
       const currShowList = this.showList();
 
-      const loadId = ++this._loadId;
-
-      let result: ShowReference[] = [];
       if (currLink && currType) {
-        result = await this.setupCategoryShows(currLink, currType);
+        this.shows.set(await this.setupCategoryShows(currLink, currType));
       } else if (currShowList) {
-        result = await this.setupShowList(currShowList);
-      }
-
-      if (loadId === this._loadId) {
-        this.shows.set(result);
+        this.shows.set(await this.setupShowList(currShowList));
       }
     });
   }
