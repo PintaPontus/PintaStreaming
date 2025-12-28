@@ -1,0 +1,26 @@
+.list-item {
+  text-align: start;
+  vertical-align: middle;
+  font-size: 1.2rem;
+  background: unset;
+  border: none;
+  cursor: pointer;
+}
+
+.user-item {
+  margin: 0.5rem 0;
+}
+
+.user-pic-container {
+  height: 100%;
+  width: 3rem;
+  overflow: hidden;
+  border: none;
+  background: unset;
+}
+
+.user-pic {
+  width: 100%;
+  height: 100%;
+}
+

@@ -1,0 +1,83 @@
+<mat-nav-list>
+  @if (!user()) {
+    <button
+      class="list-item"
+      mat-list-item
+      [matMenuTriggerFor]="userLoginMenu"
+    >
+      <span matListItemIcon class="material-symbols-outlined">person</span>
+      <span matListItemTitle>Login</span>
+    </button>
+    <mat-menu #userLoginMenu="matMenu">
+      <button (click)="loginWithEmail()" mat-menu-item>Email</button>
+      <button (click)="loginWithGoogle()" mat-menu-item>Google</button>
+    </mat-menu>
+  } @else {
+    <button
+      class="list-item user-item"
+      mat-list-item
+      [matMenuTriggerFor]="loggedUserMenu">
+      @if (user()?.photoURL) {
+        <div matListItemAvatar class="user-pic-container">
+          <img [src]="user()?.photoURL" alt="" class="user-pic">
+        </div>
+      } @else {
+        <span matListItemIcon class="material-symbols-outlined">logout</span>
+      }
+
+      <span matListItemTitle>{{ user()?.displayName }}</span>
+    </button>
+    <mat-menu #loggedUserMenu="matMenu">
+      <button mat-menu-item (click)="logout()">Logout</button>
+    </mat-menu>
+  }
+  <mat-divider></mat-divider>
+  <a
+    class="list-item"
+    mat-list-item
+    [routerLink]="['search']"
+    (click)="closeSidenav()"
+  >
+    <span matListItemIcon class="material-symbols-outlined">search</span>
+    <span matListItemTitle>Cerca</span>
+  </a>
+  <mat-divider></mat-divider>
+  <a
+    class="list-item"
+    mat-list-item
+    [routerLink]="['catalog/movies']"
+    (click)="closeSidenav()"
+  >
+    <span matListItemIcon class="material-symbols-outlined">movie</span>
+    <span matListItemTitle>Film</span>
+  </a>
+  <a
+    class="list-item"
+    mat-list-item
+    [routerLink]="['catalog/tv-series']"
+    (click)="closeSidenav()"
+  >
+    <span matListItemIcon class="material-symbols-outlined">tv</span>
+    <span matListItemTitle>Serie TV</span>
+  </a>
+  @if (user() && isAdmin()) {
+    <a
+      class="list-item"
+      mat-list-item
+      [routerLink]="['admin']"
+      (click)="closeSidenav()"
+    >
+      <span matListItemIcon class="material-symbols-outlined">admin_panel_settings</span>
+      <span matListItemTitle>Admin</span>
+    </a>
+  }
+  <mat-divider></mat-divider>
+  <button
+    class="list-item"
+    mat-list-item
+    (click)="openLanguages()"
+  >
+    <span matListItemIcon class="material-symbols-outlined">translate</span>
+    <span matListItemTitle>Lingua</span>
+  </button>
+</mat-nav-list>

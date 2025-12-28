@@ -1,5 +1,4 @@
 import {Component, inject, signal} from '@angular/core';
-import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 import {MatFormField} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
 import {MatInput} from '@angular/material/input';
@@ -7,11 +6,11 @@ import {MatDivider, MatList, MatListItem} from '@angular/material/list';
 import {MovieDBService} from '../movie-db.service';
 import {ShowResultItem, ShowResultsList, ShowTypeEnum} from '../../interfaces/show';
 import {RouterLink} from '@angular/router';
+import {MatPaginator, PageEvent} from '@angular/material/paginator';
 
 @Component({
   selector: 'app-search',
   imports: [
-    MatDialogContent,
     MatFormField,
     FormsModule,
     MatInput,
@@ -19,26 +18,25 @@ import {RouterLink} from '@angular/router';
     MatListItem,
     RouterLink,
     MatDivider,
+    MatPaginator,
   ],
   templateUrl: './search-show.component.html',
   styleUrl: './search-show.component.css'
 })
 export class SearchShow {
-  textSearch: string = '';
+  textSearch = '';
+  page = signal(1);
 
   private readonly movieDBService = inject(MovieDBService);
-  readonly dialogRef = inject(MatDialogRef<SearchShow>);
   items = signal({} as ShowResultsList);
 
   async searchItems() {
     if(this.textSearch !== '' && this.textSearch.length > 2){
-      const searchResult = await this.movieDBService.search(this.textSearch);
+      const searchResult = await this.movieDBService.search(this.textSearch, this.page());
       this.items.set(searchResult);
+    } else {
+      this.items.set({} as ShowResultsList);
     }
-  }
-
-  closeSearch() {
-    this.dialogRef.close()
   }
 
   getPlayerUrl(item: ShowResultItem) {
@@ -47,5 +45,11 @@ export class SearchShow {
       return `/player/${type}/${item.id}/1/1`;
     }
     return `/player/${type}/${item.id}`;
+  }
+
+  async changePage($event: PageEvent) {
+    console.log($event);
+    this.page.set($event.pageIndex + 1);
+    await this.searchItems()
   }
 }

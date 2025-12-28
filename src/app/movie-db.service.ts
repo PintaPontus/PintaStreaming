@@ -68,10 +68,13 @@ export class MovieDBService {
   // SHOWS LISTS
   // ===========
 
-  async search(textSearch: string): Promise<ShowResultsList> {
+  async search(textSearch: string, page?: number): Promise<ShowResultsList> {
     const params = new URLSearchParams();
     params.append("query", textSearch);
     params.append("include_adult", true.toString());
+    if (page) {
+      params.append("page", page.toString());
+    }
     return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/search/multi?${params}`);
   }
 

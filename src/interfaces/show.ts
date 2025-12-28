@@ -75,6 +75,8 @@ export interface ShowSeason {
 export interface ShowResultsList {
   results: ShowResultItem[];
   page: number;
+  total_results: number;
+  total_pages: number;
 }
 
 export interface ShowResultItem {

@@ -1,0 +1,84 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.toolbar {
+  padding: 3rem 1.5rem;
+}
+
+.logo-container {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  font-size: 2rem;
+  gap: 0.6rem;
+}
+
+.logo-title {
+  font-size: 1.75rem;
+}
+
+.logo {
+  max-height: 3rem;
+}
+
+.menu-item {
+  justify-self: start;
+  font-size: 1.2rem;
+  margin: 0 1rem;
+}
+
+.menu-item span {
+  color: var(--mat-sys-primary);
+}
+
+.actions-box {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.action {
+  background: unset;
+  font-size: 2rem;
+  border: none;
+  cursor: pointer;
+}
+
+.user-pic-container {
+  max-height: 3rem;
+  max-width: 3rem;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.user-pic {
+  width: 100%;
+  height: 100%;
+}
+
+.sidenav-button {
+  display: none;
+}
+
+@media (max-width: 750px) {
+  .sidenav-button {
+    display: block;
+  }
+
+  .menu-item, .actions-box {
+    display: none;
+  }
+}
+
+@media (min-width: 750px) {
+  .logo-container {
+    margin-right: 2rem;
+  }
+}
+

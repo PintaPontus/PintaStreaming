@@ -1,42 +1,11 @@
-<div class="menu">
-  <a [routerLink]="['/']" class="logo-container">
-    <div class="logo-img-container">
-      <img alt="logo" class="logo" src="images/b-reduced.png">
+<mat-sidenav-container>
+  <mat-sidenav #sidenav [(opened)]="isSidenavOpen">
+    <app-sidenav (closing)="sidenav.close()"></app-sidenav>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <app-toolbar [(isSidenavOpen)]="isSidenavOpen"></app-toolbar>
+    <div class="content">
+      <router-outlet></router-outlet>
     </div>
-    <h1 class="logo-title">
-      PintaStreaming
-    </h1>
-  </a>
-  <a [routerLink]="['/']" class="menu-item" extended matFab>Home</a>
-  <a [routerLink]="['catalog/movies']" class="menu-item" extended matFab>Film</a>
-  <a [routerLink]="['catalog/tv-series']" class="menu-item" extended matFab>Serie TV</a>
-  @if (user() && isAdmin()) {
-    <a matFab extended class="menu-item" [routerLink]="['/admin']">Admin</a>
-  }
-  <span class="actions-box">
-    <button (click)="openSearch()" class="action material-symbols-outlined">search</button>
-    <button (click)="openLanguages()" [matTooltip]="language()"
-            class="action material-symbols-outlined">translate</button>
-    @if (!user()) {
-      <button [matMenuTriggerFor]="userLoginMenu" class="action material-symbols-outlined">person</button>
-      <mat-menu #userLoginMenu="matMenu">
-        <button (click)="loginWithEmail()" mat-menu-item>Email</button>
-        <button (click)="loginWithGoogle()" mat-menu-item>Google</button>
-      </mat-menu>
-    } @else {
-      @if (user()?.photoURL) {
-        <div [matMenuTriggerFor]="loggedUserMenu" class="action user-pic-container">
-          <img [src]="user()?.photoURL" alt="" class="user-pic">
-        </div>
-      } @else {
-        <button [matMenuTriggerFor]="loggedUserMenu" class="action material-symbols-outlined">logout</button>
-      }
-      <mat-menu #loggedUserMenu="matMenu">
-        <button mat-menu-item (click)="logout()">Logout</button>
-      </mat-menu>
-    }
-  </span>
-</div>
-<div class="content">
-  <router-outlet></router-outlet>
-</div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

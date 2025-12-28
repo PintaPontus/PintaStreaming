@@ -20,5 +20,5 @@
 }
 
 .poster {
-  max-width: 200px;
+  width: clamp(50px, 15vw, 200px);
 }

@@ -1,17 +1,24 @@
-.search-dialog{
-  background: dimgrey;
-}
-.search-input{
+.search-input, .search-input-box {
   width: 100%;
 }
 
-.search-input-box {
-  width: 100%;
+.search-results-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .search-results-list{
-
+  flex: 1;
 }
+
+mat-paginator {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  font-size: 1.2rem;
+}
+
 .search-result{
   display: flex;
   justify-content: start;
@@ -19,9 +26,11 @@
   flex-direction: row;
   gap: 1rem;
 }
+
 .search-result-title{
   font-size: 1.5rem;
 }
+
 .search-result-poster-container{
   width: 40px;
   display: flex;
@@ -31,9 +40,11 @@
   padding: 0;
   margin: 0;
 }
+
 .search-result-poster{
   width: 40px;
 }
+
 .search-result-item-divider{
   margin: 0.3rem 0;
 }

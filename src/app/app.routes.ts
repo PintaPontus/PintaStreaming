@@ -2,6 +2,7 @@ import {Routes} from '@angular/router';
 import {Player} from './player/player';
 import {Catalog} from './catalog/catalog';
 import {AdminPanel} from './admin-panel/admin-panel';
+import {SearchShow} from './search-show/search-show.component';
 
 export const routes: Routes = [
   {
@@ -13,6 +14,10 @@ export const routes: Routes = [
     path: 'catalog/:category',
     component: Catalog,
     title: 'PintaStreaming',
+  },
+  {
+    path: 'search',
+    component: SearchShow,
   },
   {
     path: 'player/tv-series/:id/:season/:episode',
