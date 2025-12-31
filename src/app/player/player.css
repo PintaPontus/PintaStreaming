@@ -43,6 +43,22 @@
   overflow-x: auto;
 }
 
-.episode-selector-container > h3 {
+.episode-selector-container h3 {
   margin: 0;
+}
+
+@media (max-width: 1000px) {
+  :host {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .player-container {
+    width: 100%;
+  }
+
+  .video-player {
+    min-height: 40vh;
+  }
 }
