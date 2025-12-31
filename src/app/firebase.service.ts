@@ -32,18 +32,8 @@ import {UserListItem, UsersDetails} from '../interfaces/users';
 })
 export class FirebaseService {
 
-  private readonly firebaseConfig = {
-    apiKey: environment.firebaseKey,
-    authDomain: "pintastreaming.firebaseapp.com",
-    projectId: "pintastreaming",
-    storageBucket: "pintastreaming.firebasestorage.app",
-    messagingSenderId: environment.firebaseMessagingSenderId,
-    appId: environment.firebaseAppId,
-    measurementId: environment.firebaseMeasurementId
-  };
-
   // Initialize Firebase
-  private readonly app = initializeApp(this.firebaseConfig);
+  private readonly app = initializeApp(environment.firebaseConfig);
 
   // Initialize Firebase Authentication and get a reference to the service
   private readonly auth = getAuth(this.app);
