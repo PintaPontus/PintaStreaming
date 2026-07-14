@@ -1,4 +1,4 @@
-import {Component, inject, signal} from '@angular/core';
+import {afterNextRender, Component, inject, signal, viewChild} from '@angular/core';
 import {MatFormField} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
 import {MatInput} from '@angular/material/input';
@@ -24,14 +24,20 @@ import {MatPaginator, PageEvent} from '@angular/material/paginator';
   styleUrl: './search-show.component.css'
 })
 export class SearchShow {
+
+  readonly searchInput = viewChild.required(MatInput);
+
   textSearch = '';
   page = signal(1);
-
-  private readonly movieDBService = inject(MovieDBService);
   items = signal({} as ShowResultsList);
+  private readonly movieDBService = inject(MovieDBService);
+
+  constructor() {
+    afterNextRender(() => this.focusSearchInput())
+  }
 
   async searchItems() {
-    if(this.textSearch !== '' && this.textSearch.length > 2){
+    if (this.textSearch !== '' && this.textSearch.length > 2) {
       const searchResult = await this.movieDBService.search(this.textSearch, this.page());
       this.items.set(searchResult);
     } else {
@@ -52,4 +58,9 @@ export class SearchShow {
     this.page.set($event.pageIndex + 1);
     await this.searchItems()
   }
+
+  focusSearchInput() {
+    this.searchInput().focus();
+  }
+
 }
