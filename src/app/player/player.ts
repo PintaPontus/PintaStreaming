@@ -167,6 +167,7 @@ export class Player implements OnInit {
     urlParams.append("primaryColor", "115298")
     urlParams.append("secondaryColor", "2b2d30")
     urlParams.append("lang", "it")
+    urlParams.append("autoplay", "false")
     if (time) {
       urlParams.append("startAt", time.toString())
     }
