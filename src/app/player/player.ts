@@ -94,12 +94,11 @@ export class Player implements OnInit {
 
   private listenPlayerEvents() {
     window?.addEventListener('message', (event) => {
-      console.log("Player event", event);
+      // console.log("Player event", event);
       if (event.origin !== environment.videoStreamingDomain) {
         return;
       }
       const plEvent = event.data as PlayerEvent;
-      console.log("Player event type: ", plEvent.event.event);
       switch (plEvent.event.event) {
         case "ended":
           this.handleEndedEvent();
@@ -116,7 +115,7 @@ export class Player implements OnInit {
   }
 
   private handleTimeUpdateEvent(plEvent: PlayerEventData) {
-    console.log("Time update", plEvent.currentTime);
+    // console.log("Time update", plEvent.currentTime);
     if (this.checkpointTimeoutFlag) {
       return;
     }
