@@ -6,7 +6,7 @@ import {ShowDetails, ShowTypeEnum} from '../../interfaces/show';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {PlayerRouteInfo} from '../../interfaces/routesInfo';
-import {PlayerEvents} from '../../interfaces/playerEvents';
+import {PlayerEvent, PlayerEventData} from '../../interfaces/playerEvents';
 import {FirebaseService} from '../firebase.service';
 import {UserListItem} from '../../interfaces/users';
 import {PlayerCard} from '../player-card/player-card';
@@ -94,16 +94,18 @@ export class Player implements OnInit {
 
   private listenPlayerEvents() {
     window?.addEventListener('message', (event) => {
+      console.log("Player event", event);
       if (event.origin !== environment.videoStreamingDomain) {
         return;
       }
-      const plEvent = JSON.parse(event.data) as PlayerEvents;
-      switch (plEvent.data.event) {
+      const plEvent = event.data as PlayerEvent;
+      console.log("Player event type: ", plEvent.event.event);
+      switch (plEvent.event.event) {
         case "ended":
           this.handleEndedEvent();
           break;
         case "timeupdate":
-          this.handleTimeUpdateEvent(plEvent);
+          this.handleTimeUpdateEvent(plEvent.event);
           break;
       }
     });
@@ -113,13 +115,14 @@ export class Player implements OnInit {
     this.firebaseService.removeContinueToWatch(this.createWatchCheckpoint())
   }
 
-  private handleTimeUpdateEvent(plEvent: PlayerEvents) {
+  private handleTimeUpdateEvent(plEvent: PlayerEventData) {
+    console.log("Time update", plEvent.currentTime);
     if (this.checkpointTimeoutFlag) {
       return;
     }
     this.checkpointTimeoutFlag = true;
     setTimeout(() => this.checkpointTimeoutFlag = false, 60000);
-    this.firebaseService.addToContinueToWatch(this.createWatchCheckpoint(plEvent.data.currentTime));
+    this.firebaseService.addToContinueToWatch(this.createWatchCheckpoint(plEvent.currentTime));
   }
 
   private createWatchCheckpoint(currentTime?: number) {
