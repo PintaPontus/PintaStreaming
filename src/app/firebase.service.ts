@@ -13,7 +13,7 @@ import {
   setDoc
 } from "firebase/firestore";
 import {
-  browserSessionPersistence,
+  browserLocalPersistence,
   createUserWithEmailAndPassword,
   getAuth,
   GoogleAuthProvider,
@@ -51,20 +51,20 @@ export class FirebaseService {
   // ============
 
   async loginWithEmail(email: string, password: string) {
-    await setPersistence(this.auth, browserSessionPersistence);
+    await setPersistence(this.auth, browserLocalPersistence);
     const result = await signInWithEmailAndPassword(this.auth, email, password);
     await this.setupLoggedUser(result.user);
   }
 
   async signupWithEmail(email: string, password: string) {
-    await setPersistence(this.auth, browserSessionPersistence);
+    await setPersistence(this.auth, browserLocalPersistence);
     const result = await createUserWithEmailAndPassword(this.auth, email, password);
     await this.setupLoggedUser(result.user);
   }
 
   async loginWithGoogle() {
     this.auth.languageCode = 'it';
-    await setPersistence(this.auth, browserSessionPersistence);
+    await setPersistence(this.auth, browserLocalPersistence);
     const result = await signInWithPopup(this.auth, this.provider);
     await this.setupLoggedUser(result.user);
   }
