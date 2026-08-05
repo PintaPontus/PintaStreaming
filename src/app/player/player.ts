@@ -126,10 +126,9 @@ export class Player implements OnInit {
   }
 
   private updateTimeURL(time: number) {
-    this.location.replaceState(
-      this.location.path()
-        .replace(/\btime=\d+\b/, `time=${time}`)
-    );
+    const url = new URL(this.location.path(), window.location.origin);
+    url.searchParams.set('time', time.toString());
+    this.location.replaceState(url.pathname + url.search);
   }
 
   private createWatchCheckpoint(currentTime?: number) {
