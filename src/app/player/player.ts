@@ -11,6 +11,7 @@ import {FirebaseService} from '../firebase.service';
 import {UserListItem} from '../../interfaces/users';
 import {PlayerCard} from '../player-card/player-card';
 import {environment} from '../../environments/environment';
+import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-player',
@@ -47,6 +48,7 @@ export class Player implements OnInit {
   private readonly router = inject(Router);
   private readonly title = inject(Title);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly location = inject(Location);
 
   ngOnInit() {
     this.route.paramMap.subscribe(async params => {
@@ -94,7 +96,6 @@ export class Player implements OnInit {
 
   private listenPlayerEvents() {
     window?.addEventListener('message', (event) => {
-      // console.log("Player event", event);
       if (event.origin !== environment.videoStreamingDomain) {
         return;
       }
@@ -115,13 +116,20 @@ export class Player implements OnInit {
   }
 
   private handleTimeUpdateEvent(plEvent: PlayerEventData) {
-    // console.log("Time update", plEvent.currentTime);
+    this.updateTimeURL(plEvent.currentTime);
     if (this.checkpointTimeoutFlag) {
       return;
     }
     this.checkpointTimeoutFlag = true;
     setTimeout(() => this.checkpointTimeoutFlag = false, 60000);
     this.firebaseService.addToContinueToWatch(this.createWatchCheckpoint(plEvent.currentTime));
+  }
+
+  private updateTimeURL(time: number) {
+    this.location.replaceState(
+      this.location.path()
+        .replace(/\btime=\d+\b/, `time=${time}`)
+    );
   }
 
   private createWatchCheckpoint(currentTime?: number) {
