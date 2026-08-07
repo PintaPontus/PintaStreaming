@@ -54,7 +54,6 @@ export class SearchShow {
   }
 
   async changePage($event: PageEvent) {
-    console.log($event);
     this.page.set($event.pageIndex + 1);
     await this.searchItems()
   }

@@ -94,7 +94,7 @@ export class PlayerCard implements OnInit {
   });
   showProviders = signal<ShowProvidersList>({} as ShowProvidersList);
   showProvidersLocale = computed<ShowProvidersLocale | undefined>(() =>
-    this.showProviders().results[this.language().toUpperCase()]
+    this.showProviders()?.results?.[this.language().toUpperCase()]
   );
 
   ngOnInit() {

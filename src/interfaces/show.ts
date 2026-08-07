@@ -129,3 +129,11 @@ export interface ShowProviderInfo {
   provider_name: string;
   display_priority: number;
 }
+
+// SHOW TIME
+
+export interface ShowTime {
+  time: number;
+  showId: number;
+  type: ShowTypeEnum;
+}
