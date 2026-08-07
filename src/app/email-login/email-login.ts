@@ -3,11 +3,10 @@ import {MatFormField, MatLabel} from '@angular/material/form-field';
 import {MatInput} from '@angular/material/input';
 import {MatFabButton} from '@angular/material/button';
 import {FirebaseService} from '../firebase.service';
-import {MatBottomSheet} from '@angular/material/bottom-sheet';
 import {FormsModule} from '@angular/forms';
 import firebase from 'firebase/compat/app';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatDialogTitle} from '@angular/material/dialog';
+import {MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
 import FirebaseError = firebase.FirebaseError;
 
 @Component({
@@ -28,8 +27,8 @@ export class EmailLogin {
   textEmail: string = '';
   textPassword: string = '';
   private readonly firebaseService = inject(FirebaseService);
-  private readonly bottomSheet = inject(MatBottomSheet);
   private snackBar = inject(MatSnackBar);
+  private dialogRef = inject(MatDialogRef<EmailLogin>);
 
   async login() {
     try {
@@ -37,7 +36,7 @@ export class EmailLogin {
     } catch (e) {
       this.handleLoginError(e as FirebaseError)
     }
-    this.bottomSheet.dismiss();
+    this.endEmailLogin()
   }
 
   async signup() {
@@ -46,7 +45,14 @@ export class EmailLogin {
     } catch (e) {
       this.handleLoginError(e as FirebaseError)
     }
-    this.bottomSheet.dismiss();
+    this.endEmailLogin()
+  }
+
+  endEmailLogin() {
+    if (this.firebaseService.isLogged()) {
+      this.snackBar.open('Login completato', "OK", {duration: 2000});
+    }
+    this.dialogRef.close();
   }
 
   private handleLoginError(e: FirebaseError) {

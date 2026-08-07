@@ -1,4 +1,4 @@
-import {computed, Injectable, Signal, signal, WritableSignal} from '@angular/core';
+import {computed, inject, Injectable, Signal, signal, WritableSignal} from '@angular/core';
 import {initializeApp} from "firebase/app";
 import {
   addDoc,
@@ -18,6 +18,7 @@ import {
   getAuth,
   GithubAuthProvider,
   GoogleAuthProvider,
+  sendEmailVerification,
   setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -27,6 +28,7 @@ import {environment} from '../environments/environment';
 import {ShowResource, ShowResourceLibrary} from '../interfaces/show';
 import {User} from '@firebase/auth';
 import {UserListItem, UsersDetails} from '../interfaces/users';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -41,9 +43,12 @@ export class FirebaseService {
 
   private readonly db = getFirestore(this.app);
 
+  private snackBar = inject(MatSnackBar);
+
   private readonly userSessionDetails: WritableSignal<User | undefined> = signal(undefined);
   private readonly userInfosDetails: WritableSignal<UsersDetails | undefined> = signal(undefined);
   private readonly isAdminFlag: Signal<boolean> = computed(() => this.userInfosDetails()?.role === 'admin');
+  readonly isLogged = computed(() => !!this.userInfosDetails());
 
   // ============
   // LOGIN ACTION
@@ -52,13 +57,22 @@ export class FirebaseService {
   async loginWithEmail(email: string, password: string) {
     await setPersistence(this.auth, browserLocalPersistence);
     const result = await signInWithEmailAndPassword(this.auth, email, password);
-    await this.setupLoggedUser(result.user);
+    await this.manageVerifiedEmailLogin(result.user)
   }
 
   async signupWithEmail(email: string, password: string) {
     await setPersistence(this.auth, browserLocalPersistence);
     const result = await createUserWithEmailAndPassword(this.auth, email, password);
-    await this.setupLoggedUser(result.user);
+    await this.manageVerifiedEmailLogin(result.user)
+  }
+
+  async manageVerifiedEmailLogin(user: User) {
+    if (user.emailVerified) {
+      await this.setupLoggedUser(user);
+    } else {
+      await sendEmailVerification(user)
+      this.snackBar.open('Email di verifica inviata', "OK", {duration: 2000});
+    }
   }
 
   async loginWithGoogle() {

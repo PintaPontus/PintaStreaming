@@ -24,7 +24,7 @@
     <button (click)="openLanguages()" [matTooltip]="language()"
             class="action material-symbols-outlined">translate</button>
     @if (!user()) {
-      <button [matMenuTriggerFor]="userLoginMenu" class="action material-symbols-outlined">person</button>
+      <button [matMenuTriggerFor]="userLoginMenu" class="action material-symbols-outlined">login</button>
       <mat-menu #userLoginMenu="matMenu">
         <app-login-menu></app-login-menu>
       </mat-menu>
@@ -35,7 +35,7 @@
         </div>
       } @else {
         <button [matTooltip]="user()?.displayName" [matMenuTriggerFor]="loggedUserMenu"
-                class="action material-symbols-outlined">logout</button>
+                class="action material-symbols-outlined">person</button>
       }
       <mat-menu #loggedUserMenu="matMenu">
         <button mat-menu-item (click)="logout()">Logout</button>

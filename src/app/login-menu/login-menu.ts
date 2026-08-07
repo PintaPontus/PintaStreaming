@@ -30,17 +30,18 @@ export class LoginMenu {
 
   async loginWithGoogle() {
     await this.executeLogin(() => this.firebaseService.loginWithGoogle())
+    this.snackBar.open('Login completato', "OK", {duration: 2000});
   }
 
   async loginWithGithub() {
     await this.executeLogin(() => this.firebaseService.loginWithGithub())
+    this.snackBar.open('Login completato', "OK", {duration: 2000});
   }
 
   async executeLogin(fun: () => Promise<void>) {
     this.loginStarted.emit();
     try {
       await fun();
-      this.snackBar.open('Login completato', "OK", {duration: 2000});
     } catch (e) {
       this.snackBar.open(e as string, "OK", {duration: 2000});
       console.error(e);
