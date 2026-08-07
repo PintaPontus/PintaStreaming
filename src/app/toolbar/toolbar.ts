@@ -6,12 +6,11 @@ import {MovieDBService} from '../movie-db.service';
 import {MatDialog} from '@angular/material/dialog';
 import {User} from '@firebase/auth';
 import {FirebaseService} from '../firebase.service';
-import {EmailLogin} from '../email-login/email-login';
 import {MatBottomSheet} from '@angular/material/bottom-sheet';
-import {SearchShow} from '../search-show/search-show.component';
 import {LanguageSelection} from '../language-selection/language-selection';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MatToolbar} from '@angular/material/toolbar';
+import {LoginMenu} from '../login-menu/login-menu';
 
 @Component({
   selector: 'app-toolbar',
@@ -23,6 +22,7 @@ import {MatToolbar} from '@angular/material/toolbar';
     MatMenuTrigger,
     MatToolbar,
     MatButton,
+    LoginMenu,
   ],
   templateUrl: './toolbar.html',
   styleUrl: './toolbar.css'
@@ -42,24 +42,8 @@ export class Toolbar {
   readonly dialog = inject(MatDialog);
   isSidenavOpen = model<boolean>(false);
 
-  async loginWithEmail() {
-    this.dialog.open(EmailLogin, {
-      width: '800px'
-    });
-  }
-
-  async loginWithGoogle() {
-    await this.firebaseService.loginWithGoogle();
-  }
-
   async logout() {
     await this.firebaseService.logout();
-  }
-
-  openSearch() {
-    this.dialog.open(SearchShow, {
-      width: '800px'
-    });
   }
 
   openLanguages() {

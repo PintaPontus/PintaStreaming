@@ -16,6 +16,7 @@ import {
   browserLocalPersistence,
   createUserWithEmailAndPassword,
   getAuth,
+  GithubAuthProvider,
   GoogleAuthProvider,
   setPersistence,
   signInWithEmailAndPassword,
@@ -40,8 +41,6 @@ export class FirebaseService {
 
   private readonly db = getFirestore(this.app);
 
-  private readonly provider = new GoogleAuthProvider();
-
   private readonly userSessionDetails: WritableSignal<User | undefined> = signal(undefined);
   private readonly userInfosDetails: WritableSignal<UsersDetails | undefined> = signal(undefined);
   private readonly isAdminFlag: Signal<boolean> = computed(() => this.userInfosDetails()?.role === 'admin');
@@ -65,7 +64,14 @@ export class FirebaseService {
   async loginWithGoogle() {
     this.auth.languageCode = 'it';
     await setPersistence(this.auth, browserLocalPersistence);
-    const result = await signInWithPopup(this.auth, this.provider);
+    const result = await signInWithPopup(this.auth, new GoogleAuthProvider());
+    await this.setupLoggedUser(result.user);
+  }
+
+  async loginWithGithub() {
+    this.auth.languageCode = 'it';
+    await setPersistence(this.auth, browserLocalPersistence);
+    const result = await signInWithPopup(this.auth, new GithubAuthProvider());
     await this.setupLoggedUser(result.user);
   }
 

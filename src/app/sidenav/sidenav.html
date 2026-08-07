@@ -9,8 +9,7 @@
       <span matListItemTitle>Login</span>
     </button>
     <mat-menu #userLoginMenu="matMenu">
-      <button (click)="loginWithEmail()" mat-menu-item>Email</button>
-      <button (click)="loginWithGoogle()" mat-menu-item>Google</button>
+      <app-login-menu (loginStarted)="closeSidenav()"></app-login-menu>
     </mat-menu>
   } @else {
     <button
