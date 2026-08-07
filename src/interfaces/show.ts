@@ -110,3 +110,22 @@ export interface ShowLanguage {
   english_name: string;
   name: string;
 }
+
+// PROVIDERS
+
+export interface ShowProvidersList {
+  id: number;
+  results: Record<string, ShowProvidersLocale>;
+}
+
+export interface ShowProvidersLocale {
+  link: string;
+  flatrate: ShowProviderInfo[];
+}
+
+export interface ShowProviderInfo {
+  logo_path: string;
+  provider_id: number;
+  provider_name: string;
+  display_priority: number;
+}

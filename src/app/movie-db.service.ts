@@ -2,6 +2,7 @@ import {Injectable, signal, WritableSignal} from '@angular/core';
 import {
   ShowDetails,
   ShowLanguage,
+  ShowProvidersList,
   ShowReference,
   ShowResultsList,
   ShowTranslationsList,
@@ -62,6 +63,14 @@ export class MovieDBService {
       showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/tv/${showId}/translations`);
     }
     return showDetails;
+  }
+
+  async getProvidersMovie(showId: number): Promise<ShowProvidersList> {
+    return await this.get<ShowProvidersList>(`https://api.themoviedb.org/3/movie/${showId}/watch/providers`);
+  }
+
+  async getProvidersTvSeries(showId: number): Promise<ShowProvidersList> {
+    return await this.get<ShowProvidersList>(`https://api.themoviedb.org/3/tv/${showId}/watch/providers`);
   }
 
   // ===========

@@ -2,7 +2,7 @@
 <div class="shows-list">
   @for (show of shows(); track show.id) {
     <app-carousel-card
-      [isAvailable]="streamService.isAvailable(show.id,show.type)"
+      [isAvailable]="listType() !== UserListTypeEnum.SUGGESTIONS || streamService.isAvailable(show.id,show.type)"
       [show]="show"
       [listType]="listType()"
     >

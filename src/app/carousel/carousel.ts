@@ -48,4 +48,5 @@ export class Carousel {
     return await this.movieDBService.getShowsFromCategory(categoryLink, type)
   }
 
+  protected readonly UserListTypeEnum = UserListTypeEnum;
 }

@@ -2,6 +2,7 @@ import {Component, computed, inject, input, InputSignal, OnInit, signal, Writabl
 import {
   MatCard,
   MatCardActions,
+  MatCardContent,
   MatCardHeader,
   MatCardSubtitle,
   MatCardTitle,
@@ -9,13 +10,14 @@ import {
 } from "@angular/material/card";
 import {MatChip, MatChipSet} from "@angular/material/chips";
 import {MatDivider} from "@angular/material/divider";
-import {ShowDetails, ShowTypeEnum} from '../../interfaces/show';
+import {ShowDetails, ShowProvidersList, ShowProvidersLocale, ShowTypeEnum} from '../../interfaces/show';
 import {FirebaseService} from '../firebase.service';
 import {MovieDBService} from '../movie-db.service';
 import {ActivatedRoute} from '@angular/router';
 import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {UserListItem} from '../../interfaces/users';
 import {PlayerCardInfo} from '../player-card-info/player-card-info';
+import {ShowProviders} from '../show-providers/show-providers';
 
 @Component({
   selector: 'app-player-card',
@@ -29,7 +31,9 @@ import {PlayerCardInfo} from '../player-card-info/player-card-info';
     MatChip,
     MatChipSet,
     MatDivider,
-    PlayerCardInfo
+    PlayerCardInfo,
+    MatCardContent,
+    ShowProviders
   ],
   templateUrl: './player-card.html',
   styleUrl: './player-card.css'
@@ -88,15 +92,21 @@ export class PlayerCard implements OnInit {
       ? `${showYear} - ${showSeasonsCount}`
       : `${showSeasonsCount}`;
   });
+  showProviders = signal<ShowProvidersList>({} as ShowProvidersList);
+  showProvidersLocale = computed<ShowProvidersLocale | undefined>(() =>
+    this.showProviders().results[this.language().toUpperCase()]
+  );
 
   ngOnInit() {
     this.route.paramMap.subscribe(async params => {
       const showID = Number.parseInt(params.get('id')!);
       if (this.showType() === ShowTypeEnum.MOVIES) {
         await this.setupMoviePlayer(showID);
+        await this.setupMovieProviders(showID);
       }
       if (this.showType() === ShowTypeEnum.TV_SERIES) {
         await this.setupTvSeriesPlayer(showID);
+        await this.setupTvSeriesProviders(showID);
       }
     });
   }
@@ -136,6 +146,14 @@ export class PlayerCard implements OnInit {
         `https://www.themoviedb.org/tv/${showID}`
       )
     );
+  }
+
+  private async setupMovieProviders(showID: number) {
+    this.showProviders.set(await this.movieDBService.getProvidersMovie(showID));
+  }
+
+  private async setupTvSeriesProviders(showID: number) {
+    this.showProviders.set(await this.movieDBService.getProvidersTvSeries(showID));
   }
 
 }

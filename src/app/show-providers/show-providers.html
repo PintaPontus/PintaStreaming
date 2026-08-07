@@ -1,0 +1,11 @@
+@if ((showProvidersLocale()?.flatrate?.length || 0) > 0) {
+  @for (provider of showProvidersLocale()?.flatrate; track provider.provider_id) {
+    <div
+      [matTooltip]="provider.provider_name"
+    >
+      <img [src]="`https://image.tmdb.org/t/p/w500/${provider.logo_path}`" alt="provider-logo" class="provider-logo">
+    </div>
+  }
+} @else {
+  Non sono disponibili providers
+}

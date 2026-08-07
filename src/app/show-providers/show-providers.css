@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.provider-logo {
+  display: block;
+  border-radius: 25%;
+  box-shadow: 3px 3px 2px var(--mat-sys-surface-container-highest);
+  width: 2.5rem;
+  margin: 0;
+  padding: 0;
+}

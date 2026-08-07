@@ -1,4 +1,4 @@
-@if (continueToWatch().length > 0) {
+@if (!isCategorySelected() && continueToWatch().length > 0) {
   <app-carousel
     [title]="'Continua a guardare'"
     [listType]="UserListTypeEnum.CONTINUE"
@@ -6,7 +6,7 @@
   ></app-carousel>
   <mat-divider class="catalog-divider"></mat-divider>
 }
-@if (favorites().length > 0) {
+@if (!isCategorySelected() && favorites().length > 0) {
   <app-carousel
     [title]="'La mia lista'"
     [listType]="UserListTypeEnum.FAVORITES"

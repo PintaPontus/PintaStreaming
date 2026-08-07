@@ -18,6 +18,12 @@
     </mat-card-title-group>
   </mat-card-header>
   <mat-divider class="show-details-divider"></mat-divider>
+  <mat-card-content>
+    <app-show-providers [showProvidersLocale]="showProvidersLocale()">
+
+    </app-show-providers>
+  </mat-card-content>
+  <mat-divider class="show-details-divider"></mat-divider>
   <app-player-card-info
     [showInfo]="showInfo()"
     [showType]="showType()"

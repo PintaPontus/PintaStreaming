@@ -51,7 +51,27 @@ export class Catalog implements OnInit {
     },
   ];
 
-  displayCategories = signal(this.categories);
+  category = signal<string | undefined>(undefined);
+  isCategorySelected = computed(() =>
+    this.category() !== undefined
+    && (
+      this.category() === ShowTypeEnum.MOVIES
+      || this.category() === ShowTypeEnum.TV_SERIES)
+  );
+  displayCategories = computed(() => {
+    switch (this.category()) {
+      case ShowTypeEnum.MOVIES:
+        return this.categories.filter(c =>
+          c.type === ShowTypeEnum.MOVIES
+        );
+      case ShowTypeEnum.TV_SERIES:
+        return this.categories.filter(c =>
+          c.type === ShowTypeEnum.TV_SERIES
+        );
+      default:
+        return this.categories;
+    }
+  });
 
   userInfos = this.firebaseService.getUserInfosDetails()
 
@@ -70,26 +90,7 @@ export class Catalog implements OnInit {
 
   private setupCategoryFilter() {
     this.route.paramMap.subscribe(async params => {
-      const category = params.get('category');
-      switch (category) {
-        case ShowTypeEnum.MOVIES:
-          this.displayCategories.set(
-            this.categories.filter(c =>
-              c.type === ShowTypeEnum.MOVIES
-            )
-          );
-          break;
-        case ShowTypeEnum.TV_SERIES:
-          this.displayCategories.set(
-            this.categories.filter(c =>
-              c.type === ShowTypeEnum.TV_SERIES
-            )
-          );
-          break;
-        default:
-          this.displayCategories.set(this.categories);
-          break;
-      }
+      this.category.set(params.get('category') || undefined);
     });
   }
 
