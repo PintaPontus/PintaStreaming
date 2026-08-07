@@ -6,10 +6,10 @@
         {{ cardSubtitle() }}
         <mat-chip-set class="chips-list">
           @for (genre of showInfo().genres; track genre.id) {
-            <mat-chip class="genre" disabled>{{ genre.name }}</mat-chip>
+            <mat-chip disabled>{{ genre.name }}</mat-chip>
           }
           @if (showInfo().adult) {
-            <mat-chip class="genre" disabled>18</mat-chip>
+            <mat-chip disabled>18</mat-chip>
           }
         </mat-chip-set>
       </mat-card-subtitle>
@@ -20,7 +20,6 @@
   <mat-divider class="show-details-divider"></mat-divider>
   <mat-card-content>
     <app-show-providers [showProvidersLocale]="showProvidersLocale()">
-
     </app-show-providers>
   </mat-card-content>
   <mat-divider class="show-details-divider"></mat-divider>
