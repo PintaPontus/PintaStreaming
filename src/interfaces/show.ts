@@ -136,4 +136,6 @@ export interface ShowTime {
   time: number;
   showId: number;
   type: ShowTypeEnum;
+  season: number;
+  episode: number;
 }

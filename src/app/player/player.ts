@@ -123,11 +123,16 @@ export class Player implements OnInit {
   }
 
   private updateTimeSession(time: number) {
-    sessionStorage.setItem("checkpoint", JSON.stringify({
+    const checkpoint = {
       time: time,
       showId: this.showInfo().id,
       type: this.routeData().type,
-    } as ShowTime));
+    } as ShowTime;
+    if (this.routeData().type === ShowTypeEnum.TV_SERIES) {
+      checkpoint.season = this.currentSeason();
+      checkpoint.episode = this.currentEpisode();
+    }
+    sessionStorage.setItem("checkpoint", JSON.stringify(checkpoint));
   }
 
   private createWatchCheckpoint(currentTime?: number) {
@@ -150,7 +155,7 @@ export class Player implements OnInit {
     this.updateShowInfo(newShowInfo);
     this.videoUrl.set(
       this.sanitizer.bypassSecurityTrustResourceUrl(
-        `${environment.videoStreamingDomain}/movie/${showID}?${this.getURLParams()}`
+        `${environment.videoStreamingDomain}/movie/${showID}?${this.getPlayerURLParams()}`
       )
     );
   }
@@ -160,7 +165,7 @@ export class Player implements OnInit {
     this.updateShowInfo(newShowInfo);
     this.videoUrl.set(
       this.sanitizer.bypassSecurityTrustResourceUrl(
-        `${environment.videoStreamingDomain}/tv/${showID}/${(this.currentSeason())}/${this.currentEpisode()}?${this.getURLParams()}`
+        `${environment.videoStreamingDomain}/tv/${showID}/${(this.currentSeason())}/${this.currentEpisode()}?${this.getPlayerURLParams()}`
       )
     );
   }
@@ -170,7 +175,7 @@ export class Player implements OnInit {
     this.title.setTitle('PintaStreaming - ' + (showInfo.title || showInfo.name || showInfo.original_title));
   }
 
-  private getURLParams() {
+  private getPlayerURLParams() {
     const startTimeSession = JSON.parse(sessionStorage.getItem("checkpoint") || "{}") as ShowTime
     const startTimeParam = this.castNumber(this.route.snapshot.queryParamMap.get("time"))
     const urlParams = new URLSearchParams()
@@ -182,6 +187,11 @@ export class Player implements OnInit {
       startTimeSession.time
       && startTimeSession.showId === this.showInfo().id
       && startTimeSession.type === this.routeData().type
+      && (
+        startTimeSession.type !== ShowTypeEnum.TV_SERIES
+        || (
+          startTimeSession.season === this.currentSeason()
+          && startTimeSession.episode === this.currentEpisode()))
     ) {
       urlParams.append("startAt", startTimeSession.time.toString())
     } else if (startTimeParam) {
