@@ -50,6 +50,10 @@
 @media (max-width: 1000px) {
   :host {
     flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    /*height: auto;*/
+    /*min-height: 100%;*/
     padding: 1rem;
     gap: 1rem;
   }
@@ -60,5 +64,11 @@
 
   .video-player {
     min-height: 40vh;
+  }
+
+  @media (orientation: landscape) {
+    .video-player {
+      min-height: 50vh;
+    }
   }
 }
