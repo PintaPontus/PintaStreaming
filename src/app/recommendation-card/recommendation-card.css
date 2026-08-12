@@ -1,0 +1,20 @@
+a {
+  margin: 0;
+  padding: 0;
+}
+
+.poster {
+  max-width: 8rem;
+  border-radius: var(--mat-card-elevated-container-shape, var(--mat-sys-corner-medium));
+}
+
+.unavailable-show {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.show-card {
+  display: inline-block;
+  white-space: normal;
+  max-width: 150px;
+}

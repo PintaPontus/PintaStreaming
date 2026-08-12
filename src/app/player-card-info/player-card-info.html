@@ -28,4 +28,24 @@
       {{ this.currentSeasonInfo()?.overview || 'No description available' }}
     </mat-expansion-panel>
   }
+  <mat-expansion-panel (opened)="openRecommendations()">
+    <mat-expansion-panel-header>
+      <mat-panel-title>Correlati</mat-panel-title>
+    </mat-expansion-panel-header>
+    @defer (on viewport) {
+      <div class="recommendation-panel">
+        @for (rec of this.showRecommendations().results; track rec.id) {
+          <app-recommendation-card
+            [showId]="rec.id"
+            [showType]="rec.media_type"
+            [showTitle]="rec.title || rec.original_title"
+            [showPosterPath]="rec.poster_path"
+          >
+          </app-recommendation-card>
+        }
+      </div>
+    } @placeholder (minimum 2000ms) {
+      <p>Placeholder content</p>
+    }
+  </mat-expansion-panel>
 </mat-accordion>

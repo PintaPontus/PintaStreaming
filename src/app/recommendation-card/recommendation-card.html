@@ -1,0 +1,10 @@
+<a
+  [class.unavailable-show]="!isAvailable()"
+  [matTooltip]="showTitle()"
+  [routerLink]="isAvailable() ? playerLink() : null"
+>
+  <mat-card appearance="raised" class="show-card">
+    <img [src]="`https://image.tmdb.org/t/p/w500/${showPosterPath()}`" alt="" class="poster" mat-card-image>
+  </mat-card>
+</a>
+

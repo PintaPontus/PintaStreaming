@@ -7,6 +7,7 @@ import {MatIconButton} from '@angular/material/button';
 import {UserListItem, UserListTypeEnum} from '../../interfaces/users';
 import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 import {FirebaseService} from '../firebase.service';
+import {StreamService} from '../stream.service';
 
 @Component({
   selector: 'app-carousel-card',
@@ -28,10 +29,14 @@ export class CarouselCard {
   protected readonly UserListTypeEnum = UserListTypeEnum;
 
   show: InputSignal<ShowReference | undefined> = input();
-  isAvailable: InputSignal<boolean> = input(true);
+  isAvailable = computed(() =>
+    this.listType() !== UserListTypeEnum.SUGGESTIONS
+    || (!!this.show() && this.streamService.isAvailable(this.show()!.id, this.show()!.type))
+  );
   listType = input(UserListTypeEnum.SUGGESTIONS);
 
   private firebaseService = inject(FirebaseService);
+  private streamService = inject(StreamService);
 
   playerLink = computed(() => {
     if (this.show()?.type === ShowTypeEnum.TV_SERIES) {

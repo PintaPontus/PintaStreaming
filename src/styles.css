@@ -5,16 +5,19 @@
   font-style: normal;
   font-variation-settings: "wdth" 100;
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color) transparent;
 }
 
+/*noinspection CssOverwrittenProperties*/
 body{
   color: #e4eeff;
   background-color: #121316FF;
   font-family: Roboto, "Helvetica Neue", sans-serif;
   width: 100vw;
-  /*width: 100dvw;*/
+  width: 100dvw;
   height: 100vh;
-  /*height: 100dvh;*/
+  height: 100dvh;
   padding: 0;
   margin: 0;
 }
@@ -25,3 +28,7 @@ a{
 }
 
 html, body { height: 100%; }
+
+html {
+  --scrollbar-color: #888;
+}

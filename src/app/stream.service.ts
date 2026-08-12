@@ -18,17 +18,15 @@ export class StreamService {
     return this.tvSeries().map(s => s.tmdb_id)
   });
 
+  constructor() {
+    this.fetchShows();
+  }
+
   async getMovies() {
-    if (this.movies().length === 0 || this.tvSeries().length === 0) {
-      await this.fetchShows()
-    }
     return this.movies.asReadonly();
   }
 
   async getTvSeries() {
-    if (this.movies().length === 0 || this.tvSeries().length === 0) {
-      await this.fetchShows()
-    }
     return this.tvSeries.asReadonly();
   }
 

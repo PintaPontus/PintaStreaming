@@ -3,6 +3,7 @@ import {
   ShowDetails,
   ShowLanguage,
   ShowProvidersList,
+  ShowRecommendationList,
   ShowReference,
   ShowResultsList,
   ShowTranslationsList,
@@ -111,6 +112,14 @@ export class MovieDBService {
     });
 
     return await Promise.all(detailedShows);
+  }
+
+  async loadRecommendationsMovie(id: number) {
+    return await this.get<ShowRecommendationList>(`https://api.themoviedb.org/3/movie/${id}/recommendations`);
+  }
+
+  async loadRecommendationsTvSeries(id: number) {
+    return await this.get<ShowRecommendationList>(`https://api.themoviedb.org/3/tv/${id}/recommendations`);
   }
 
   // =====

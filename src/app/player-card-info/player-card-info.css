@@ -1,0 +1,9 @@
+.recommendation-panel {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  max-height: 30vh;
+  overflow-y: auto;
+}
