@@ -18,6 +18,7 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 import {UserListItem} from '../../interfaces/users';
 import {PlayerCardInfo} from '../player-card-info/player-card-info';
 import {ShowProviders} from '../show-providers/show-providers';
+import {MatTooltip} from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-player-card',
@@ -33,7 +34,8 @@ import {ShowProviders} from '../show-providers/show-providers';
     MatDivider,
     PlayerCardInfo,
     MatCardContent,
-    ShowProviders
+    ShowProviders,
+    MatTooltip
   ],
   templateUrl: './player-card.html',
   styleUrl: './player-card.css'

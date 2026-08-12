@@ -34,9 +34,11 @@
       <!--    TODO: IMPLEMENT BOOKMARKS-->
         <!--    <span (click)="addShowToList()" class="show-details-action material-symbols-outlined">bookmark</span>-->
       <span (click)="toggleShowToFavorites()"
+            [matTooltip]="isFavorite() ? 'Rimuovi dalla lista' : 'Aggiungi alla lista'"
             class="show-details-action material-symbols-outlined">{{ isFavorite() ? 'heart_minus' : 'heart_plus' }}</span>
     }
-    <a [href]="infoUrl()" class="show-details-action material-symbols-outlined">info</a>
-    <a [href]="videoUrl()" class="show-details-action material-symbols-outlined">open_in_new</a>
+    <a [href]="infoUrl()" [matTooltip]="'Ulteriori dettagli'"
+       class="show-details-action material-symbols-outlined">info</a>
+    <a [href]="videoUrl()" [matTooltip]="'Apri sorgente video'" class="show-details-action material-symbols-outlined">open_in_new</a>
   </mat-card-actions>
 </mat-card>
