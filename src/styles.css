@@ -6,7 +6,7 @@
   font-variation-settings: "wdth" 100;
   box-sizing: border-box;
   scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-color) transparent;
+  scrollbar-color: var(--mat-sys-outline-variant) transparent;
 }
 
 /*noinspection CssOverwrittenProperties*/
@@ -28,7 +28,3 @@ a{
 }
 
 html, body { height: 100%; }
-
-html {
-  --scrollbar-color: #888;
-}
