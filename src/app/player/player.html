@@ -6,7 +6,7 @@
   </div>
   @if (routeData().type === 'tv-series') {
     <div class="episode-selector-container">
-      <h3>Season:</h3>
+      <h3>Stagione</h3>
       <mat-button-toggle-group class="episode-selector">
         @for (seas of seasons(); track seas.id) {
           <mat-button-toggle [checked]="seas.season_number === currentSeason()"
@@ -15,7 +15,7 @@
           </mat-button-toggle>
         }
       </mat-button-toggle-group>
-      <h3>Episode:</h3>
+      <h3>Episodio</h3>
       <mat-button-toggle-group class="episode-selector">
         @for (ep of episodes(); track ep.id) {
           <mat-button-toggle (click)="goToSelectedEpisode(ep.id)" [checked]="ep.id === currentEpisode()">
