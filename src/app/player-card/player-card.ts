@@ -1,4 +1,4 @@
-import {Component, computed, inject, input, InputSignal, OnInit, signal, WritableSignal} from '@angular/core';
+import {Component, computed, effect, inject, input, InputSignal, signal, WritableSignal} from '@angular/core';
 import {
   MatCard,
   MatCardActions,
@@ -10,7 +10,7 @@ import {
 } from "@angular/material/card";
 import {MatChip, MatChipSet} from "@angular/material/chips";
 import {MatDivider} from "@angular/material/divider";
-import {ShowDetails, ShowProvidersList, ShowProvidersLocale, ShowTypeEnum} from '../../interfaces/show';
+import {ShowDetails, ShowTypeEnum} from '../../interfaces/show';
 import {FirebaseService} from '../firebase.service';
 import {MovieDBService} from '../movie-db.service';
 import {ActivatedRoute} from '@angular/router';
@@ -40,7 +40,7 @@ import {MatTooltip} from '@angular/material/tooltip';
   templateUrl: './player-card.html',
   styleUrl: './player-card.css'
 })
-export class PlayerCard implements OnInit {
+export class PlayerCard {
 
   videoUrl: InputSignal<SafeResourceUrl | undefined> = input();
   infoUrl: WritableSignal<SafeResourceUrl | undefined> = signal(undefined);
@@ -50,6 +50,7 @@ export class PlayerCard implements OnInit {
   );
   showInfo = input({} as ShowDetails);
   seasons = computed(() => this.showInfo().seasons || []);
+  showId: WritableSignal<number | undefined> = signal(undefined);
   showType = input(ShowTypeEnum.MOVIES);
   private readonly route = inject(ActivatedRoute);
   private readonly movieDBService = inject(MovieDBService);
@@ -94,22 +95,14 @@ export class PlayerCard implements OnInit {
       ? `${showYear} - ${showSeasonsCount}`
       : `${showSeasonsCount}`;
   });
-  showProviders = signal<ShowProvidersList>({} as ShowProvidersList);
-  showProvidersLocale = computed<ShowProvidersLocale | undefined>(() =>
-    this.showProviders()?.results?.[this.language().toUpperCase()]
-  );
 
-  ngOnInit() {
+  constructor() {
     this.route.paramMap.subscribe(async params => {
       const showID = Number.parseInt(params.get('id')!);
-      if (this.showType() === ShowTypeEnum.MOVIES) {
-        await this.setupMoviePlayer(showID);
-        await this.setupMovieProviders(showID);
-      }
-      if (this.showType() === ShowTypeEnum.TV_SERIES) {
-        await this.setupTvSeriesPlayer(showID);
-        await this.setupTvSeriesProviders(showID);
-      }
+      this.showId.set(showID);
+    });
+    effect(() => {
+      this.setupPlayerURL(this.showId(), this.showType());
     });
   }
 
@@ -134,28 +127,23 @@ export class PlayerCard implements OnInit {
   // PRIVATES
   // ========
 
-  private async setupMoviePlayer(showID: number) {
-    this.infoUrl.set(
-      this.sanitizer.bypassSecurityTrustResourceUrl(
-        `https://www.themoviedb.org/movie/${showID}`
-      )
-    );
-  }
-
-  private async setupTvSeriesPlayer(showID: number) {
-    this.infoUrl.set(
-      this.sanitizer.bypassSecurityTrustResourceUrl(
-        `https://www.themoviedb.org/tv/${showID}`
-      )
-    );
-  }
-
-  private async setupMovieProviders(showID: number) {
-    this.showProviders.set(await this.movieDBService.getProvidersMovie(showID));
-  }
-
-  private async setupTvSeriesProviders(showID: number) {
-    this.showProviders.set(await this.movieDBService.getProvidersTvSeries(showID));
+  private setupPlayerURL(showID: number | undefined, showType: ShowTypeEnum) {
+    if (showID !== undefined) {
+      if (showType === ShowTypeEnum.MOVIES) {
+        this.infoUrl.set(
+          this.sanitizer.bypassSecurityTrustResourceUrl(
+            `https://www.themoviedb.org/movie/${showID}`
+          )
+        );
+      }
+      if (showType === ShowTypeEnum.TV_SERIES) {
+        this.infoUrl.set(
+          this.sanitizer.bypassSecurityTrustResourceUrl(
+            `https://www.themoviedb.org/tv/${showID}`
+          )
+        );
+      }
+    }
   }
 
 }

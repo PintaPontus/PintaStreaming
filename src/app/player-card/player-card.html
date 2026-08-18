@@ -19,8 +19,10 @@
   </mat-card-header>
   <mat-divider class="show-details-divider"></mat-divider>
   <mat-card-content>
-    <app-show-providers [showProvidersLocale]="showProvidersLocale()">
-    </app-show-providers>
+    <app-show-providers
+      [showId]="showId()"
+      [showType]="showType()"
+    ></app-show-providers>
   </mat-card-content>
   <mat-divider class="show-details-divider"></mat-divider>
   <app-player-card-info

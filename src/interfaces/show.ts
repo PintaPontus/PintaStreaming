@@ -157,7 +157,7 @@ export interface ShowRecommendation {
   original_title: string;
   overview: string;
   poster_path: string;
-  media_type: ShowTypeEnum;
+  media_type: string;
   original_language: string;
   genre_ids: number[];
   popularity: number;

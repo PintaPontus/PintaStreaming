@@ -1,5 +1,5 @@
-import {Component, computed, inject, input, InputSignal} from '@angular/core';
-import {ShowTypeEnum} from '../../interfaces/show';
+import {Component, computed, inject, input} from '@angular/core';
+import {ShowRecommendation, ShowTypeEnum} from '../../interfaces/show';
 import {MatCard, MatCardImage} from '@angular/material/card';
 import {MatTooltip} from '@angular/material/tooltip';
 import {RouterLink} from '@angular/router';
@@ -18,19 +18,19 @@ import {StreamService} from '../stream.service';
 })
 export class RecommendationCard {
 
-  showId = input(0);
-  showType = input(ShowTypeEnum.MOVIES, {
-    transform: (value: string | ShowTypeEnum) => {
-      if (Object.values(ShowTypeEnum).includes(value as ShowTypeEnum)) {
-        return value as ShowTypeEnum;
-      } else if (value === "tv") {
-        return ShowTypeEnum.TV_SERIES;
-      }
-      return ShowTypeEnum.MOVIES;
+  recommendation = input({} as ShowRecommendation);
+  showId = computed(() => this.recommendation().id);
+  showType = computed(() => {
+    const showType = this.recommendation().media_type
+    if (Object.values(ShowTypeEnum).includes(showType as ShowTypeEnum)) {
+      return showType as ShowTypeEnum;
+    } else if (showType === "tv") {
+      return ShowTypeEnum.TV_SERIES;
     }
+    return ShowTypeEnum.MOVIES;
   });
-  showTitle: InputSignal<string | undefined> = input();
-  showPosterPath: InputSignal<string | undefined> = input();
+  showTitle = computed(() => this.recommendation().title || this.recommendation().original_title);
+  showPosterPath = computed(() => this.recommendation().poster_path);
   isAvailable = computed(() => this.streamService.isAvailable(this.showId(), this.showType()));
 
   private streamService = inject(StreamService);

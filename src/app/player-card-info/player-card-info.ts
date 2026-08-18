@@ -46,30 +46,28 @@ export class PlayerCardInfo {
 
   constructor() {
     effect(() => {
-      console.log("Effect");
       const id = this.showInfo().id;
       if (id) {
         this.showRecommendations.set({} as ShowRecommendationList);
         if (this.openedRecommendations()) {
-          this.loadCorrelates();
+          this.loadCorrelates(id, this.showType());
         }
       }
     });
   }
 
-  async openRecommendations() {
-    console.log("Opening recommendations");
+  openRecommendations() {
     this.openedRecommendations.set(true);
   }
 
-  async loadCorrelates() {
-    if (this.showType() === ShowTypeEnum.MOVIES) {
+  async loadCorrelates(showId: number, showType: ShowTypeEnum) {
+    if (showType === ShowTypeEnum.MOVIES) {
       this.showRecommendations.set(
-        await this.movieDbService.loadRecommendationsMovie(this.showInfo().id)
+        await this.movieDbService.loadRecommendationsMovie(showId)
       )
-    } else if (this.showType() === ShowTypeEnum.TV_SERIES) {
+    } else if (showType === ShowTypeEnum.TV_SERIES) {
       this.showRecommendations.set(
-        await this.movieDbService.loadRecommendationsTvSeries(this.showInfo().id)
+        await this.movieDbService.loadRecommendationsTvSeries(showId)
       )
     }
   }
