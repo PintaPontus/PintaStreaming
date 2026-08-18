@@ -24,13 +24,13 @@ export class LanguageSelection implements OnInit {
   }
 
   async ngOnInit() {
-    const availableLanguages = await this.movieDbService.getLanguages();
-    const sortedLanguages = availableLanguages
-      .sort((a, b) => {
-        const nameA = a.name || a.english_name;
-        const nameB = b.name || b.english_name;
-        return nameA.localeCompare(nameB)
-      });
-    this.languages.set(sortedLanguages);
+    this.languages.set(
+      (await this.movieDbService.getLanguages())
+        .sort((a, b) => {
+          const nameA = a.name || a.english_name;
+          const nameB = b.name || b.english_name;
+          return nameA.localeCompare(nameB)
+        })
+    );
   }
 }

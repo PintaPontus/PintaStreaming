@@ -24,12 +24,15 @@ export class MovieDBService {
 
   setLanguage(langId: string) {
     this.language.set(langId)
-    localStorage.setItem('language', JSON.stringify(this.language()));
+    localStorage.setItem('language', this.language());
   }
 
   initLanguage() {
-    const memorizedLanguage = localStorage.getItem('language');
-    return memorizedLanguage ? JSON.parse(memorizedLanguage) : environment.defaultLanguage;
+    const memorizedLanguage = localStorage.getItem('language') || environment.defaultLanguage;
+    if (memorizedLanguage?.length > 2) {
+      return environment.defaultLanguage;
+    }
+    return memorizedLanguage;
   }
 
   getLanguage() {
