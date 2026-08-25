@@ -17,6 +17,7 @@ export interface UserListItem {
   id: number;
   type: ShowTypeEnum;
   currentTime: number;
+  duration: number;
   lastUpdate: number;
   season?: number;
   episode?: number;

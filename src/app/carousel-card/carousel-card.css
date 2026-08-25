@@ -19,6 +19,32 @@ a {
   max-width: 200px;
 }
 
+.progress-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 12rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.progress-label {
+  display: block;
+  padding: 0.25rem 0.5rem;
+  font-size: 1.2rem;
+  background: rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress-line {
+  width: 0;
+  height: 4px;
+  background: var(--mat-sys-primary);
+  border-radius: 2px;
+}
+
 .actions-button {
   position: absolute;
   top: 8px;

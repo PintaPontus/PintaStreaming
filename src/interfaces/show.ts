@@ -10,7 +10,8 @@ export interface ShowReference {
   type: ShowTypeEnum
   season?: number,
   episode?: number,
-  time?: number,
+  currentTime?: number,
+  duration?: number,
   details?: ShowDetails,
   item?: ShowResultItem
 }

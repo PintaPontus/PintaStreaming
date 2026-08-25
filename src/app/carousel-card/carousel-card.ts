@@ -47,7 +47,7 @@ export class CarouselCard {
 
   playerParams = computed(() => {
     return {
-      "time": this.show()?.time
+      "time": this.show()?.currentTime
     };
   });
 
@@ -58,6 +58,15 @@ export class CarouselCard {
       || this.show()?.item?.title
       || this.show()?.item?.name
       || this.show()?.item?.original_title;
+  });
+
+  watchProgress = computed(() => {
+    const currentTime = this.show()?.currentTime;
+    const duration = this.show()?.duration;
+    if (!currentTime || !duration) {
+      return 0;
+    }
+    return Math.min(100, (currentTime / duration) * 100);
   });
 
   showPosterPath = computed(() => {
@@ -79,4 +88,5 @@ export class CarouselCard {
     } as UserListItem);
   }
 
+  protected readonly ShowTypeEnum = ShowTypeEnum;
 }

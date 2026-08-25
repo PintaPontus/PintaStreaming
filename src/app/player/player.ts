@@ -119,7 +119,7 @@ export class Player implements OnInit {
     }
     this.checkpointTimeoutFlag = true;
     setTimeout(() => this.checkpointTimeoutFlag = false, 60000);
-    this.firebaseService.addToContinueToWatch(this.createWatchCheckpoint(plEvent.currentTime));
+    this.firebaseService.addToContinueToWatch(this.createWatchCheckpoint(plEvent.currentTime, plEvent.duration));
   }
 
   private updateTimeSession(time: number) {
@@ -135,11 +135,12 @@ export class Player implements OnInit {
     sessionStorage.setItem("checkpoint", JSON.stringify(checkpoint));
   }
 
-  private createWatchCheckpoint(currentTime?: number) {
+  private createWatchCheckpoint(currentTime?: number, duration?: number) {
     return {
       id: this.showInfo().id,
       type: this.routeData().type,
       currentTime: currentTime,
+      duration: duration,
       season: this.currentSeason(),
       episode: this.currentEpisode(),
       lastUpdate: Date.now(),

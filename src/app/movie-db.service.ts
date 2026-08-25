@@ -107,7 +107,8 @@ export class MovieDBService {
       return {
         id: cs.id,
         type: cs.type,
-        time: cs.currentTime,
+        currentTime: cs.currentTime,
+        duration: cs.duration,
         season: cs.season,
         episode: cs.episode,
         details: await this.getInfoShow(cs.id, cs.type)
