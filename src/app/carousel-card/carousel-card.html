@@ -7,7 +7,7 @@
   <mat-card appearance="raised" class="show-card">
     <img [src]="`https://image.tmdb.org/t/p/w500/${showPosterPath()}`" alt="" class="poster" mat-card-image>
     <div class="progress-overlay">
-      @if (this.show()?.type === ShowTypeEnum.TV_SERIES) {
+      @if (this.show()?.type === ShowTypeEnum.TV_SERIES && this.show()?.season && this.show()?.episode) {
         <span class="progress-label">S:{{ show()?.season }} - E:{{ show()?.episode }}</span>
       }
       <div class="progress-line" [style.width.%]="watchProgress()"></div>
