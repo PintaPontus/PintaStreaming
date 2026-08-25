@@ -1,6 +1,5 @@
-import {Component, computed, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {StreamService} from '../stream.service';
 import {ShowTypeEnum} from '../../interfaces/show';
 import {Carousel} from '../carousel/carousel';
 import {MatDivider} from '@angular/material/divider';
@@ -16,12 +15,11 @@ import {UserListTypeEnum} from '../../interfaces/users';
   templateUrl: './catalog.html',
   styleUrl: './catalog.css'
 })
-export class Catalog implements OnInit {
+export class Catalog {
 
   protected readonly UserListTypeEnum = UserListTypeEnum;
 
   private route = inject(ActivatedRoute);
-  private streamService = inject(StreamService);
   private firebaseService = inject(FirebaseService);
 
   private readonly categories = [
@@ -76,19 +74,14 @@ export class Catalog implements OnInit {
   userInfos = this.firebaseService.getUserInfosDetails()
 
   continueToWatch = computed(() =>
-    this.userInfos()?.continueToWatch || []
+    (this.userInfos()?.continueToWatch || []).sort((a, b) => b.lastUpdate - a.lastUpdate)
   )
 
   favorites = computed(() =>
-    this.userInfos()?.favorites || []
+    (this.userInfos()?.favorites || []).sort((a, b) => b.lastUpdate - a.lastUpdate)
   )
 
-  ngOnInit() {
-    this.streamService.refreshShows();
-    this.setupCategoryFilter();
-  }
-
-  private setupCategoryFilter() {
+  constructor() {
     this.route.paramMap.subscribe(async params => {
       this.category.set(params.get('category') || undefined);
     });

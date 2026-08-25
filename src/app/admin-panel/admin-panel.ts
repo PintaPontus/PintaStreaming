@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal, Signal} from '@angular/core';
+import {Component, effect, inject, signal, Signal} from '@angular/core';
 import {ShowResource} from '../../interfaces/show';
 import {StreamService} from '../stream.service';
 import {FirebaseService} from '../firebase.service';
@@ -25,29 +25,27 @@ import {environment} from '../../environments/environment';
   templateUrl: './admin-panel.html',
   styleUrl: './admin-panel.css'
 })
-export class AdminPanel implements OnInit {
-
-  movies: Signal<ShowResource[]> = signal([]);
-  tvSeries: Signal<ShowResource[]> = signal([]);
-
-  moviesText = signal('');
-  tvSeriesText = signal('');
+export class AdminPanel {
 
   private firebaseService = inject(FirebaseService);
   private streamService = inject(StreamService);
   private snackBar = inject(MatSnackBar);
 
-  async ngOnInit() {
-    this.movies = await this.streamService.getMovies();
-    this.tvSeries = await this.streamService.getTvSeries();
-    this.moviesText.set(JSON.stringify(this.movies()));
-    this.tvSeriesText.set(JSON.stringify(this.tvSeries()));
+  movies: Signal<ShowResource[]> = this.streamService.getMovies();
+  tvSeries: Signal<ShowResource[]> = this.streamService.getTvSeries();
+
+  moviesText = signal('');
+  tvSeriesText = signal('');
+
+  constructor() {
+    effect(() => {
+      this.moviesText.set(JSON.stringify(this.movies()));
+      this.tvSeriesText.set(JSON.stringify(this.tvSeries()));
+    });
   }
 
   async refreshShows() {
     await this.streamService.refreshShows();
-    this.moviesText.set(JSON.stringify(this.movies()));
-    this.tvSeriesText.set(JSON.stringify(this.tvSeries()));
     this.openSnackBar("Shows refreshed!");
   }
 
@@ -67,13 +65,11 @@ export class AdminPanel implements OnInit {
     this.snackBar.open(message, "OK", {duration: 2000});
   }
 
-  getTextMovies() {
-    return JSON.stringify(this.movies());
+  protected getMovieListURL() {
+    return environment.videoStreamingDomain + '/api/list/movie?lang=it'
   }
 
-  getTextTVSeries() {
-    return JSON.stringify(this.tvSeries());
+  protected getTvSeriesListURL() {
+    return environment.videoStreamingDomain + '/api/list/tv?lang=it'
   }
-
-  protected readonly environment = environment;
 }

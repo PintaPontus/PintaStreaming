@@ -22,11 +22,11 @@ export class StreamService {
     this.fetchShows();
   }
 
-  async getMovies() {
+  getMovies() {
     return this.movies.asReadonly();
   }
 
-  async getTvSeries() {
+  getTvSeries() {
     return this.tvSeries.asReadonly();
   }
 
