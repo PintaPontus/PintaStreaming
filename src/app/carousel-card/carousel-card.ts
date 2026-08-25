@@ -66,7 +66,9 @@ export class CarouselCard {
     if (!currentTime || !duration) {
       return 0;
     }
-    return Math.min(100, (currentTime / duration) * 100);
+    const progress = (currentTime / duration) * 100;
+    const steppedProgress = Math.ceil(progress / 5) * 5;
+    return Math.max(5, Math.min(100, steppedProgress));
   });
 
   showPosterPath = computed(() => {
