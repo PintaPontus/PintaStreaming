@@ -1,8 +1,6 @@
 <div class="search-results-container">
   <mat-form-field class="search-input">
     <input
-      (input)="searchItems()"
-      (submit)="searchItems()"
       [(ngModel)]="textSearch"
       class="search-input-box"
       matInput
@@ -10,29 +8,36 @@
     />
   </mat-form-field>
   <mat-list class="search-results-list">
-    @for (item of items().results; track item.id; let idx = $index) {
-      @if (idx > 0) {
-        <mat-divider class="search-result-item-divider"></mat-divider>
-      }
-      <mat-list-item>
-        <div class="search-result">
-          <div class="search-result-poster-container">
-            <img class="search-result-poster" [src]="`https://image.tmdb.org/t/p/w300/${item.poster_path}`" alt="">
+    @if (searchResource.isLoading()) {
+      <div class="search-spinner">
+        <mat-spinner></mat-spinner>
+      </div>
+    } @else {
+      @for (item of searchResource.value().results; track item.id; let idx = $index) {
+        @if (idx > 0) {
+          <mat-divider class="search-result-item-divider"></mat-divider>
+        }
+        <mat-list-item>
+          <div class="search-result">
+            <div class="search-result-poster-container">
+              <img class="search-result-poster" [src]="`https://image.tmdb.org/t/p/w300/${item.poster_path}`" alt="">
+            </div>
+            <a class="search-result-title"
+               [routerLink]="getPlayerUrl(item)">
+              {{ item.title || item.name || item.original_title }}
+            </a>
           </div>
-          <a class="search-result-title"
-             [routerLink]="getPlayerUrl(item)">
-            {{ item.title || item.name || item.original_title }}
-          </a>
-        </div>
-      </mat-list-item>
-    } @empty {
-      @if (textSearch !== '') {
-        <mat-list-item>There are no items.</mat-list-item>
+        </mat-list-item>
+      } @empty {
+        @if (textSearch() !== '') {
+          <mat-list-item>There are no items.</mat-list-item>
+        }
       }
     }
+
   </mat-list>
   <mat-paginator
-    [length]="items().total_results"
+    [length]="searchResource.value().total_results"
     [pageSize]="20"
     [hidePageSize]="true"
     (page)="changePage($event)"

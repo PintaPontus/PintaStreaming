@@ -81,14 +81,15 @@ export class MovieDBService {
   // SHOWS LISTS
   // ===========
 
-  async search(textSearch: string, page?: number): Promise<ShowResultsList> {
+  async search(textSearch: string, page?: number, abortSignal?: AbortSignal): Promise<ShowResultsList> {
     const params = new URLSearchParams();
     params.append("query", textSearch);
     params.append("include_adult", true.toString());
+    params.append("language", this.language());
     if (page) {
       params.append("page", page.toString());
     }
-    return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/search/multi?${params}`);
+    return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/search/multi?${params}`, abortSignal);
   }
 
   async getShowsFromCategory(link: string, type: ShowTypeEnum) {
@@ -130,18 +131,22 @@ export class MovieDBService {
   // UTILS
   // =====
 
-  private async get<T>(url: string): Promise<T> {
+  private async get<T>(url: string, abortSignal?: AbortSignal): Promise<T> {
     try {
       const response = await fetch(
         url,
         {
           method: 'GET',
           headers: this.generateHeaders(),
+          signal: abortSignal,
         },
       );
 
       return await response.json() as T;
     }catch (e) {
+      if ((e as Error)?.name === 'AbortError') {
+        throw e;
+      }
       console.error('Error while retrieving data: ', e);
     }
     return {} as T;

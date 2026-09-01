@@ -51,6 +51,8 @@ export class Player implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(async params => {
       const showID = Number.parseInt(params.get('id')!);
+      this.currentSeason.set(Number.parseInt(params.get('season')!));
+      this.currentEpisode.set(Number.parseInt(params.get('episode')!));
       if (this.routeData().type === ShowTypeEnum.MOVIES) {
         await this.setupMoviePlayer(showID);
       }
@@ -61,8 +63,6 @@ export class Player implements OnInit {
           console.error("No season or episode");
           await this.router.navigate(['/player/tv-series', showID, paramSeason || 1, paramSeason || 1]);
         }
-        this.currentSeason.set(Number.parseInt(params.get('season')!));
-        this.currentEpisode.set(Number.parseInt(params.get('episode')!));
         await this.setupTvSeriesPlayer(showID);
       }
     });
