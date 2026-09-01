@@ -26,10 +26,14 @@
     </div>
   }
 </div>
-<app-player-card
-  class="show-details"
-  [showInfo]="showInfo()"
-  [showType]="routeData().type"
-  [currentSeason]="currentSeason()"
-  [videoUrl]="videoUrl()"
-></app-player-card>
+@if (showInfo.isLoading()) {
+  <mat-spinner class="show-info-spinner"></mat-spinner>
+} @else {
+  <app-player-card
+    class="show-details"
+    [showInfo]="showInfo.value()"
+    [showType]="routeData().type"
+    [currentSeason]="currentSeason()"
+    [videoUrl]="videoUrl()"
+  ></app-player-card>
+}

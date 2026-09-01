@@ -11,6 +11,10 @@
   flex: 3;
 }
 
+.show-info-spinner {
+  flex: 3;
+}
+
 .player-container {
   height: 100%;
   flex: 8;

@@ -51,20 +51,20 @@ export class MovieDBService {
     return type === ShowTypeEnum.MOVIES ? this.getInfoMovie(showId) : this.getInfoTvSeries(showId)
   }
 
-  async getInfoMovie(showId: number): Promise<ShowDetails> {
-    const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/movie/${showId}`);
+  async getInfoMovie(showId: number, abortSignal?: AbortSignal): Promise<ShowDetails> {
+    const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/movie/${showId}`, abortSignal);
     showDetails.id = this.castNumber(showDetails.id.toString())!
     if (this.language()) {
-      showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/movie/${showId}/translations`);
+      showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/movie/${showId}/translations`, abortSignal);
     }
     return showDetails;
   }
 
-  async getInfoTvSeries(showId: number): Promise<ShowDetails> {
-    const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/tv/${showId}`);
+  async getInfoTvSeries(showId: number, abortSignal?: AbortSignal): Promise<ShowDetails> {
+    const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/tv/${showId}`, abortSignal);
     showDetails.id = this.castNumber(showDetails.id.toString())!
     if (this.language()) {
-      showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/tv/${showId}/translations`);
+      showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/tv/${showId}/translations`, abortSignal);
     }
     return showDetails;
   }

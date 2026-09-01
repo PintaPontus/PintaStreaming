@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, input, InputSignal, signal} from '@angular/core';
+import {Component, computed, inject, input, InputSignal, resource, signal} from '@angular/core';
 import {
   MatAccordion,
   MatExpansionPanel,
@@ -10,6 +10,9 @@ import {MatChip, MatChipSet} from '@angular/material/chips';
 import {ShowDetails, ShowRecommendationList, ShowSeason, ShowTranslation, ShowTypeEnum} from '../../interfaces/show';
 import {MovieDBService} from '../movie-db.service';
 import {RecommendationCard} from '../recommendation-card/recommendation-card';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
+
+const DEFAULT_RECOMMENDATIONS = {} as ShowRecommendationList;
 
 @Component({
   selector: 'app-player-card-info',
@@ -21,7 +24,8 @@ import {RecommendationCard} from '../recommendation-card/recommendation-card';
     MatExpansionPanelHeader,
     MatExpansionPanelTitle,
     MatExpansionPanelDescription,
-    RecommendationCard
+    RecommendationCard,
+    MatProgressSpinner
   ],
   templateUrl: './player-card-info.html',
   styleUrl: './player-card-info.css'
@@ -40,35 +44,30 @@ export class PlayerCardInfo {
     const currSeason = this.currentSeasonInfo();
     return currSeason?.name || ("Season " + currSeason?.season_number);
   });
-  showRecommendations = signal({} as ShowRecommendationList);
   openedRecommendations = signal(false);
   private movieDbService = inject(MovieDBService);
 
-  constructor() {
-    effect(() => {
+  recommendationsResource = resource({
+    params: () => {
       const id = this.showInfo().id;
-      if (id) {
-        this.showRecommendations.set({} as ShowRecommendationList);
-        if (this.openedRecommendations()) {
-          this.loadCorrelates(id, this.showType());
-        }
+      if (!id || !this.openedRecommendations()) {
+        return undefined;
       }
-    });
-  }
+      return {id, type: this.showType()};
+    },
+    loader: async ({params}) => {
+      if (params.type === ShowTypeEnum.MOVIES) {
+        return this.movieDbService.loadRecommendationsMovie(params.id);
+      } else if (params.type === ShowTypeEnum.TV_SERIES) {
+        return this.movieDbService.loadRecommendationsTvSeries(params.id);
+      }
+      return DEFAULT_RECOMMENDATIONS;
+    },
+    defaultValue: DEFAULT_RECOMMENDATIONS
+  });
 
   openRecommendations() {
     this.openedRecommendations.set(true);
   }
 
-  async loadCorrelates(showId: number, showType: ShowTypeEnum) {
-    if (showType === ShowTypeEnum.MOVIES) {
-      this.showRecommendations.set(
-        await this.movieDbService.loadRecommendationsMovie(showId)
-      )
-    } else if (showType === ShowTypeEnum.TV_SERIES) {
-      this.showRecommendations.set(
-        await this.movieDbService.loadRecommendationsTvSeries(showId)
-      )
-    }
-  }
 }

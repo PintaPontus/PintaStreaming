@@ -8,10 +8,8 @@
   overflow-y: auto;
 }
 
-.spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.recommentation-spinner {
+  margin: auto;
 }
 
 .spin {

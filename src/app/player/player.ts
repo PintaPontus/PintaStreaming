@@ -1,5 +1,5 @@
-import {Component, computed, inject, OnInit, Signal, signal, WritableSignal} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {afterNextRender, Component, computed, effect, inject, resource, Signal} from '@angular/core';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {MovieDBService} from '../movie-db.service';
 import {DomSanitizer, SafeResourceUrl, Title} from '@angular/platform-browser';
 import {ShowDetails, ShowTime, ShowTypeEnum} from '../../interfaces/show';
@@ -11,6 +11,7 @@ import {FirebaseService} from '../firebase.service';
 import {UserListItem} from '../../interfaces/users';
 import {PlayerCard} from '../player-card/player-card';
 import {environment} from '../../environments/environment';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-player',
@@ -18,14 +19,36 @@ import {environment} from '../../environments/environment';
     MatButtonToggleGroup,
     MatButtonToggle,
     PlayerCard,
+    MatProgressSpinner,
   ],
   templateUrl: './player.html',
   styleUrl: './player.css'
 })
-export class Player implements OnInit {
+export class Player {
 
+  private readonly route = inject(ActivatedRoute);
+  private readonly movieDBService = inject(MovieDBService);
+  language = this.movieDBService.getLanguage();
+  private readonly firebaseService = inject(FirebaseService);
+  private readonly router = inject(Router);
+  private readonly title = inject(Title);
+  private readonly sanitizer = inject(DomSanitizer);
+  routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
+  routeParamMap = toSignal(this.route.paramMap) as Signal<ParamMap>;
   checkpointTimeoutFlag = false
-  videoUrl: WritableSignal<SafeResourceUrl | undefined> = signal(undefined);
+  videoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
+    if (!!this.showId() && this.routeData().type === ShowTypeEnum.MOVIES) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(
+        `${environment.videoStreamingDomain}/movie/${this.showId()}?${this.getPlayerURLParams()}`
+      )
+    }
+    if (!!this.showId() && this.routeData().type === ShowTypeEnum.TV_SERIES) {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(
+        `${environment.videoStreamingDomain}/tv/${this.showId()}/${(this.currentSeason())}/${this.currentEpisode()}?${this.getPlayerURLParams()}`
+      )
+    }
+    return undefined;
+  });
   episodes = computed(() => {
     const currentSeasonInfo = this.getCurrentSeason()
     return currentSeasonInfo?.episode_count
@@ -35,38 +58,51 @@ export class Player implements OnInit {
       ).map(i => ({id: i}))
       : [];
   });
-  currentSeason = signal(1);
-  currentEpisode = signal(1);
-  showInfo = signal({} as ShowDetails);
-  seasons = computed(() => this.showInfo().seasons || []);
-  private readonly route = inject(ActivatedRoute);
-  routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
-  private readonly movieDBService = inject(MovieDBService);
-  language = this.movieDBService.getLanguage();
-  private readonly firebaseService = inject(FirebaseService);
-  private readonly router = inject(Router);
-  private readonly title = inject(Title);
-  private readonly sanitizer = inject(DomSanitizer);
-
-  ngOnInit() {
-    this.route.paramMap.subscribe(async params => {
-      const showID = Number.parseInt(params.get('id')!);
-      this.currentSeason.set(Number.parseInt(params.get('season')!));
-      this.currentEpisode.set(Number.parseInt(params.get('episode')!));
-      if (this.routeData().type === ShowTypeEnum.MOVIES) {
-        await this.setupMoviePlayer(showID);
+  currentSeason: Signal<number> = computed(() => {
+    return this.routeParamMap().get('id') ? Number.parseInt(this.routeParamMap().get('id')!) : 1;
+  });
+  currentEpisode: Signal<number> = computed(() => {
+    return this.routeParamMap().get('id') ? Number.parseInt(this.routeParamMap().get('id')!) : 1;
+  });
+  showId: Signal<number | undefined> = computed(() => {
+    return this.routeParamMap().get('id') ? Number.parseInt(this.routeParamMap().get('id')!) : undefined;
+  });
+  protected readonly showInfo = resource({
+    params: () => {
+      const newId = this.showId()
+      const newType = this.routeData().type
+      if (!newId || !newType) {
+        return undefined;
       }
+      return {id: newId, type: newType}
+    },
+    loader: ({params, abortSignal}) => {
+      if (params.type === ShowTypeEnum.MOVIES) {
+        return this.movieDBService.getInfoMovie(params.id, abortSignal)
+      }
+      if (params.type === ShowTypeEnum.TV_SERIES) {
+        return this.movieDBService.getInfoTvSeries(params.id, abortSignal)
+      }
+      return Promise.resolve({} as ShowDetails);
+    },
+    defaultValue: {} as ShowDetails
+  });
+  seasons = computed(() => this.showInfo.value().seasons || []);
+
+  constructor() {
+    effect(() => {
       if (this.routeData().type === ShowTypeEnum.TV_SERIES) {
-        const paramSeason = this.castNumber(params.get('season'));
-        const paramEpisode = this.castNumber(params.get('episode'));
+        const paramSeason = this.castNumber(this.routeParamMap().get('season'));
+        const paramEpisode = this.castNumber(this.routeParamMap().get('episode'));
         if (!paramSeason || !paramEpisode) {
           console.error("No season or episode");
-          await this.router.navigate(['/player/tv-series', showID, paramSeason || 1, paramSeason || 1]);
+          this.router.navigate(['/player/tv-series', this.showId(), paramSeason || 1, paramEpisode || 1]);
         }
-        await this.setupTvSeriesPlayer(showID);
       }
+      const showInfo = this.showInfo.value();
+      this.title.setTitle('PintaStreaming - ' + (showInfo.title || showInfo.name || showInfo.original_title))
     });
-    this.listenPlayerEvents()
+    afterNextRender(() => this.listenPlayerEvents())
   }
 
   // ======================
@@ -79,12 +115,12 @@ export class Player implements OnInit {
       finalEpisode = 1;
     }
     // noinspection JSIgnoredPromiseFromCall
-    this.router.navigate(['/player/tv-series', this.showInfo().id, id, finalEpisode]);
+    this.router.navigate(['/player/tv-series', this.showInfo.value().id, id, finalEpisode]);
   }
 
   goToSelectedEpisode(id: number) {
     // noinspection JSIgnoredPromiseFromCall
-    this.router.navigate(['/player/tv-series', this.showInfo().id, this.currentSeason(), id]);
+    this.router.navigate(['/player/tv-series', this.showInfo.value().id, this.currentSeason(), id]);
   }
 
   // =============
@@ -125,7 +161,7 @@ export class Player implements OnInit {
   private updateTimeSession(time: number) {
     const checkpoint = {
       time: time,
-      showId: this.showInfo().id,
+      showId: this.showId(),
       type: this.routeData().type,
     } as ShowTime;
     if (this.routeData().type === ShowTypeEnum.TV_SERIES) {
@@ -137,7 +173,7 @@ export class Player implements OnInit {
 
   private createWatchCheckpoint(currentTime?: number, duration?: number) {
     return {
-      id: this.showInfo().id,
+      id: this.showId(),
       type: this.routeData().type,
       currentTime: currentTime,
       duration: duration,
@@ -151,31 +187,6 @@ export class Player implements OnInit {
   // PRIVATES
   // ========
 
-  private async setupMoviePlayer(showID: number) {
-    const newShowInfo = await this.movieDBService.getInfoMovie(showID);
-    this.updateShowInfo(newShowInfo);
-    this.videoUrl.set(
-      this.sanitizer.bypassSecurityTrustResourceUrl(
-        `${environment.videoStreamingDomain}/movie/${showID}?${this.getPlayerURLParams()}`
-      )
-    );
-  }
-
-  private async setupTvSeriesPlayer(showID: number) {
-    const newShowInfo = await this.movieDBService.getInfoTvSeries(showID);
-    this.updateShowInfo(newShowInfo);
-    this.videoUrl.set(
-      this.sanitizer.bypassSecurityTrustResourceUrl(
-        `${environment.videoStreamingDomain}/tv/${showID}/${(this.currentSeason())}/${this.currentEpisode()}?${this.getPlayerURLParams()}`
-      )
-    );
-  }
-
-  private updateShowInfo(showInfo: ShowDetails) {
-    this.showInfo.set(showInfo);
-    this.title.setTitle('PintaStreaming - ' + (showInfo.title || showInfo.name || showInfo.original_title));
-  }
-
   private getPlayerURLParams() {
     const startTimeSession = JSON.parse(sessionStorage.getItem("checkpoint") || "{}") as ShowTime
     const startTimeParam = this.castNumber(this.route.snapshot.queryParamMap.get("time"))
@@ -186,7 +197,7 @@ export class Player implements OnInit {
     urlParams.append("autoplay", "false")
     if (
       startTimeSession.time
-      && startTimeSession.showId === this.showInfo().id
+      && startTimeSession.showId === this.showId()
       && startTimeSession.type === this.routeData().type
       && (
         startTimeSession.type !== ShowTypeEnum.TV_SERIES

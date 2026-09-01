@@ -32,10 +32,15 @@
     <mat-expansion-panel-header>
       <mat-panel-title>Correlati</mat-panel-title>
     </mat-expansion-panel-header>
+    @if (recommendationsResource.isLoading()) {
+      <mat-spinner class="recommentation-spinner"></mat-spinner>
+    } @else {
       <div class="recommendation-panel">
-        @for (rec of this.showRecommendations().results; track rec.id) {
+        @for (rec of this.recommendationsResource.value().results; track rec.id) {
           <app-recommendation-card [recommendation]="rec"></app-recommendation-card>
         }
       </div>
+    }
+
   </mat-expansion-panel>
 </mat-accordion>
