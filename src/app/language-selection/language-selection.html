@@ -1,7 +1,11 @@
 <mat-nav-list>
-  @for (lang of languages(); track lang) {
-    <a mat-list-item (click)="setLanguage(lang.iso_639_1)">
-      <span matListItemTitle>{{ lang.name || lang.english_name }}</span>
-    </a>
+  @if (languages.isLoading()) {
+    <mat-spinner class="languages-spinner"></mat-spinner>
+  } @else () {
+    @for (lang of languages.value(); track lang) {
+      <a mat-list-item (click)="setLanguage(lang.iso_639_1)">
+        <span matListItemTitle>{{ lang.name || lang.english_name }}</span>
+      </a>
+    }
   }
 </mat-nav-list>
