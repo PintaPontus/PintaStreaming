@@ -50,7 +50,7 @@ export class Player {
     return undefined;
   });
   episodes = computed(() => {
-    const currentSeasonInfo = this.getCurrentSeason()
+    const currentSeasonInfo = this.seasons().find(s => s.season_number === this.currentSeason())
     return currentSeasonInfo?.episode_count
       ? Array.from(
         {length: currentSeasonInfo.episode_count},
@@ -59,10 +59,10 @@ export class Player {
       : [];
   });
   currentSeason: Signal<number> = computed(() => {
-    return this.routeParamMap().get('id') ? Number.parseInt(this.routeParamMap().get('id')!) : 1;
+    return this.routeParamMap().get('season') ? Number.parseInt(this.routeParamMap().get('season')!) : 1;
   });
   currentEpisode: Signal<number> = computed(() => {
-    return this.routeParamMap().get('id') ? Number.parseInt(this.routeParamMap().get('id')!) : 1;
+    return this.routeParamMap().get('episode') ? Number.parseInt(this.routeParamMap().get('episode')!) : 1;
   });
   showId: Signal<number | undefined> = computed(() => {
     return this.routeParamMap().get('id') ? Number.parseInt(this.routeParamMap().get('id')!) : undefined;
@@ -210,10 +210,6 @@ export class Player {
       urlParams.append("startAt", startTimeParam.toString())
     }
     return urlParams;
-  }
-
-  private getCurrentSeason() {
-    return this.seasons().find(s => s.season_number === this.currentSeason())
   }
 
   private castNumber(number: string | null | undefined) {
