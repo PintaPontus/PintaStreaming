@@ -1,10 +1,10 @@
-import {afterNextRender, Component, computed, effect, inject, resource, Signal} from '@angular/core';
+import {afterNextRender, Component, computed, DestroyRef, effect, inject, resource, Signal} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {MovieDBService} from '../movie-db.service';
 import {DomSanitizer, SafeResourceUrl, Title} from '@angular/platform-browser';
 import {ShowDetails, ShowTime, ShowTypeEnum} from '../../interfaces/show';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
-import {toSignal} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {PlayerRouteInfo} from '../../interfaces/routesInfo';
 import {PlayerEvent, PlayerEventData} from '../../interfaces/playerEvents';
 import {FirebaseService} from '../firebase.service';
@@ -12,6 +12,7 @@ import {UserListItem} from '../../interfaces/users';
 import {PlayerCard} from '../player-card/player-card';
 import {environment} from '../../environments/environment';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {fromEvent} from 'rxjs';
 
 @Component({
   selector: 'app-player',
@@ -27,6 +28,7 @@ import {MatProgressSpinner} from '@angular/material/progress-spinner';
 export class Player {
 
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly movieDBService = inject(MovieDBService);
   language = this.movieDBService.getLanguage();
   private readonly firebaseService = inject(FirebaseService);
@@ -35,19 +37,45 @@ export class Player {
   private readonly sanitizer = inject(DomSanitizer);
   routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
   routeParamMap = toSignal(this.route.paramMap) as Signal<ParamMap>;
+  routeQueryMap = toSignal(this.route.queryParamMap) as Signal<ParamMap>;
   checkpointTimeoutFlag = false
   videoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
     if (!!this.showId() && this.routeData().type === ShowTypeEnum.MOVIES) {
       return this.sanitizer.bypassSecurityTrustResourceUrl(
-        `${environment.videoStreamingDomain}/movie/${this.showId()}?${this.getPlayerURLParams()}`
+        `${environment.videoStreamingDomain}/movie/${this.showId()}?${this.playerUrlParams()}`
       )
     }
     if (!!this.showId() && this.routeData().type === ShowTypeEnum.TV_SERIES) {
       return this.sanitizer.bypassSecurityTrustResourceUrl(
-        `${environment.videoStreamingDomain}/tv/${this.showId()}/${(this.currentSeason())}/${this.currentEpisode()}?${this.getPlayerURLParams()}`
+        `${environment.videoStreamingDomain}/tv/${this.showId()}/${(this.currentSeason())}/${this.currentEpisode()}?${this.playerUrlParams()}`
       )
     }
     return undefined;
+  });
+  playerUrlParams = computed(() => {
+    const startTimeSession = JSON.parse(sessionStorage.getItem("checkpoint") || "{}") as ShowTime
+    const startTimeParam = this.castNumber(this.routeQueryMap().get("time"))
+    const urlParams = new URLSearchParams()
+    urlParams.append("primaryColor", "115298")
+    urlParams.append("secondaryColor", "2b2d30")
+    urlParams.append("lang", "it")
+    urlParams.append("autoplay", "false")
+    if (
+      !!startTimeSession.time
+      && startTimeSession.showId === this.showId()
+      && startTimeSession.type === this.routeData().type
+      && (
+        startTimeSession.type !== ShowTypeEnum.TV_SERIES
+        || (
+          startTimeSession.season === this.currentSeason()
+          && startTimeSession.episode === this.currentEpisode())
+      )
+    ) {
+      urlParams.append("startAt", startTimeSession.time.toString())
+    } else if (startTimeParam) {
+      urlParams.append("startAt", startTimeParam.toString())
+    }
+    return urlParams;
   });
   episodes = computed(() => {
     const currentSeasonInfo = this.seasons().find(s => s.season_number === this.currentSeason())
@@ -128,20 +156,22 @@ export class Player {
   // =============
 
   private listenPlayerEvents() {
-    window?.addEventListener('message', (event) => {
-      if (event.origin !== environment.videoStreamingDomain) {
-        return;
-      }
-      const plEvent = event.data as PlayerEvent;
-      switch (plEvent.event.event) {
-        case "ended":
-          this.handleEndedEvent();
-          break;
-        case "timeupdate":
-          this.handleTimeUpdateEvent(plEvent.event);
-          break;
-      }
-    });
+    fromEvent<MessageEvent>(window, 'message')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(event => {
+        if (event.origin !== environment.videoStreamingDomain) {
+          return;
+        }
+        const plEvent = event.data as PlayerEvent;
+        switch (plEvent.event.event) {
+          case 'ended':
+            this.handleEndedEvent();
+            break;
+          case 'timeupdate':
+            this.handleTimeUpdateEvent(plEvent.event);
+            break;
+        }
+      });
   }
 
   private async handleEndedEvent() {
@@ -186,31 +216,6 @@ export class Player {
   // ========
   // PRIVATES
   // ========
-
-  private getPlayerURLParams() {
-    const startTimeSession = JSON.parse(sessionStorage.getItem("checkpoint") || "{}") as ShowTime
-    const startTimeParam = this.castNumber(this.route.snapshot.queryParamMap.get("time"))
-    const urlParams = new URLSearchParams()
-    urlParams.append("primaryColor", "115298")
-    urlParams.append("secondaryColor", "2b2d30")
-    urlParams.append("lang", "it")
-    urlParams.append("autoplay", "false")
-    if (
-      startTimeSession.time
-      && startTimeSession.showId === this.showId()
-      && startTimeSession.type === this.routeData().type
-      && (
-        startTimeSession.type !== ShowTypeEnum.TV_SERIES
-        || (
-          startTimeSession.season === this.currentSeason()
-          && startTimeSession.episode === this.currentEpisode()))
-    ) {
-      urlParams.append("startAt", startTimeSession.time.toString())
-    } else if (startTimeParam) {
-      urlParams.append("startAt", startTimeParam.toString())
-    }
-    return urlParams;
-  }
 
   private castNumber(number: string | null | undefined) {
     return !number || Number.isNaN(Number.parseInt(number)) ? undefined : Number.parseInt(number);
