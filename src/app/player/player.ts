@@ -56,9 +56,12 @@ export class Player {
     const startTimeSession = JSON.parse(sessionStorage.getItem("checkpoint") || "{}") as ShowTime
     const startTimeParam = this.castNumber(this.routeQueryMap().get("time"))
     const urlParams = new URLSearchParams()
-    urlParams.append("primaryColor", "115298")
-    urlParams.append("secondaryColor", "2b2d30")
-    urlParams.append("lang", "it")
+    const rootElement = getComputedStyle(document.documentElement)
+    const rawPrimary = rootElement.getPropertyValue('--mat-sys-primary');
+    const rawSecondary = rootElement.getPropertyValue('--mat-sys-secondary');
+    urlParams.append("primaryColor", this.pickFromLightDark(rawPrimary))
+    urlParams.append("secondaryColor", this.pickFromLightDark(rawSecondary))
+    urlParams.append("lang", this.language())
     urlParams.append("autoplay", "false")
     if (
       !!startTimeSession.time
@@ -220,4 +223,16 @@ export class Player {
   private castNumber(number: string | null | undefined) {
     return !number || Number.isNaN(Number.parseInt(number)) ? undefined : Number.parseInt(number);
   }
+
+  private pickFromLightDark(token: string): string {
+    const match = token.trim().match(/^light-dark\(\s*(.+?)\s*,\s*(.+?)\s*\)$/);
+    if (!match) return token.trim();
+
+    // TODO: enable when fixed light dark issues
+    // const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = true;
+    const finalColor = isDark ? match[2] : match[1];
+    return finalColor.replace("#", "");
+  }
+
 }

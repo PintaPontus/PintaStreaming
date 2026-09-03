@@ -5,23 +5,34 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use 'sass:map';
 
 html {
   //noinspection SassScssUnresolvedMixin
   @include mat.theme((
     color: (
       primary: mat.$azure-palette,
+      secondary: mat.$azure-palette,
       tertiary: mat.$azure-palette,
     ),
     typography: Roboto,
     density: 0,
   ));
+
+  @include mat.theme-overrides((
+    primary: light-dark(map.get(mat.$azure-palette, 50), map.get(mat.$azure-palette, 60)),
+    secondary: light-dark(map.get(mat.$azure-palette, 80), map.get(mat.$azure-palette, 90)),
+    tertiary:light-dark(map.get(mat.$azure-palette, 40), map.get(mat.$azure-palette, 50)),
+  ));
+
 }
 
 body {
   // Default the application to a light color theme. This can be changed to
   // `dark` to enable the dark color theme, or to `light dark` to defer to the
   // user's system settings.
+  //TODO: fix light-dark issues
+  //color-scheme: light dark;
   color-scheme: dark;
 
   // Set a default background, font and text colors for the application using
