@@ -1,13 +1,15 @@
 <mat-toolbar class="toolbar" color="primary">
-  <a [routerLink]="['/']" class="logo-container">
+  <div class="logo-container">
     <button class="sidenav-button action material-symbols-outlined" (click)="openSidenav()">menu</button>
-    <div class="logo-img-container">
-      <img alt="logo" class="logo" src="images/b-reduced.png">
-    </div>
-    <h1 class="logo-title">
-      PintaStreaming
-    </h1>
-  </a>
+    <a [routerLink]="['/']" class="logo-ref">
+      <div class="logo-img-container">
+        <img alt="logo" class="logo" src="images/b-reduced.png">
+      </div>
+      <h1 class="logo-title">
+        PintaStreaming
+      </h1>
+    </a>
+  </div>
   <a [routerLink]="['catalog/movies']" matButton class="menu-item">
     <span>Film</span>
   </a>
