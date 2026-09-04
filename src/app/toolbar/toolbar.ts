@@ -32,7 +32,7 @@ export class Toolbar {
 
   private readonly firebaseService = inject(FirebaseService);
   user: Signal<User | undefined> = this.firebaseService.getUserSessionDetails();
-  isAdmin: Signal<boolean> = this.firebaseService.isAdmin();
+  isAdmin: Signal<boolean> = this.firebaseService.isAdmin;
   private readonly movieDbService = inject(MovieDBService);
 
   language = this.movieDbService.getLanguage();

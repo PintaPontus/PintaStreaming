@@ -1,4 +1,4 @@
-import {computed, inject, Injectable, Signal, signal, WritableSignal} from '@angular/core';
+import {computed, inject, Injectable, resource, signal} from '@angular/core';
 import {initializeApp} from "firebase/app";
 import {
   addDoc,
@@ -18,6 +18,7 @@ import {
   getAuth,
   GithubAuthProvider,
   GoogleAuthProvider,
+  onAuthStateChanged,
   sendEmailVerification,
   setPersistence,
   signInWithEmailAndPassword,
@@ -45,114 +46,92 @@ export class FirebaseService {
 
   private snackBar = inject(MatSnackBar);
 
-  private readonly userSessionDetails: WritableSignal<User | undefined> = signal(undefined);
-  private readonly userInfosDetails: WritableSignal<UsersDetails | undefined> = signal(undefined);
-  private readonly isAdminFlag: Signal<boolean> = computed(() => this.userInfosDetails()?.role === 'admin');
-  readonly isLogged = computed(() => !!this.userInfosDetails());
+  private readonly userSessionDetails = signal<User | undefined>(undefined);
+  private readonly userInfosDetails = resource({
+    params: () => {
+      const userUID = this.userSessionDetails()?.uid;
+      if (!userUID || userUID === '') {
+        return undefined;
+      }
+      return {id: userUID};
+    },
+    loader: async ({params}) => {
+      return await this.loadOrCreateProfile(params.id);
+    },
+    defaultValue: undefined,
+  });
+  readonly isLogged = computed(() => !!this.userSessionDetails());
+  readonly isAdmin = computed(() => this.userInfosDetails.value()?.role === 'admin');
+
+  constructor() {
+    this.initAuth();
+  }
+
+  private async initAuth() {
+    this.auth.languageCode = 'it';
+    await setPersistence(this.auth, browserLocalPersistence);
+    onAuthStateChanged(this.auth, async (user) => {
+      if (!!user && !user.emailVerified) {
+        await sendEmailVerification(user)
+        this.snackBar.open('Email di verifica inviata', "OK", {duration: 2000});
+        return;
+      }
+      this.userSessionDetails.set(user ?? undefined);
+    });
+  }
 
   // ============
   // LOGIN ACTION
   // ============
 
   async loginWithEmail(email: string, password: string) {
-    await setPersistence(this.auth, browserLocalPersistence);
-    const result = await signInWithEmailAndPassword(this.auth, email, password);
-    await this.manageVerifiedEmailLogin(result.user)
+    await signInWithEmailAndPassword(this.auth, email, password);
   }
 
   async signupWithEmail(email: string, password: string) {
-    await setPersistence(this.auth, browserLocalPersistence);
-    const result = await createUserWithEmailAndPassword(this.auth, email, password);
-    await this.manageVerifiedEmailLogin(result.user)
-  }
-
-  async manageVerifiedEmailLogin(user: User) {
-    if (user.emailVerified) {
-      await this.setupLoggedUser(user);
-    } else {
-      await sendEmailVerification(user)
-      this.snackBar.open('Email di verifica inviata', "OK", {duration: 2000});
-    }
+    await createUserWithEmailAndPassword(this.auth, email, password);
   }
 
   async loginWithGoogle() {
-    this.auth.languageCode = 'it';
-    await setPersistence(this.auth, browserLocalPersistence);
-    const result = await signInWithPopup(this.auth, new GoogleAuthProvider());
-    await this.setupLoggedUser(result.user);
+    await signInWithPopup(this.auth, new GoogleAuthProvider());
   }
 
   async loginWithGithub() {
-    this.auth.languageCode = 'it';
-    await setPersistence(this.auth, browserLocalPersistence);
-    const result = await signInWithPopup(this.auth, new GithubAuthProvider());
-    await this.setupLoggedUser(result.user);
+    await signInWithPopup(this.auth, new GithubAuthProvider());
   }
 
   async logout() {
     await signOut(this.auth);
     this.userSessionDetails.set(undefined);
-    this.userInfosDetails.set(undefined);
   }
 
-  async setupLoggedUser(user: User) {
+  private async loadOrCreateProfile(uid: string) {
+    const docRef = doc(this.db, 'users', uid);
+    const snapshot = await getDoc(docRef);
 
-    this.userSessionDetails.set(user);
-    const currentUser = await this.fetchCurrentUser();
-
-    if (!currentUser()) {
-      await setDoc(
-        doc(this.db, "users", this.userSessionDetails()!.uid!),
-        {
-          role: 'user',
-          continueToWatch: [],
-          favorites: []
-        } as UsersDetails);
+    if (snapshot.exists()) {
+      return snapshot.data() as UsersDetails;
     }
+    const newUserData: UsersDetails = {
+      role: 'user',
+      continueToWatch: [],
+      favorites: []
+    };
+    await setDoc(docRef, newUserData, {merge: true});
+    return newUserData;
+  }
+
+  getUserSessionDetails() {
+    return this.userSessionDetails.asReadonly();
+  }
+
+  getUserInfosDetails() {
+    return this.userInfosDetails.value;
   }
 
   // ============
   // USER DETAILS
   // ============
-
-  getUserSessionDetails() {
-    this.auth.authStateReady()
-      .then(_ => {
-        this.userSessionDetails.set(this.auth.currentUser || undefined);
-      });
-    return this.userSessionDetails.asReadonly();
-  }
-
-  getUserInfosDetails() {
-    this.fetchCurrentUser();
-    return this.userInfosDetails.asReadonly();
-  }
-
-  isAdmin() {
-    return this.isAdminFlag;
-  }
-
-  async fetchCurrentUser() {
-    await this.auth.authStateReady();
-    const userUID = this.userSessionDetails()?.uid;
-
-    if (!userUID || userUID === '') {
-      return this.userInfosDetails;
-    }
-
-    const docRef = doc(this.db, "users", userUID);
-    const docSnap = await getDoc(docRef);
-
-    if (!docSnap.exists()) {
-      return this.userInfosDetails;
-    }
-
-    const docData = docSnap.data() as UsersDetails;
-
-    this.userInfosDetails.set(docData);
-
-    return this.userInfosDetails;
-  }
 
   async updateUser() {
     await setDoc(
@@ -161,7 +140,7 @@ export class FirebaseService {
         "users",
         this.userSessionDetails()!.uid!
       ),
-      this.userInfosDetails()
+      this.userInfosDetails.value()
     );
   }
 

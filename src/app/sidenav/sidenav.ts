@@ -29,7 +29,7 @@ export class Sidenav {
 
   private readonly firebaseService = inject(FirebaseService);
   user: Signal<User | undefined> = this.firebaseService.getUserSessionDetails();
-  isAdmin: Signal<boolean> = this.firebaseService.isAdmin();
+  isAdmin: Signal<boolean> = this.firebaseService.isAdmin;
 
   private readonly bottomSheet = inject(MatBottomSheet);
   closing = output<void>();
