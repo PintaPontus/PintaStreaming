@@ -1,10 +1,11 @@
-import {Component, computed, inject, signal} from '@angular/core';
+import {Component, computed, inject} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {ShowTypeEnum} from '../../interfaces/show';
+import {categories, ShowTypeEnum} from '../../interfaces/show';
 import {Carousel} from '../carousel/carousel';
 import {MatDivider} from '@angular/material/divider';
 import {FirebaseService} from '../firebase.service';
 import {UserListTypeEnum} from '../../interfaces/users';
+import {toSignal} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-catalog',
@@ -17,74 +18,41 @@ import {UserListTypeEnum} from '../../interfaces/users';
 })
 export class Catalog {
 
-  protected readonly UserListTypeEnum = UserListTypeEnum;
+  readonly UserListTypeEnum = UserListTypeEnum;
+  private readonly route = inject(ActivatedRoute);
+  private readonly firebaseService = inject(FirebaseService);
 
-  private route = inject(ActivatedRoute);
-  private firebaseService = inject(FirebaseService);
+  private readonly routeParamMap = toSignal(this.route.paramMap)
 
-  private readonly categories = [
-    {
-      id: 0,
-      name: 'Film Popolari',
-      link: 'movie/popular',
-      type: ShowTypeEnum.MOVIES,
-    },
-    {
-      id: 1,
-      name: 'Serie TV Popolari',
-      link: 'tv/popular',
-      type: ShowTypeEnum.TV_SERIES,
-    },
-    {
-      id: 2,
-      name: 'Film Più Votati',
-      link: 'movie/top_rated',
-      type: ShowTypeEnum.MOVIES,
-    },
-    {
-      id: 3,
-      name: 'Serie TV Più Votate',
-      link: 'tv/top_rated',
-      type: ShowTypeEnum.TV_SERIES,
-    },
-  ];
+  readonly category = computed(() => this.routeParamMap()?.get('category') || undefined);
+  readonly isCategorySelected = computed(() => {
+    const categorySnap = this.category()
+    return !!categorySnap
+      && (
+        categorySnap === ShowTypeEnum.MOVIES
+        || categorySnap === ShowTypeEnum.TV_SERIES)
+  });
+  readonly userInfos = this.firebaseService.getUserInfosDetails()
+  readonly continueToWatch = computed(() =>
+    this.firebaseService.sortShowList(this.userInfos()?.continueToWatch || [])
+  )
+  readonly favorites = computed(() =>
+    this.firebaseService.sortShowList(this.userInfos()?.favorites || [])
+  )
 
-  category = signal<string | undefined>(undefined);
-  isCategorySelected = computed(() =>
-    this.category() !== undefined
-    && (
-      this.category() === ShowTypeEnum.MOVIES
-      || this.category() === ShowTypeEnum.TV_SERIES)
-  );
-  displayCategories = computed(() => {
+  readonly displayCategories = computed(() => {
     switch (this.category()) {
       case ShowTypeEnum.MOVIES:
-        return this.categories.filter(c =>
+        return categories.filter(c =>
           c.type === ShowTypeEnum.MOVIES
         );
       case ShowTypeEnum.TV_SERIES:
-        return this.categories.filter(c =>
+        return categories.filter(c =>
           c.type === ShowTypeEnum.TV_SERIES
         );
       default:
-        return this.categories;
+        return categories;
     }
   });
-
-  userInfos = this.firebaseService.getUserInfosDetails()
-
-  continueToWatch = computed(() =>
-    (this.userInfos()?.continueToWatch || []).sort((a, b) => b.lastUpdate - a.lastUpdate)
-  )
-
-  favorites = computed(() =>
-    (this.userInfos()?.favorites || []).sort((a, b) => b.lastUpdate - a.lastUpdate)
-  )
-
-  constructor() {
-    this.route.paramMap.subscribe(async params => {
-      this.category.set(params.get('category') || undefined);
-    });
-  }
 
 }

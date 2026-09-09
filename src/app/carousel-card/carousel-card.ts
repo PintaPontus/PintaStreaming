@@ -8,6 +8,7 @@ import {UserListItem, UserListTypeEnum} from '../../interfaces/users';
 import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 import {FirebaseService} from '../firebase.service';
 import {StreamService} from '../stream.service';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-carousel-card',
@@ -28,30 +29,29 @@ export class CarouselCard {
 
   protected readonly UserListTypeEnum = UserListTypeEnum;
 
-  show: InputSignal<ShowReference | undefined> = input();
-  isAvailable = computed(() =>
-    this.listType() !== UserListTypeEnum.SUGGESTIONS
-    || (!!this.show() && this.streamService.isAvailable(this.show()!.id, this.show()!.type))
-  );
-  listType = input(UserListTypeEnum.SUGGESTIONS);
+  private readonly firebaseService = inject(FirebaseService);
+  private readonly streamService = inject(StreamService);
+  private readonly snackBar = inject(MatSnackBar);
 
-  private firebaseService = inject(FirebaseService);
-  private streamService = inject(StreamService);
-
-  playerLink = computed(() => {
+  readonly show: InputSignal<ShowReference | undefined> = input();
+  readonly isAvailable = computed(() => {
+    const showSnap = this.show();
+    return this.listType() !== UserListTypeEnum.SUGGESTIONS
+      || (!!showSnap && this.streamService.isAvailable(showSnap.id, showSnap.type))
+  });
+  readonly listType = input(UserListTypeEnum.SUGGESTIONS);
+  readonly playerLink = computed(() => {
     if (this.show()?.type === ShowTypeEnum.TV_SERIES) {
       return `/player/${ShowTypeEnum.TV_SERIES}/${this.show()?.id}/${this.show()?.season || 1}/${this.show()?.episode || 1}`;
     }
     return `/player/${ShowTypeEnum.MOVIES}/${this.show()?.id}`;
   });
-
-  playerParams = computed(() => {
+  readonly playerParams = computed(() => {
     return {
       "time": this.show()?.currentTime
     };
   });
-
-  showTitle = computed(() => {
+  readonly showTitle = computed(() => {
     return this.show()?.details?.title
       || this.show()?.details?.name
       || this.show()?.details?.original_title
@@ -59,8 +59,7 @@ export class CarouselCard {
       || this.show()?.item?.name
       || this.show()?.item?.original_title;
   });
-
-  watchProgress = computed(() => {
+  readonly watchProgress = computed(() => {
     const currentTime = this.show()?.currentTime;
     const duration = this.show()?.duration;
     if (!currentTime || !duration) {
@@ -70,8 +69,7 @@ export class CarouselCard {
     const steppedProgress = Math.ceil(progress / 5) * 5;
     return Math.max(5, Math.min(100, steppedProgress));
   });
-
-  showPosterPath = computed(() => {
+  readonly showPosterPath = computed(() => {
     return this.show()?.details?.poster_path
       || this.show()?.item?.poster_path;
   });
@@ -80,14 +78,16 @@ export class CarouselCard {
     this.firebaseService.removeContinueToWatch({
       id: this.show()!.id,
       type: this.show()!.type
-    } as UserListItem);
+    } as UserListItem)
+      .then(_ => this.snackBar.open('Rimosso con successo', 'OK'));
   }
 
   removeFromFavorites() {
     this.firebaseService.toggleToFavorite({
       id: this.show()!.id,
       type: this.show()!.type
-    } as UserListItem);
+    } as UserListItem)
+      .then(_ => this.snackBar.open('Rimosso con successo', 'OK'));
   }
 
   protected readonly ShowTypeEnum = ShowTypeEnum;

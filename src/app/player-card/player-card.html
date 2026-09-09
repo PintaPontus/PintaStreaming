@@ -5,15 +5,15 @@
       <mat-card-subtitle>
         {{ cardSubtitle() }}
         <mat-chip-set class="chips-list">
-          @for (genre of showInfo().genres; track genre.id) {
+          @for (genre of showInfo()?.genres; track genre.id) {
             <mat-chip disabled>{{ genre.name }}</mat-chip>
           }
-          @if (showInfo().adult) {
+          @if (showInfo()?.adult) {
             <mat-chip disabled>18</mat-chip>
           }
         </mat-chip-set>
       </mat-card-subtitle>
-      <img [src]="`https://image.tmdb.org/t/p/w500/${showInfo().poster_path}`" alt="poster" class="poster"
+      <img [src]="`https://image.tmdb.org/t/p/w500/${showInfo()?.poster_path}`" alt="poster" class="poster"
            mat-card-xl-image>
     </mat-card-title-group>
   </mat-card-header>

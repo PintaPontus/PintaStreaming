@@ -7,12 +7,10 @@ import {
   MatExpansionPanelTitle
 } from '@angular/material/expansion';
 import {MatChip, MatChipSet} from '@angular/material/chips';
-import {ShowDetails, ShowRecommendationList, ShowSeason, ShowTranslation, ShowTypeEnum} from '../../interfaces/show';
+import {ShowDetails, ShowSeason, ShowTranslation, ShowTypeEnum} from '../../interfaces/show';
 import {MovieDBService} from '../movie-db.service';
 import {RecommendationCard} from '../recommendation-card/recommendation-card';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
-
-const DEFAULT_RECOMMENDATIONS = {} as ShowRecommendationList;
 
 @Component({
   selector: 'app-player-card-info',
@@ -32,24 +30,24 @@ const DEFAULT_RECOMMENDATIONS = {} as ShowRecommendationList;
 })
 export class PlayerCardInfo {
 
-  currentSeasonInfo: InputSignal<ShowSeason | undefined> = input();
-  showInfo = input({} as ShowDetails);
-  showType = input(ShowTypeEnum.MOVIES);
-  showTranslation: InputSignal<ShowTranslation | undefined> = input();
-  showCardOverview = computed(() => {
+  private readonly movieDbService = inject(MovieDBService);
+
+  readonly currentSeasonInfo: InputSignal<ShowSeason | undefined> = input();
+  readonly showInfo = input<ShowDetails | undefined>({} as ShowDetails);
+  readonly showType = input(ShowTypeEnum.MOVIES);
+  readonly showTranslation: InputSignal<ShowTranslation | undefined> = input();
+  readonly showCardOverview = computed(() => {
     return this.showTranslation()?.data.overview
-      || this.showInfo().overview;
+      || this.showInfo()?.overview;
   });
-  showCardSeasonTitle = computed(() => {
+  readonly showCardSeasonTitle = computed(() => {
     const currSeason = this.currentSeasonInfo();
     return currSeason?.name || ("Season " + currSeason?.season_number);
   });
-  openedRecommendations = signal(false);
-  private movieDbService = inject(MovieDBService);
-
-  recommendationsResource = resource({
+  readonly openedRecommendations = signal(false);
+  readonly recommendationsResource = resource({
     params: () => {
-      const id = this.showInfo().id;
+      const id = this.showInfo()?.id;
       if (!id || !this.openedRecommendations()) {
         return undefined;
       }
@@ -61,9 +59,8 @@ export class PlayerCardInfo {
       } else if (params.type === ShowTypeEnum.TV_SERIES) {
         return this.movieDbService.loadRecommendationsTvSeries(params.id);
       }
-      return DEFAULT_RECOMMENDATIONS;
+      return;
     },
-    defaultValue: DEFAULT_RECOMMENDATIONS
   });
 
   openRecommendations() {

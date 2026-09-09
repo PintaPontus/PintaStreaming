@@ -1,6 +1,5 @@
-import {Component, effect, inject, input, InputSignal, signal, WritableSignal} from '@angular/core';
-import {ShowReference, ShowTypeEnum} from '../../interfaces/show';
-import {StreamService} from '../stream.service';
+import {Component, inject, input, InputSignal, resource} from '@angular/core';
+import {ShowTypeEnum} from '../../interfaces/show';
 import {MovieDBService} from '../movie-db.service';
 import {CarouselCard} from '../carousel-card/carousel-card';
 import {UserListItem, UserListTypeEnum} from '../../interfaces/users';
@@ -15,30 +14,24 @@ import {UserListItem, UserListTypeEnum} from '../../interfaces/users';
 })
 export class Carousel {
 
-  title: InputSignal<string | undefined> = input();
-  link: InputSignal<string | undefined> = input();
-  listType = input(UserListTypeEnum.SUGGESTIONS);
-  showType: InputSignal<ShowTypeEnum | undefined> = input();
-  showList: InputSignal<UserListItem[]> = input([] as UserListItem[]);
+  private readonly movieDBService = inject(MovieDBService);
 
-  movieDBService = inject(MovieDBService);
-  streamService = inject(StreamService);
-
-  shows: WritableSignal<ShowReference[]> = signal([])
-
-  constructor() {
-    effect(async () => {
-      const currLink = this.link();
-      const currType = this.showType();
-      const currShowList = this.showList();
-
-      if (currLink && currType) {
-        this.shows.set(await this.setupCategoryShows(currLink, currType));
-      } else if (currShowList) {
-        this.shows.set(await this.setupShowList(currShowList));
+  readonly title: InputSignal<string | undefined> = input();
+  readonly link: InputSignal<string | undefined> = input();
+  readonly listType = input(UserListTypeEnum.SUGGESTIONS);
+  readonly showType: InputSignal<ShowTypeEnum | undefined> = input();
+  readonly showList: InputSignal<UserListItem[]> = input([] as UserListItem[]);
+  readonly shows = resource({
+    params: () => ({link: this.link(), type: this.showType(), showList: this.showList()}),
+    loader: async ({params}) => {
+      if (params.link && params.type) {
+        return await this.setupCategoryShows(params.link, params.type);
+      } else if (params.showList) {
+        return await this.setupShowList(params.showList);
       }
-    });
-  }
+      return;
+    },
+  })
 
   private async setupShowList(continueShows: UserListItem[]) {
     return await this.movieDBService.getShowListDetails(continueShows)
@@ -48,5 +41,4 @@ export class Carousel {
     return await this.movieDBService.getShowsFromCategory(categoryLink, type)
   }
 
-  protected readonly UserListTypeEnum = UserListTypeEnum;
 }

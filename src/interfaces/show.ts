@@ -169,3 +169,33 @@ export interface ShowRecommendation {
   vote_count: number;
 }
 
+// CATEGORIES
+export interface CatalogCategory {
+  name: string;
+  link: string;
+  type: ShowTypeEnum;
+}
+
+export const categories: CatalogCategory[] = [
+  {
+    name: 'Film Popolari',
+    link: 'movie/popular',
+    type: ShowTypeEnum.MOVIES,
+  },
+  {
+    name: 'Serie TV Popolari',
+    link: 'tv/popular',
+    type: ShowTypeEnum.TV_SERIES,
+  },
+  {
+    name: 'Film Più Votati',
+    link: 'movie/top_rated',
+    type: ShowTypeEnum.MOVIES,
+  },
+  {
+    name: 'Serie TV Più Votate',
+    link: 'tv/top_rated',
+    type: ShowTypeEnum.TV_SERIES,
+  },
+];
+

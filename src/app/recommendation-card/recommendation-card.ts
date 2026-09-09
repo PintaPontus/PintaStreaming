@@ -18,9 +18,11 @@ import {StreamService} from '../stream.service';
 })
 export class RecommendationCard {
 
-  recommendation = input({} as ShowRecommendation);
-  showId = computed(() => this.recommendation().id);
-  showType = computed(() => {
+  private readonly streamService = inject(StreamService);
+
+  readonly recommendation = input({} as ShowRecommendation);
+  readonly showId = computed(() => this.recommendation().id);
+  readonly showType = computed(() => {
     const showType = this.recommendation().media_type
     if (Object.values(ShowTypeEnum).includes(showType as ShowTypeEnum)) {
       return showType as ShowTypeEnum;
@@ -29,13 +31,10 @@ export class RecommendationCard {
     }
     return ShowTypeEnum.MOVIES;
   });
-  showTitle = computed(() => this.recommendation().title || this.recommendation().original_title);
-  showPosterPath = computed(() => this.recommendation().poster_path);
-  isAvailable = computed(() => this.streamService.isAvailable(this.showId(), this.showType()));
-
-  private streamService = inject(StreamService);
-
-  playerLink = computed(() => {
+  readonly showTitle = computed(() => this.recommendation().title || this.recommendation().original_title);
+  readonly showPosterPath = computed(() => this.recommendation().poster_path);
+  readonly isAvailable = computed(() => this.streamService.isAvailable(this.showId(), this.showType()));
+  readonly playerLink = computed(() => {
     if (this.showType() === ShowTypeEnum.TV_SERIES) {
       return `/player/${ShowTypeEnum.TV_SERIES}/${this.showId()}/1/1`;
     }

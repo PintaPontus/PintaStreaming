@@ -15,10 +15,11 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 })
 export class LoginMenu {
 
-  readonly dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly firebaseService = inject(FirebaseService);
-  loginStarted = output<void>();
+
+  readonly loginStarted = output<void>();
 
   async loginWithEmail() {
     await this.executeLogin(async () => {

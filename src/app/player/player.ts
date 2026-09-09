@@ -2,7 +2,7 @@ import {afterNextRender, Component, computed, DestroyRef, effect, inject, resour
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {MovieDBService} from '../movie-db.service';
 import {DomSanitizer, SafeResourceUrl, Title} from '@angular/platform-browser';
-import {ShowDetails, ShowTime, ShowTypeEnum} from '../../interfaces/show';
+import {ShowTime, ShowTypeEnum} from '../../interfaces/show';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {takeUntilDestroyed, toSignal} from '@angular/core/rxjs-interop';
 import {PlayerRouteInfo} from '../../interfaces/routesInfo';
@@ -30,16 +30,17 @@ export class Player {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly movieDBService = inject(MovieDBService);
-  language = this.movieDBService.getLanguage();
   private readonly firebaseService = inject(FirebaseService);
   private readonly router = inject(Router);
   private readonly title = inject(Title);
   private readonly sanitizer = inject(DomSanitizer);
-  routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
-  routeParamMap = toSignal(this.route.paramMap) as Signal<ParamMap>;
-  routeQueryMap = toSignal(this.route.queryParamMap) as Signal<ParamMap>;
-  checkpointTimeoutFlag = false
-  videoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
+
+  readonly routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
+  readonly routeParamMap = toSignal(this.route.paramMap) as Signal<ParamMap>;
+  readonly routeQueryMap = toSignal(this.route.queryParamMap) as Signal<ParamMap>;
+
+  readonly language = this.movieDBService.getLanguage();
+  readonly videoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
     if (!!this.showId() && this.routeData().type === ShowTypeEnum.MOVIES) {
       return this.sanitizer.bypassSecurityTrustResourceUrl(
         `${environment.videoStreamingDomain}/movie/${this.showId()}?${this.playerUrlParams()}`
@@ -52,7 +53,7 @@ export class Player {
     }
     return undefined;
   });
-  playerUrlParams = computed(() => {
+  readonly playerUrlParams = computed(() => {
     const startTimeSession = JSON.parse(sessionStorage.getItem("checkpoint") || "{}") as ShowTime
     const startTimeParam = this.castNumber(this.routeQueryMap().get("time"))
     const urlParams = new URLSearchParams()
@@ -80,7 +81,7 @@ export class Player {
     }
     return urlParams;
   });
-  episodes = computed(() => {
+  readonly episodes = computed(() => {
     const currentSeasonInfo = this.seasons().find(s => s.season_number === this.currentSeason())
     return currentSeasonInfo?.episode_count
       ? Array.from(
@@ -89,16 +90,16 @@ export class Player {
       ).map(i => ({id: i}))
       : [];
   });
-  currentSeason: Signal<number> = computed(() => {
+  readonly currentSeason: Signal<number> = computed(() => {
     return this.routeParamMap().get('season') ? Number.parseInt(this.routeParamMap().get('season')!) : 1;
   });
-  currentEpisode: Signal<number> = computed(() => {
+  readonly currentEpisode: Signal<number> = computed(() => {
     return this.routeParamMap().get('episode') ? Number.parseInt(this.routeParamMap().get('episode')!) : 1;
   });
-  showId: Signal<number | undefined> = computed(() => {
+  readonly showId: Signal<number | undefined> = computed(() => {
     return this.routeParamMap().get('id') ? Number.parseInt(this.routeParamMap().get('id')!) : undefined;
   });
-  protected readonly showInfo = resource({
+  readonly showInfo = resource({
     params: () => {
       const newId = this.showId()
       const newType = this.routeData().type
@@ -107,18 +108,19 @@ export class Player {
       }
       return {id: newId, type: newType}
     },
-    loader: ({params, abortSignal}) => {
+    loader: async ({params, abortSignal}) => {
       if (params.type === ShowTypeEnum.MOVIES) {
-        return this.movieDBService.getInfoMovie(params.id, abortSignal)
+        return await this.movieDBService.getInfoMovie(params.id, abortSignal)
       }
       if (params.type === ShowTypeEnum.TV_SERIES) {
-        return this.movieDBService.getInfoTvSeries(params.id, abortSignal)
+        return await this.movieDBService.getInfoTvSeries(params.id, abortSignal)
       }
-      return Promise.resolve({} as ShowDetails);
+      return;
     },
-    defaultValue: {} as ShowDetails
   });
-  seasons = computed(() => this.showInfo.value().seasons || []);
+  readonly seasons = computed(() => this.showInfo.value()?.seasons || []);
+
+  checkpointTimeoutFlag = false;
 
   constructor() {
     effect(() => {
@@ -131,7 +133,7 @@ export class Player {
         }
       }
       const showInfo = this.showInfo.value();
-      this.title.setTitle('PintaStreaming - ' + (showInfo.title || showInfo.name || showInfo.original_title))
+      this.title.setTitle('PintaStreaming - ' + (showInfo?.title || showInfo?.name || showInfo?.original_title))
     });
     afterNextRender(() => this.listenPlayerEvents())
   }
@@ -146,12 +148,12 @@ export class Player {
       finalEpisode = 1;
     }
     // noinspection JSIgnoredPromiseFromCall
-    this.router.navigate(['/player/tv-series', this.showInfo.value().id, id, finalEpisode]);
+    this.router.navigate(['/player/tv-series', this.showInfo.value()?.id, id, finalEpisode]);
   }
 
   goToSelectedEpisode(id: number) {
     // noinspection JSIgnoredPromiseFromCall
-    this.router.navigate(['/player/tv-series', this.showInfo.value().id, this.currentSeason(), id]);
+    this.router.navigate(['/player/tv-series', this.showInfo.value()?.id, this.currentSeason(), id]);
   }
 
   // =============

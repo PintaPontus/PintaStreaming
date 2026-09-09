@@ -44,21 +44,20 @@ export class FirebaseService {
 
   private readonly db = getFirestore(this.app);
 
-  private snackBar = inject(MatSnackBar);
+  private readonly snackBar = inject(MatSnackBar);
 
   private readonly userSessionDetails = signal<User | undefined>(undefined);
   private readonly userInfosDetails = resource({
     params: () => {
       const userUID = this.userSessionDetails()?.uid;
       if (!userUID || userUID === '') {
-        return undefined;
+        return;
       }
       return {id: userUID};
     },
     loader: async ({params}) => {
-      return await this.loadOrCreateProfile(params.id);
+      return await this.loadOrCreateUser(params.id);
     },
-    defaultValue: undefined,
   });
   readonly isLogged = computed(() => !!this.userSessionDetails());
   readonly isAdmin = computed(() => this.userInfosDetails.value()?.role === 'admin');
@@ -78,6 +77,22 @@ export class FirebaseService {
       }
       this.userSessionDetails.set(user ?? undefined);
     });
+  }
+
+  private async loadOrCreateUser(uid: string) {
+    const docRef = doc(this.db, 'users', uid);
+    const snapshot = await getDoc(docRef);
+
+    if (snapshot.exists()) {
+      return snapshot.data() as UsersDetails;
+    }
+    const newUserData: UsersDetails = {
+      role: 'user',
+      continueToWatch: [],
+      favorites: []
+    };
+    await setDoc(docRef, newUserData, {merge: true});
+    return newUserData;
   }
 
   // ============
@@ -105,21 +120,9 @@ export class FirebaseService {
     this.userSessionDetails.set(undefined);
   }
 
-  private async loadOrCreateProfile(uid: string) {
-    const docRef = doc(this.db, 'users', uid);
-    const snapshot = await getDoc(docRef);
-
-    if (snapshot.exists()) {
-      return snapshot.data() as UsersDetails;
-    }
-    const newUserData: UsersDetails = {
-      role: 'user',
-      continueToWatch: [],
-      favorites: []
-    };
-    await setDoc(docRef, newUserData, {merge: true});
-    return newUserData;
-  }
+  // ============
+  // USER DETAILS
+  // ============
 
   getUserSessionDetails() {
     return this.userSessionDetails.asReadonly();
@@ -129,18 +132,20 @@ export class FirebaseService {
     return this.userInfosDetails.value;
   }
 
-  // ============
-  // USER DETAILS
-  // ============
-
-  async updateUser() {
+  private async updateUser() {
+    const userID = this.userSessionDetails()?.uid
+    const userSnap = this.userInfosDetails.value()
+    if (!userID || !userSnap) {
+      console.log("User data not present")
+      return;
+    }
     await setDoc(
       doc(
         this.db,
         "users",
-        this.userSessionDetails()!.uid!
+        userID
       ),
-      this.userInfosDetails.value()
+      userSnap
     );
   }
 
@@ -201,6 +206,10 @@ export class FirebaseService {
     await this.updateUser()
   }
 
+  sortShowList(list: UserListItem[]) {
+    return list.sort((a, b) => b.lastUpdate - a.lastUpdate)
+  }
+
   private addShowToContinueList(newShow: UserListItem, showList: UserListItem[] | undefined) {
     const updatedList = this.addShowToCommonList(newShow, showList);
     return updatedList.slice(0, 20);
@@ -227,9 +236,7 @@ export class FirebaseService {
 
     const result = Array.from(showsMap.values());
 
-    result.sort((a, b) => b.lastUpdate - a.lastUpdate);
-
-    return result;
+    return this.sortShowList(result);
   }
 
   private removeShowToCommonList(oldShow: UserListItem, showList: UserListItem[] | undefined) {
@@ -237,9 +244,7 @@ export class FirebaseService {
 
     const filteredList = baseList.filter(f => f.id !== oldShow.id || f.type !== oldShow.type);
 
-    filteredList.sort((a, b) => b.lastUpdate - a.lastUpdate);
-
-    return filteredList;
+    return this.sortShowList(filteredList);
   }
 
   // =======================

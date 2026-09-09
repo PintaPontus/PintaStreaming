@@ -14,7 +14,7 @@
   ></app-carousel>
   <mat-divider class="catalog-divider"></mat-divider>
 }
-@for (category of displayCategories(); track category.id; let idx = $index) {
+@for (category of displayCategories(); track category.link; let idx = $index) {
   @if (idx > 0) {
     <mat-divider class="catalog-divider"></mat-divider>
   }

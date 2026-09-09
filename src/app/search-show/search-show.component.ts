@@ -29,19 +29,18 @@ const EMPTY_RESULTS: ShowResultsList = {results: [], page: 1, total_results: 0, 
 })
 export class SearchShow {
 
-  readonly searchInput = viewChild.required(MatInput);
-
-  textSearch = signal('');
-  page = signal(1);
   private readonly movieDBService = inject(MovieDBService);
 
-  protected readonly searchResource = resource({
+  readonly searchInput = viewChild.required(MatInput);
+  readonly textSearch = signal('');
+  readonly page = signal(1);
+  readonly searchResource = resource({
     params: () => ({query: this.textSearch(), page: this.page()}),
-    loader: ({params, abortSignal}) => {
+    loader: async ({params, abortSignal}) => {
       if (params.query.length <= 2) {
         return Promise.resolve(EMPTY_RESULTS);
       }
-      return this.movieDBService.search(params.query, params.page, abortSignal);
+      return await this.movieDBService.search(params.query, params.page, abortSignal);
     },
     defaultValue: EMPTY_RESULTS,
   });

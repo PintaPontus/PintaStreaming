@@ -28,11 +28,11 @@ import {LoginMenu} from '../login-menu/login-menu';
 export class Sidenav {
 
   private readonly firebaseService = inject(FirebaseService);
-  user: Signal<User | undefined> = this.firebaseService.getUserSessionDetails();
-  isAdmin: Signal<boolean> = this.firebaseService.isAdmin;
-
   private readonly bottomSheet = inject(MatBottomSheet);
-  closing = output<void>();
+  readonly closing = output<void>();
+
+  readonly user: Signal<User | undefined> = this.firebaseService.getUserSessionDetails();
+  readonly isAdmin: Signal<boolean> = this.firebaseService.isAdmin;
 
   openLanguages() {
     this.closeSidenav();

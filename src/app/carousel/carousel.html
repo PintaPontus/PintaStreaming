@@ -1,6 +1,6 @@
 <h1 class="carousel-title">{{ title() }}</h1>
 <div class="shows-list">
-  @for (show of shows(); track show.id) {
+  @for (show of shows.value(); track show.id) {
     <app-carousel-card
       [show]="show"
       [listType]="listType()"

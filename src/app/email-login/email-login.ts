@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {MatFormField, MatLabel} from '@angular/material/form-field';
 import {MatInput} from '@angular/material/input';
 import {MatFabButton} from '@angular/material/button';
@@ -24,15 +24,16 @@ import FirebaseError = firebase.FirebaseError;
 })
 export class EmailLogin {
 
-  textEmail: string = '';
-  textPassword: string = '';
   private readonly firebaseService = inject(FirebaseService);
-  private snackBar = inject(MatSnackBar);
-  private dialogRef = inject(MatDialogRef<EmailLogin>);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialogRef = inject(MatDialogRef<EmailLogin>);
+
+  readonly textEmail = signal('');
+  readonly textPassword = signal('');
 
   async login() {
     try {
-      await this.firebaseService.loginWithEmail(this.textEmail, this.textPassword)
+      await this.firebaseService.loginWithEmail(this.textEmail(), this.textPassword())
     } catch (e) {
       this.handleLoginError(e as FirebaseError)
     }
@@ -41,7 +42,7 @@ export class EmailLogin {
 
   async signup() {
     try {
-      await this.firebaseService.signupWithEmail(this.textEmail, this.textPassword)
+      await this.firebaseService.signupWithEmail(this.textEmail(), this.textPassword())
     } catch (e) {
       this.handleLoginError(e as FirebaseError)
     }

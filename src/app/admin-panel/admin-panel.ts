@@ -27,15 +27,14 @@ import {environment} from '../../environments/environment';
 })
 export class AdminPanel {
 
-  private firebaseService = inject(FirebaseService);
-  private streamService = inject(StreamService);
-  private snackBar = inject(MatSnackBar);
+  private readonly firebaseService = inject(FirebaseService);
+  private readonly streamService = inject(StreamService);
+  private readonly snackBar = inject(MatSnackBar);
 
-  movies: Signal<ShowResource[]> = this.streamService.getMovies();
-  tvSeries: Signal<ShowResource[]> = this.streamService.getTvSeries();
-
-  moviesText = signal('');
-  tvSeriesText = signal('');
+  readonly movies: Signal<ShowResource[]> = this.streamService.getMovies();
+  readonly tvSeries: Signal<ShowResource[]> = this.streamService.getTvSeries();
+  readonly moviesText = signal('');
+  readonly tvSeriesText = signal('');
 
   constructor() {
     effect(() => {
@@ -65,11 +64,11 @@ export class AdminPanel {
     this.snackBar.open(message, "OK", {duration: 2000});
   }
 
-  protected getMovieListURL() {
-    return environment.videoStreamingDomain + '/api/list/movie?lang=it'
+  getMovieListURL() {
+    return `${environment.videoStreamingDomain}/api/list/movie?lang=it`;
   }
 
-  protected getTvSeriesListURL() {
-    return environment.videoStreamingDomain + '/api/list/tv?lang=it'
+  getTvSeriesListURL() {
+    return `${environment.videoStreamingDomain}/api/list/tv?lang=it`;
   }
 }

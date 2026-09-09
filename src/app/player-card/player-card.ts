@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, input, InputSignal, signal, WritableSignal} from '@angular/core';
+import {Component, computed, inject, input, InputSignal, Signal} from '@angular/core';
 import {
   MatCard,
   MatCardActions,
@@ -19,6 +19,7 @@ import {UserListItem} from '../../interfaces/users';
 import {PlayerCardInfo} from '../player-card-info/player-card-info';
 import {ShowProviders} from '../show-providers/show-providers';
 import {MatTooltip} from '@angular/material/tooltip';
+import {toSignal} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-player-card',
@@ -42,45 +43,67 @@ import {MatTooltip} from '@angular/material/tooltip';
 })
 export class PlayerCard {
 
-  videoUrl: InputSignal<SafeResourceUrl | undefined> = input();
-  infoUrl: WritableSignal<SafeResourceUrl | undefined> = signal(undefined);
-  currentSeason = input(1);
-  currentSeasonInfo = computed(() =>
-    this.seasons().find(s => s.season_number === this.currentSeason())
-  );
-  showInfo = input({} as ShowDetails);
-  seasons = computed(() => this.showInfo().seasons || []);
-  showId: WritableSignal<number | undefined> = signal(undefined);
-  showType = input(ShowTypeEnum.MOVIES);
   private readonly route = inject(ActivatedRoute);
   private readonly movieDBService = inject(MovieDBService);
-  language = this.movieDBService.getLanguage();
-  showTranslation = computed(() => {
-    const language = this.language() || 'en';
-    return this.showInfo().translations?.translations.find(t =>
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly firebaseService = inject(FirebaseService);
+
+  readonly routeParamMap = toSignal(this.route.paramMap)
+
+  readonly videoUrl: InputSignal<SafeResourceUrl | undefined> = input();
+  readonly infoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
+    const showIDSnap = this.showId();
+    const showTypeSnap = this.showType()
+    if (showIDSnap !== undefined) {
+      if (showTypeSnap === ShowTypeEnum.MOVIES) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(
+          `https://www.themoviedb.org/movie/${showIDSnap}`
+        );
+      }
+      if (showTypeSnap === ShowTypeEnum.TV_SERIES) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(
+          `https://www.themoviedb.org/tv/${showIDSnap}`
+        );
+      }
+    }
+    return;
+  });
+  readonly currentSeason = input(1);
+  readonly currentSeasonInfo = computed(() =>
+    this.seasons().find(s => s.season_number === this.currentSeason())
+  );
+  readonly showInfo = input<ShowDetails | undefined>({} as ShowDetails);
+  readonly seasons = computed(() => this.showInfo()?.seasons || []);
+  readonly showId = computed(() => {
+    const idSnap = this.routeParamMap()?.get('id') ?? undefined
+    return idSnap ? Number.parseInt(idSnap) : undefined
+  });
+  readonly showType = input(ShowTypeEnum.MOVIES);
+  readonly language = this.movieDBService.getLanguage();
+  readonly showTranslation = computed(() => {
+    const language = this.language();
+    return this.showInfo()?.translations?.translations.find(t =>
       t.iso_639_1 === language
     )
   });
-  private readonly firebaseService = inject(FirebaseService);
-  userInfos = this.firebaseService.getUserInfosDetails();
-  isFavorite = computed(() => {
+  readonly userInfos = this.firebaseService.getUserInfosDetails();
+  readonly isFavorite = computed(() => {
     return !!(this.userInfos()?.favorites || [])
       .find(f =>
-        f.id === this.showInfo().id
+        f.id === this.showInfo()?.id
         && f.type === this.showType()
       )
   });
-  private readonly sanitizer = inject(DomSanitizer);
-  cardTitle = computed(() => {
+  readonly cardTitle = computed(() => {
     return this.showTranslation()?.data.title
-      || this.showInfo().title
-      || this.showInfo().name
-      || this.showInfo().original_title;
+      || this.showInfo()?.title
+      || this.showInfo()?.name
+      || this.showInfo()?.original_title;
   });
-  cardSubtitle = computed(() => {
+  readonly cardSubtitle = computed(() => {
     let showYear = (
-      this.showInfo().release_date
-      || this.showInfo().first_air_date
+      this.showInfo()?.release_date
+      || this.showInfo()?.first_air_date
     )?.split('-')[0];
 
     let showSeasonsCount
@@ -96,16 +119,6 @@ export class PlayerCard {
       : `${showSeasonsCount}`;
   });
 
-  constructor() {
-    this.route.paramMap.subscribe(async params => {
-      const showID = Number.parseInt(params.get('id')!);
-      this.showId.set(showID);
-    });
-    effect(() => {
-      this.setupPlayerURL(this.showId(), this.showType());
-    });
-  }
-
   // ====================
   // SHOW DETAILS ACTIONS
   // ====================
@@ -117,33 +130,10 @@ export class PlayerCard {
 
   toggleShowToFavorites() {
     this.firebaseService.toggleToFavorite({
-      id: this.showInfo().id,
+      id: this.showInfo()?.id,
       type: this.showType(),
       lastUpdate: Date.now()
     } as UserListItem)
-  }
-
-  // ========
-  // PRIVATES
-  // ========
-
-  private setupPlayerURL(showID: number | undefined, showType: ShowTypeEnum) {
-    if (showID !== undefined) {
-      if (showType === ShowTypeEnum.MOVIES) {
-        this.infoUrl.set(
-          this.sanitizer.bypassSecurityTrustResourceUrl(
-            `https://www.themoviedb.org/movie/${showID}`
-          )
-        );
-      }
-      if (showType === ShowTypeEnum.TV_SERIES) {
-        this.infoUrl.set(
-          this.sanitizer.bypassSecurityTrustResourceUrl(
-            `https://www.themoviedb.org/tv/${showID}`
-          )
-        );
-      }
-    }
   }
 
 }

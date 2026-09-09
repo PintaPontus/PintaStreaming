@@ -1,5 +1,5 @@
-import {Component, computed, effect, inject, input, signal} from '@angular/core';
-import {ShowProvidersList, ShowProvidersLocale, ShowTypeEnum} from '../../interfaces/show';
+import {Component, computed, inject, input, resource} from '@angular/core';
+import {ShowProvidersLocale, ShowTypeEnum} from '../../interfaces/show';
 import {MatTooltip} from '@angular/material/tooltip';
 import {MovieDBService} from '../movie-db.service';
 
@@ -12,27 +12,28 @@ import {MovieDBService} from '../movie-db.service';
   styleUrl: './show-providers.css'
 })
 export class ShowProviders {
+
   private readonly movieDBService = inject(MovieDBService);
 
-  showId = input<number | undefined>(undefined);
-  showType = input(ShowTypeEnum.MOVIES);
-  language = this.movieDBService.getLanguage();
-  showProviders = signal<ShowProvidersList | undefined>(undefined);
-  showProvidersLocale = computed<ShowProvidersLocale | undefined>(() =>
-    this.showProviders()?.results?.[this.language().toUpperCase()]
-  );
-
-  constructor() {
-    effect(async () => {
-      const showId = this.showId();
-      if (showId !== undefined) {
-        if (this.showType() === ShowTypeEnum.MOVIES) {
-          this.showProviders.set(await this.movieDBService.getProvidersMovie(showId));
+  readonly showId = input<number | undefined>(undefined);
+  readonly showType = input(ShowTypeEnum.MOVIES);
+  readonly language = this.movieDBService.getLanguage();
+  readonly showProviders = resource({
+    params: () => ({showId: this.showId(), showType: this.showType()}),
+    loader: async ({params}) => {
+      if (params.showId !== undefined) {
+        if (params.showType === ShowTypeEnum.MOVIES) {
+          return await this.movieDBService.getProvidersMovie(params.showId);
         }
-        if (this.showType() === ShowTypeEnum.TV_SERIES) {
-          this.showProviders.set(await this.movieDBService.getProvidersTvSeries(showId));
+        if (params.showType === ShowTypeEnum.TV_SERIES) {
+          return await this.movieDBService.getProvidersTvSeries(params.showId);
         }
       }
-    });
-  }
+      return;
+    },
+  });
+  readonly showProvidersLocale = computed<ShowProvidersLocale | undefined>(() =>
+    this.showProviders.value()?.results?.[this.language().toUpperCase()]
+  );
+
 }
