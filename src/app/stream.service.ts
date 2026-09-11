@@ -11,10 +11,10 @@ export class StreamService {
   private movies: WritableSignal<ShowResource[]> = signal([]);
   private tvSeries: WritableSignal<ShowResource[]> = signal([]);
 
-  private moviesSet: Signal<number[]> = computed(() => {
+  private moviesSet = computed(() => {
     return new Set(this.movies().map(s => s.tmdb_id))
   });
-  private tvSeriesSet: Signal<number[]> = computed(() => {
+  private tvSeriesSet = computed(() => {
     return new Set(this.tvSeries().map(s => s.tmdb_id))
   });
 
