@@ -32,9 +32,9 @@ export class StreamService {
 
   isAvailable(id: number, type: ShowTypeEnum) {
     if (type === ShowTypeEnum.MOVIES) {
-      return this.moviesArray().has(id);
+      return this.moviesSet().has(id);
     } else if (type === ShowTypeEnum.TV_SERIES) {
-      return this.tvSeriesArray().has(id);
+      return this.tvSeriesSet().has(id);
     }
     return false;
   }
