@@ -11,11 +11,11 @@ export class StreamService {
   private movies: WritableSignal<ShowResource[]> = signal([]);
   private tvSeries: WritableSignal<ShowResource[]> = signal([]);
 
-  private moviesArray: Signal<number[]> = computed(() => {
-    return this.movies().map(s => s.tmdb_id)
+  private moviesSet: Signal<number[]> = computed(() => {
+    return new Set(this.movies().map(s => s.tmdb_id))
   });
-  private tvSeriesArray: Signal<number[]> = computed(() => {
-    return this.tvSeries().map(s => s.tmdb_id)
+  private tvSeriesSet: Signal<number[]> = computed(() => {
+    return new Set(this.tvSeries().map(s => s.tmdb_id))
   });
 
   constructor() {
@@ -32,9 +32,9 @@ export class StreamService {
 
   isAvailable(id: number, type: ShowTypeEnum) {
     if (type === ShowTypeEnum.MOVIES) {
-      return this.moviesArray().includes(id);
+      return this.moviesArray().has(id);
     } else if (type === ShowTypeEnum.TV_SERIES) {
-      return this.tvSeriesArray().includes(id);
+      return this.tvSeriesArray().has(id);
     }
     return false;
   }
