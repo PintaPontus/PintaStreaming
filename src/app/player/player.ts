@@ -35,18 +35,19 @@ export class Player {
   private readonly title = inject(Title);
   private readonly sanitizer = inject(DomSanitizer);
 
-  readonly routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
-  readonly routeParamMap = toSignal(this.route.paramMap) as Signal<ParamMap>;
-  readonly routeQueryMap = toSignal(this.route.queryParamMap) as Signal<ParamMap>;
+  private readonly routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
+  private readonly routeParamMap = toSignal(this.route.paramMap) as Signal<ParamMap>;
+  private readonly routeQueryMap = toSignal(this.route.queryParamMap) as Signal<ParamMap>;
 
+  readonly type = computed(() => this.routeData().type)
   readonly language = this.movieDBService.getLanguage();
   readonly videoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
-    if (!!this.showId() && this.routeData().type === ShowTypeEnum.MOVIES) {
+    if (!!this.showId() && this.type() === ShowTypeEnum.MOVIES) {
       return this.sanitizer.bypassSecurityTrustResourceUrl(
         `${environment.videoStreamingDomain}/movie/${this.showId()}?${this.playerUrlParams()}`
       )
     }
-    if (!!this.showId() && this.routeData().type === ShowTypeEnum.TV_SERIES) {
+    if (!!this.showId() && this.type() === ShowTypeEnum.TV_SERIES) {
       return this.sanitizer.bypassSecurityTrustResourceUrl(
         `${environment.videoStreamingDomain}/tv/${this.showId()}/${(this.currentSeason())}/${this.currentEpisode()}?${this.playerUrlParams()}`
       )
@@ -67,7 +68,7 @@ export class Player {
     if (
       !!startTimeSession.time
       && startTimeSession.showId === this.showId()
-      && startTimeSession.type === this.routeData().type
+      && startTimeSession.type === this.type()
       && (
         startTimeSession.type !== ShowTypeEnum.TV_SERIES
         || (
@@ -102,7 +103,7 @@ export class Player {
   readonly showInfo = resource({
     params: () => {
       const newId = this.showId()
-      const newType = this.routeData().type
+      const newType = this.type()
       if (!newId || !newType) {
         return undefined;
       }
@@ -124,7 +125,7 @@ export class Player {
 
   constructor() {
     effect(() => {
-      if (this.routeData().type === ShowTypeEnum.TV_SERIES) {
+      if (this.type() === ShowTypeEnum.TV_SERIES) {
         const paramSeason = this.castNumber(this.routeParamMap().get('season'));
         const paramEpisode = this.castNumber(this.routeParamMap().get('episode'));
         if (!paramSeason || !paramEpisode) {
@@ -197,9 +198,9 @@ export class Player {
     const checkpoint = {
       time: time,
       showId: this.showId(),
-      type: this.routeData().type,
+      type: this.type(),
     } as ShowTime;
-    if (this.routeData().type === ShowTypeEnum.TV_SERIES) {
+    if (this.type() === ShowTypeEnum.TV_SERIES) {
       checkpoint.season = this.currentSeason();
       checkpoint.episode = this.currentEpisode();
     }
@@ -209,7 +210,7 @@ export class Player {
   private createWatchCheckpoint(currentTime?: number, duration?: number) {
     return {
       id: this.showId(),
-      type: this.routeData().type,
+      type: this.type(),
       currentTime: currentTime,
       duration: duration,
       season: this.currentSeason(),

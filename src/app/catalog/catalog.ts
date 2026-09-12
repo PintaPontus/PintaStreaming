@@ -1,5 +1,5 @@
-import {Component, computed, inject} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, computed, inject, Signal} from '@angular/core';
+import {ActivatedRoute, ParamMap} from '@angular/router';
 import {categories, ShowTypeEnum} from '../../interfaces/show';
 import {Carousel} from '../carousel/carousel';
 import {MatDivider} from '@angular/material/divider';
@@ -22,9 +22,9 @@ export class Catalog {
   private readonly route = inject(ActivatedRoute);
   private readonly firebaseService = inject(FirebaseService);
 
-  private readonly routeParamMap = toSignal(this.route.paramMap)
+  private readonly routeQueryMap = toSignal(this.route.queryParamMap) as Signal<ParamMap>;
 
-  readonly category = computed(() => this.routeParamMap()?.get('category') || undefined);
+  readonly category = computed(() => this.routeQueryMap()?.get('category') || undefined);
   readonly isCategorySelected = computed(() => {
     const categorySnap = this.category()
     return !!categorySnap

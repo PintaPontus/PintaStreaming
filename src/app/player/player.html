@@ -4,7 +4,7 @@
       <iframe [src]="videoUrl()" allowfullscreen class="video-player-frame" title="video-player"></iframe>
     }
   </div>
-  @if (routeData().type === 'tv-series') {
+  @if (type() === 'tv-series') {
     <div class="episode-selector-container">
       <h3>Stagione</h3>
       <mat-button-toggle-group class="episode-selector">
@@ -32,7 +32,7 @@
   <app-player-card
     class="show-details"
     [showInfo]="showInfo.value()"
-    [showType]="routeData().type"
+    [showType]="type()"
     [currentSeason]="currentSeason()"
     [videoUrl]="videoUrl()"
   ></app-player-card>

@@ -10,10 +10,10 @@
       </h1>
     </a>
   </div>
-  <a [routerLink]="['catalog/movies']" matButton class="menu-item">
+  <a [routerLink]="['']" [queryParams]="{category: 'movies'}" matButton class="menu-item">
     <span>Film</span>
   </a>
-  <a [routerLink]="['catalog/tv-series']" matButton class="menu-item">
+  <a [routerLink]="['']" [queryParams]="{category: 'tv-series'}" matButton class="menu-item">
     <span>Serie TV</span>
   </a>
   @if (user() && isAdmin()) {
