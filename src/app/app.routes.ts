@@ -18,8 +18,8 @@ export const routes: Routes = [
 
       const paramValue = redirectData.params['category'];
 
-      return router.createUrlTree(['/'], {
-        queryParams: {category: paramValue !== 'all' ? paramValue : null}
+      return router.createUrlTree([''], {
+        queryParams: {category: paramValue === 'movies' || paramValue === 'tv-series' ? paramValue : null}
       });
     }
   },
@@ -45,5 +45,5 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminPanel,
   },
-  {path: '**', redirectTo: 'catalog/all',},
+  {path: '**', redirectTo: '',},
 ];
