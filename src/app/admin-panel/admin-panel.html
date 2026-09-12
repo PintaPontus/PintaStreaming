@@ -2,7 +2,7 @@
   <h2 class="shows-input-title">Movies</h2>
   <mat-form-field class="shows-input-field">
     <mat-label>Movies</mat-label>
-    <textarea [(ngModel)]="moviesText"
+    <textarea [(ngModel)]="moviesText //noinspection ConstantReassignment"
               cdkAutosizeMinRows="1"
               cdkTextareaAutosize
               matInput></textarea>
@@ -24,7 +24,7 @@
   <h2 class="shows-input-title">TV Series</h2>
   <mat-form-field class="shows-input-field">
     <mat-label>TV Series</mat-label>
-    <textarea [(ngModel)]="tvSeriesText"
+    <textarea [(ngModel)]="tvSeriesText //noinspection ConstantReassignment"
               cdkAutosizeMinRows="1"
               cdkTextareaAutosize
               matInput></textarea>

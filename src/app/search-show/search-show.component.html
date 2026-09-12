@@ -1,41 +1,87 @@
-<div class="search-results-container">
+<div class="search-container">
   <mat-form-field class="search-input">
     <input
-      [(ngModel)]="textSearch"
+      [(ngModel)]="textSearch //noinspection ConstantReassignment"
       class="search-input-box"
       matInput
-      placeholder="Type to search"
+      placeholder="Cerca su PintaStreaming"
     />
   </mat-form-field>
-  <mat-list class="search-results-list">
     @if (searchResource.isLoading()) {
       <div class="search-spinner">
         <mat-spinner></mat-spinner>
       </div>
+    } @else if (textSearch().trim() === '') {
+      <div class="search-results-empty"></div>
+    } @else if (searchResults().length === 0) {
+      <div class="search-results-empty">Nessun risultato trovato.</div>
     } @else {
-      @for (item of searchResource.value().results; track item.id; let idx = $index) {
-        @if (idx > 0) {
-          <mat-divider class="search-result-item-divider"></mat-divider>
-        }
-        <mat-list-item>
-          <div class="search-result">
-            <div class="search-result-poster-container">
-              <img class="search-result-poster" [src]="`https://image.tmdb.org/t/p/w300/${item.poster_path}`" alt="">
-            </div>
+      <mat-table [dataSource]="searchResults()" class="search-results-table">
+        <ng-container matColumnDef="poster">
+          <mat-cell *matCellDef="let element" [class.disabled-cell]="element.isShow && !element.isAvailable">
+            <img class="search-result-poster"
+                 [src]="`https://image.tmdb.org/t/p/w300/${element.isShow ? element.poster_path : element.profile_path}`"
+                 alt="">
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="title">
+          <mat-cell *matCellDef="let element" [class.disabled-cell]="element.isShow && !element.isAvailable">
             <a class="search-result-title"
-               [routerLink]="getPlayerUrl(item)">
-              {{ item.title || item.name || item.original_title }}
+               [routerLink]="element.playerUrl"
+               [matTooltip]="element.isAvailable ? '' : 'Non disponibile a sistema'">
+              {{ element.title || element.name || element.original_title }}
             </a>
-          </div>
-        </mat-list-item>
-      } @empty {
-        @if (textSearch() !== '') {
-          <mat-list-item>There are no items.</mat-list-item>
-        }
-      }
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <mat-cell *matCellDef="let element">
+            @if (element.isShow) {
+              @if (element.isAvailable) {
+                <a class="material-symbols-outlined"
+                   [routerLink]="element.playerUrl"
+                   [matTooltip]="element.media_type === 'movie' ? 'Guarda il film' : 'Guarda la serie tv'">
+                  {{ element.media_type }}
+                </a>
+                <a class="material-symbols-outlined"
+                   [href]="element.playerUrl"
+                   matTooltip="Apri sorgente video">
+                  open_in_new
+                </a>
+              } @else {
+                <span
+                  matTooltip="Contenuto non disponibile"
+                  class="material-symbols-outlined">
+                block
+              </span>
+              }
+              <span (click)="toggleShowToFavorites(element)"
+                    [matTooltip]="element.isFavorite ? 'Rimuovi dalla lista' : 'Aggiungi alla lista'"
+                    class="search-action material-symbols-outlined">
+                {{ element.isFavorite ? 'heart_minus' : 'heart_plus' }}
+              </span>
+            } @else if (element.popularity) {
+              <div [matTooltip]="`Valutazione ${element.popularity.toFixed(2)}`">
+                @for (_ of Array.from({length: 5}); track $index) {
+                  <span class="material-symbols-outlined" [class.filled]="element.popularity - ($index * 2) > 1.5">
+                    {{ element.popularity - ($index * 2) > 0.5 && element.popularity - ($index * 2) < 1.5 ? 'star_half' : 'star' }}
+                  </span>
+                }
+              </div>
+            }
+            <a class="material-symbols-outlined"
+               [href]="element.infoUrl"
+               matTooltip="Ulteriori dettagli">
+              info
+            </a>
+          </mat-cell>
+        </ng-container>
+
+        <mat-row *matRowDef="let _; columns: searchResultsColumns;"></mat-row>
+      </mat-table>
     }
 
-  </mat-list>
   <mat-paginator
     [length]="searchResource.value().total_results"
     [pageSize]="20"

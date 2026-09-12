@@ -2,12 +2,12 @@
   <h1 mat-dialog-title>Email Login</h1>
   <mat-form-field class="login-field email-field">
     <mat-label>Email</mat-label>
-    <input [(ngModel)]="textEmail" matInput value="">
+    <input [(ngModel)]="textEmail //noinspection ConstantReassignment" matInput value="">
   </mat-form-field>
 
   <mat-form-field class="login-field password-field">
     <mat-label>Password</mat-label>
-    <input [(ngModel)]="textPassword" matInput value="" type="password">
+    <input [(ngModel)]="textPassword //noinspection ConstantReassignment" matInput value="" type="password">
   </mat-form-field>
 
   <div class="actions-box">

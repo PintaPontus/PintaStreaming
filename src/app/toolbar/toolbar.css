@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 2.5rem;
-  box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 15px -5px rgba(0, 0, 0, 0.5);
   z-index: 100;
 }
 
