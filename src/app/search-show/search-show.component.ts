@@ -13,6 +13,8 @@ import {StreamService} from '../stream.service';
 import {UserListItem} from '../../interfaces/users';
 import {FirebaseService} from '../firebase.service';
 import {DomSanitizer} from '@angular/platform-browser';
+import {MatDialog} from '@angular/material/dialog';
+import {ResultPictureDialog} from './result-picture-dialog/result-picture-dialog';
 
 const EMPTY_RESULTS: ShowResultsList = {results: [], page: 1, total_results: 0, total_pages: 0};
 
@@ -42,6 +44,7 @@ export class SearchShow {
   private readonly streamService = inject(StreamService);
   private readonly firebaseService = inject(FirebaseService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly dialog = inject(MatDialog);
 
   readonly userInfos = this.firebaseService.getUserInfosDetails();
   readonly searchInput = viewChild.required(MatInput);
@@ -91,6 +94,14 @@ export class SearchShow {
       type: this.translateMediaType(item.media_type),
       lastUpdate: Date.now()
     } as UserListItem)
+  }
+
+  openBigPicture(element: ShowResultItem) {
+    this.dialog.open(ResultPictureDialog, {
+      data: {
+        imgUrl: element.isShow ? element.poster_path : element.profile_path,
+      },
+    });
   }
 
   private isShow(item: ShowResultItem) {
@@ -152,5 +163,4 @@ export class SearchShow {
   }
 
   protected readonly Array = Array;
-  protected readonly Number = Number;
 }

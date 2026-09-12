@@ -18,7 +18,10 @@
     } @else {
       <mat-table [dataSource]="searchResults()" class="search-results-table">
         <ng-container matColumnDef="poster">
-          <mat-cell *matCellDef="let element" [class.disabled-cell]="element.isShow && !element.isAvailable">
+          <mat-cell *matCellDef="let element"
+                    (click)="openBigPicture(element)"
+                    class="search-action"
+                    [class.disabled-cell]="element.isShow && !element.isAvailable">
             <img class="search-result-poster"
                  [src]="`https://image.tmdb.org/t/p/w300/${element.isShow ? element.poster_path : element.profile_path}`"
                  alt="">

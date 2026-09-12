@@ -5,7 +5,7 @@
   [routerLink]="isAvailable() ? playerLink() : null"
 >
   <mat-card appearance="raised" class="show-card">
-    <img [src]="`https://image.tmdb.org/t/p/w500/${showPosterPath()}`" alt="" class="poster" mat-card-image>
+    <img [src]="`https://image.tmdb.org/t/p/w300/${showPosterPath()}`" alt="" class="poster" mat-card-image>
     <div class="progress-overlay">
       @if (this.show()?.type === ShowTypeEnum.TV_SERIES && this.show()?.season && this.show()?.episode) {
         <span class="progress-label">S:{{ show()?.season }} - E:{{ show()?.episode }}</span>

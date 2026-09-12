@@ -85,11 +85,17 @@ export interface ShowResultItem {
   title: string;
   name: string;
   original_title: string;
-  poster_path: string;
+  poster_path: string | undefined;
+  profile_path: string | undefined;
   adult: boolean;
   overview: string;
   vote_average: number;
   media_type: string;
+  isAvailable: boolean | undefined;
+  isShow: boolean | undefined;
+  isFavorite: boolean | undefined;
+  playerUrl: string | undefined;
+  infoUrl: string | undefined;
 }
 
 // AVAILABLE SHOWS TO STREAM
