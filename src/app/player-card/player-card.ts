@@ -20,6 +20,8 @@ import {PlayerCardInfo} from '../player-card-info/player-card-info';
 import {ShowProviders} from '../show-providers/show-providers';
 import {MatTooltip} from '@angular/material/tooltip';
 import {toSignal} from '@angular/core/rxjs-interop';
+import {BigPictureDialog, BigPictureDialogData} from '../big-picture-dialog/big-picture-dialog';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-player-card',
@@ -47,6 +49,7 @@ export class PlayerCard {
   private readonly movieDBService = inject(MovieDBService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly firebaseService = inject(FirebaseService);
+  private readonly dialog = inject(MatDialog);
 
   readonly routeParamMap = toSignal(this.route.paramMap)
 
@@ -123,17 +126,25 @@ export class PlayerCard {
   // SHOW DETAILS ACTIONS
   // ====================
 
-  // TODO: IMPLEMENT LIST
-  // addShowToList() {
-  //
-  // }
-
   toggleShowToFavorites() {
     this.firebaseService.toggleToFavorite({
       id: this.showInfo()?.id,
       type: this.showType(),
       lastUpdate: Date.now()
     } as UserListItem)
+  }
+
+  openBigPicture(element: ShowDetails | undefined) {
+    if (!element) {
+      return;
+    }
+
+    const data: BigPictureDialogData = {
+      imgUrl: element.poster_path,
+    }
+    this.dialog.open<BigPictureDialog, BigPictureDialogData>(BigPictureDialog, {
+      data: data,
+    });
   }
 
 }

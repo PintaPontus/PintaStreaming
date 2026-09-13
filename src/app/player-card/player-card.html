@@ -14,7 +14,7 @@
         </mat-chip-set>
       </mat-card-subtitle>
       <img [src]="`https://image.tmdb.org/t/p/w500/${showInfo()?.poster_path}`" alt="poster" class="poster"
-           mat-card-xl-image>
+           mat-card-xl-image (click)="openBigPicture(showInfo())">
     </mat-card-title-group>
   </mat-card-header>
   <mat-divider class="show-details-divider"></mat-divider>
@@ -33,8 +33,6 @@
   ></app-player-card-info>
   <mat-card-actions class="show-details-actions">
     @if (!!userInfos()) {
-      <!--    TODO: IMPLEMENT BOOKMARKS-->
-        <!--    <span (click)="addShowToList()" class="show-details-action material-symbols-outlined">bookmark</span>-->
       <span (click)="toggleShowToFavorites()"
             [matTooltip]="isFavorite() ? 'Rimuovi dalla lista' : 'Aggiungi alla lista'"
             class="show-details-action material-symbols-outlined">{{ isFavorite() ? 'heart_minus' : 'heart_plus' }}</span>

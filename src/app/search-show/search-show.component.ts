@@ -14,8 +14,8 @@ import {UserListItem} from '../../interfaces/users';
 import {FirebaseService} from '../firebase.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import {MatDialog} from '@angular/material/dialog';
-import {ResultPictureDialog} from './result-picture-dialog/result-picture-dialog';
 import {MatDivider, MatList, MatListItem} from '@angular/material/list';
+import {BigPictureDialog, BigPictureDialogData} from '../big-picture-dialog/big-picture-dialog';
 
 const EMPTY_RESULTS: ShowResultsList = {results: [], page: 1, total_results: 0, total_pages: 0};
 
@@ -65,8 +65,6 @@ export class SearchShow {
     defaultValue: EMPTY_RESULTS,
   });
   readonly searchResults = computed(() => {
-    // TODO: remove
-    console.log(this.searchResource.value());
     return (this.searchResource.value()?.results || []).map(item => (
       {
         ...item,
@@ -87,7 +85,7 @@ export class SearchShow {
         infoUrl: this.getInfoUrl(item)
       })
     );
-  })
+  });
   readonly searchResultsColumns: string[] = ['poster', 'title', 'actions'];
   expandedElement: ShowResultItem | null = null;
   searchResultsDetailsColumns: string[] = [];
@@ -113,10 +111,16 @@ export class SearchShow {
   }
 
   openBigPicture(element: ShowResultItem) {
-    this.dialog.open(ResultPictureDialog, {
-      data: {
-        imgUrl: element.poster_path ?? element.profile_path,
-      },
+    const picPath = element.poster_path ?? element.profile_path;
+    if (!picPath) {
+      return;
+    }
+
+    const data: BigPictureDialogData = {
+      imgUrl: picPath,
+    }
+    this.dialog.open<BigPictureDialog, BigPictureDialogData>(BigPictureDialog, {
+      data: data,
     });
   }
 

@@ -1,18 +1,18 @@
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import {ResultPictureDialog} from './result-picture-dialog';
+import {BigPictureDialog} from './big-picture-dialog';
 
 describe('ResultPictureDialog', () => {
-  let component: ResultPictureDialog;
-  let fixture: ComponentFixture<ResultPictureDialog>;
+  let component: BigPictureDialog;
+  let fixture: ComponentFixture<BigPictureDialog>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ResultPictureDialog]
+      imports: [BigPictureDialog]
     })
       .compileComponents();
 
-    fixture = TestBed.createComponent(ResultPictureDialog);
+    fixture = TestBed.createComponent(BigPictureDialog);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
