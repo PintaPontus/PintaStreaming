@@ -54,7 +54,7 @@
   font-weight: 500;
 }
 
-@media (max-width: 820px) {
+@media (max-width: 1000px) {
   :host {
     flex-direction: column;
     justify-content: flex-start;

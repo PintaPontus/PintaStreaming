@@ -15,6 +15,7 @@ import {FirebaseService} from '../firebase.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import {MatDialog} from '@angular/material/dialog';
 import {ResultPictureDialog} from './result-picture-dialog/result-picture-dialog';
+import {MatDivider, MatList, MatListItem} from '@angular/material/list';
 
 const EMPTY_RESULTS: ShowResultsList = {results: [], page: 1, total_results: 0, total_pages: 0};
 
@@ -34,6 +35,9 @@ const EMPTY_RESULTS: ShowResultsList = {results: [], page: 1, total_results: 0, 
     MatTooltip,
     MatRow,
     MatRowDef,
+    MatList,
+    MatListItem,
+    MatDivider,
   ],
   templateUrl: './search-show.component.html',
   styleUrl: './search-show.component.css'
@@ -66,6 +70,16 @@ export class SearchShow {
     return (this.searchResource.value()?.results || []).map(item => (
       {
         ...item,
+        known_for: (item.known_for || []).map(knownItem => {
+          return {
+            ...knownItem,
+            isAvailable: this.isAvailable(knownItem),
+            isShow: this.isShow(knownItem),
+            isFavorite: this.isFavorite(knownItem),
+            playerUrl: this.getPlayerUrl(knownItem),
+            infoUrl: this.getInfoUrl(knownItem)
+          }
+        }),
         isAvailable: this.isAvailable(item),
         isShow: this.isShow(item),
         isFavorite: this.isFavorite(item),
@@ -75,6 +89,8 @@ export class SearchShow {
     );
   })
   readonly searchResultsColumns: string[] = ['poster', 'title', 'actions'];
+  expandedElement: ShowResultItem | null = null;
+  searchResultsDetailsColumns: string[] = [];
 
   constructor() {
     afterNextRender(() => this.focusSearchInput())
@@ -99,9 +115,19 @@ export class SearchShow {
   openBigPicture(element: ShowResultItem) {
     this.dialog.open(ResultPictureDialog, {
       data: {
-        imgUrl: element.isShow ? element.poster_path : element.profile_path,
+        imgUrl: element.poster_path ?? element.profile_path,
       },
     });
+  }
+
+  isExpanded(element: ShowResultItem) {
+    return this.expandedElement?.id === element.id && this.expandedElement?.media_type === element.media_type;
+  }
+
+  toggle(element: ShowResultItem) {
+    this.expandedElement = this.isExpanded(element) ? null : element;
+    this.searchResultsDetailsColumns = this.isExpanded(element) ? [] : ['expandedDetail'];
+    console.log('toggle', this.expandedElement);
   }
 
   private isShow(item: ShowResultItem) {

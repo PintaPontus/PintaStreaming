@@ -24,6 +24,7 @@
 .search-results-table {
   width: 100%;
   flex: 1;
+  overflow-y: auto;
 }
 
 .mat-column-poster {
@@ -60,6 +61,66 @@
   text-overflow: ellipsis;
 }
 
+mat-row.person-content-row {
+  height: auto;
+  min-height: 0;
+}
+
+mat-row.person-content-row.collapsed {
+  height: 0;
+  border-bottom-width: 0;
+}
+
+.person-content-list {
+  width: 100%;
+  padding: 0 30px;
+}
+
+.person-content-element {
+  padding: 0;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.person-content-element-container {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.person-content-element-poster-container {
+  width: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+.person-content-element-poster {
+  width: 45px;
+}
+
+.person-content-element-title {
+  font-size: 1.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.person-content-element-actions {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 0.5rem;
+}
+
 mat-paginator {
   position: sticky;
   bottom: 0;
@@ -81,4 +142,18 @@ mat-paginator {
 
 .filled {
   font-variation-settings: 'FILL' 1;
+}
+
+@media (max-width: 1000px) {
+  .mat-column-actions {
+    display: none;
+  }
+
+  .person-content-element-actions {
+    display: none;
+  }
+
+  .mat-column-personContents {
+    padding: 0;
+  }
 }

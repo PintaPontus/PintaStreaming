@@ -91,6 +91,7 @@ export interface ShowResultItem {
   overview: string;
   vote_average: number;
   media_type: string;
+  known_for: ShowResultItem[] | undefined;
   isAvailable: boolean | undefined;
   isShow: boolean | undefined;
   isFavorite: boolean | undefined;

@@ -79,7 +79,7 @@ export class CarouselCard {
       id: this.show()!.id,
       type: this.show()!.type
     } as UserListItem)
-      .then(_ => this.snackBar.open('Rimosso con successo', 'OK'));
+      .then(_ => this.snackBar.open('Rimosso con successo', 'OK', {duration: 2000}));
   }
 
   removeFromFavorites() {
@@ -87,7 +87,7 @@ export class CarouselCard {
       id: this.show()!.id,
       type: this.show()!.type
     } as UserListItem)
-      .then(_ => this.snackBar.open('Rimosso con successo', 'OK'));
+      .then(_ => this.snackBar.open('Rimosso con successo', 'OK', {duration: 2000}));
   }
 
   protected readonly ShowTypeEnum = ShowTypeEnum;
