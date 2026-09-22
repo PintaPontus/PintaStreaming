@@ -15,7 +15,6 @@ export async function updateShows(
   newMovies: ShowResource[],
   newTvSeries: ShowResource[],
 ) {
-  console.log(env)
   const accessToken = await getServiceAccountAccessToken(env);
   const db = new FirestoreRestClient(env.FIREBASE_PROJECT_ID, accessToken);
 
@@ -24,4 +23,6 @@ export async function updateShows(
     movies: newMovies,
     tvSeries: newTvSeries,
   });
+
+  console.log('Show list aggiornata: ', doc);
 }

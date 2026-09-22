@@ -2,15 +2,10 @@ import {ServiceAccountCredential} from 'firebase-auth-cloudflare-workers';
 
 interface CachedToken {
   token: string;
-  /** epoch in millisecondi */
   expiresAt: number;
 }
-
-/** Cache in-isolate: sopravvive tra richieste servite dallo stesso isolate. */
 let memoryCache: CachedToken | null = null;
-
 const KV_KEY = 'gcp-sa-access-token';
-/** margine di sicurezza prima della scadenza reale */
 const SKEW_MS = 60_000;
 
 export async function getServiceAccountAccessToken(env: Env): Promise<string> {
@@ -26,7 +21,6 @@ export async function getServiceAccountAccessToken(env: Env): Promise<string> {
     return fromKv.token;
   }
 
-  // firma il JWT RS256 con private_key e lo scambia su oauth2.googleapis.com
   const credential = new ServiceAccountCredential(env.SERVICE_ACCOUNT_JSON);
   const {access_token, expires_in} = await credential.getAccessToken();
 
@@ -137,7 +131,6 @@ export class FirestoreRestClient {
     return res.json<T>();
   }
 
-  /** CREATE - id automatico, oppure esplicito con documentId */
   async create(
     collection: string,
     data: Record<string, unknown>,
@@ -150,14 +143,10 @@ export class FirestoreRestClient {
     });
   }
 
-  /** READ */
   async get(collection: string, documentId: string): Promise<FirestoreDocument> {
     return this.request<FirestoreDocument>(`/${collection}/${documentId}`, {method: 'GET'});
   }
 
-  /**
-   * UPDATE parziale (merge): senza updateMask i campi assenti verrebbero cancellati.
-   */
   async update(
     collection: string,
     documentId: string,
@@ -173,7 +162,6 @@ export class FirestoreRestClient {
     });
   }
 
-  /** DELETE */
   async delete(collection: string, documentId: string): Promise<void> {
     await this.request<unknown>(`/${collection}/${documentId}`, {method: 'DELETE'});
   }
