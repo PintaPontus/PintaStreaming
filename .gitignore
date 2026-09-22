@@ -44,6 +44,9 @@ Thumbs.db
 # Firebase
 .firebase
 
+# Firebase
+.junie
+
 # wrangler files
 .wrangler
 .dev.vars*

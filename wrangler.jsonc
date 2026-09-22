@@ -2,14 +2,39 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pintastreaming",
   "compatibility_date": "2026-07-14",
+  "main": "src/worker/index.ts",
   "observability": {
     "enabled": true
   },
   "assets": {
     "directory": "dist/browser",
-    "not_found_handling": "single-page-application"
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "vars": {
+    "FIREBASE_PROJECT_ID": "pintastreaming",
+    "PUBLIC_JWK_CACHE_KEY": "firebase-public-jwks"
   },
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
+  "triggers": {
+    "crons": [
+      "0 0 * * *"
+    ]
+  },
+  "kv_namespaces": [
+    {
+      "binding": "PUBLIC_JWK_CACHE_KV",
+      "id": "dc82f0ff62724df1997f324ed3598e61"
+    }
+  ],
+  "secrets": {
+    "required": [
+      "SERVICE_ACCOUNT_JSON"
+    ]
+  }
 }
