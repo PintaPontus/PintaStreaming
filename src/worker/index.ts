@@ -11,14 +11,15 @@ export default {
       return handlePing(request, env);
     }
 
-    if (pathname === '/api/fire' || pathname === '/api/fire/') {
+    if (pathname === '/api/update-stream-list' || pathname === '/api/update-stream-list/') {
       await updateStreamList(env);
+      return Response.json({message: 'Update stream list started!'});
     }
 
     return env.ASSETS.fetch(request);
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-    ctx.waitUntil(updateStreamList(env))
+    await updateStreamList(env)
   }
 };
