@@ -34,7 +34,8 @@
   ],
   "secrets": {
     "required": [
-      "SERVICE_ACCOUNT_JSON"
+      "SERVICE_ACCOUNT_JSON",
+      "VIDEO_STREAMING_DOMAIN"
     ]
   }
 }

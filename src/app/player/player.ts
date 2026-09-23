@@ -10,9 +10,9 @@ import {PlayerEvent, PlayerEventData} from '../../interfaces/playerEvents';
 import {FirebaseService} from '../firebase.service';
 import {UserListItem} from '../../interfaces/users';
 import {PlayerCard} from '../player-card/player-card';
-import {environment} from '../../environments/environment';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {fromEvent} from 'rxjs';
+import {StreamService} from '../stream.service';
 
 @Component({
   selector: 'app-player',
@@ -30,6 +30,7 @@ export class Player {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly movieDBService = inject(MovieDBService);
+  private readonly streamService = inject(StreamService);
   private readonly firebaseService = inject(FirebaseService);
   private readonly router = inject(Router);
   private readonly title = inject(Title);
@@ -41,15 +42,16 @@ export class Player {
 
   readonly type = computed(() => this.routeData().type)
   readonly language = this.movieDBService.getLanguage();
+  readonly videoStreamingDomain = this.streamService.getVideoStreamingDomain();
   readonly videoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
     if (!!this.showId() && this.type() === ShowTypeEnum.MOVIES) {
       return this.sanitizer.bypassSecurityTrustResourceUrl(
-        `${environment.videoStreamingDomain}/movie/${this.showId()}?${this.playerUrlParams()}`
+        `${this.videoStreamingDomain()}/movie/${this.showId()}?${this.playerUrlParams()}`
       )
     }
     if (!!this.showId() && this.type() === ShowTypeEnum.TV_SERIES) {
       return this.sanitizer.bypassSecurityTrustResourceUrl(
-        `${environment.videoStreamingDomain}/tv/${this.showId()}/${(this.currentSeason())}/${this.currentEpisode()}?${this.playerUrlParams()}`
+        `${this.videoStreamingDomain()}/tv/${this.showId()}/${(this.currentSeason())}/${this.currentEpisode()}?${this.playerUrlParams()}`
       )
     }
     return undefined;
@@ -165,7 +167,8 @@ export class Player {
     fromEvent<MessageEvent>(window, 'message')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
-        if (event.origin !== environment.videoStreamingDomain) {
+        const videoStreamingDomain = this.videoStreamingDomain();
+        if (!videoStreamingDomain || event.origin !== videoStreamingDomain) {
           return;
         }
         const plEvent = event.data as PlayerEvent;
@@ -180,7 +183,7 @@ export class Player {
       });
   }
 
-  private async handleEndedEvent() {
+  private handleEndedEvent() {
     this.firebaseService.removeContinueToWatch(this.createWatchCheckpoint())
   }
 

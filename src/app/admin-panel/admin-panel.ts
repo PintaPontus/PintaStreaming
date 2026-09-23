@@ -1,4 +1,4 @@
-import {Component, effect, inject, signal, Signal} from '@angular/core';
+import {Component, computed, effect, inject, signal, Signal} from '@angular/core';
 import {ShowResource} from '../../interfaces/show';
 import {StreamService} from '../stream.service';
 import {FirebaseService} from '../firebase.service';
@@ -9,7 +9,6 @@ import {FormsModule} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatFabButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
-import {environment} from '../../environments/environment';
 
 @Component({
   selector: 'app-admin-panel',
@@ -31,8 +30,11 @@ export class AdminPanel {
   private readonly streamService = inject(StreamService);
   private readonly snackBar = inject(MatSnackBar);
 
-  readonly movies: Signal<ShowResource[]> = this.streamService.getMovies();
-  readonly tvSeries: Signal<ShowResource[]> = this.streamService.getTvSeries();
+  readonly videoStreamingDomain = this.streamService.getVideoStreamingDomain();
+  readonly movieListURL = computed(() => `${this.videoStreamingDomain()}/api/list/movie?lang=it`)
+  readonly tvSeriesListURL = computed(() => `${this.videoStreamingDomain()}/api/list/tv?lang=it`)
+  readonly movies: Signal<ShowResource[]> = this.streamService.movies;
+  readonly tvSeries: Signal<ShowResource[]> = this.streamService.tvSeries;
   readonly moviesText = signal('');
   readonly tvSeriesText = signal('');
 
@@ -64,11 +66,4 @@ export class AdminPanel {
     this.snackBar.open(message, "OK", {duration: 2000});
   }
 
-  getMovieListURL() {
-    return `${environment.videoStreamingDomain}/api/list/movie?lang=it`;
-  }
-
-  getTvSeriesListURL() {
-    return `${environment.videoStreamingDomain}/api/list/tv?lang=it`;
-  }
 }

@@ -1,33 +1,41 @@
-import {computed, inject, Injectable, Signal, signal, WritableSignal} from '@angular/core';
+import {computed, inject, Injectable, resource} from '@angular/core';
 import {FirebaseService} from './firebase.service';
-import {ShowResource, ShowTypeEnum} from '../interfaces/show';
+import {ShowTypeEnum} from '../interfaces/show';
+import {HttpService} from './http.service';
+import {VideoDomain} from '../interfaces/secrets';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StreamService {
 
+  private httpService = inject(HttpService);
   private firebaseService = inject(FirebaseService);
-  private movies: WritableSignal<ShowResource[]> = signal([]);
-  private tvSeries: WritableSignal<ShowResource[]> = signal([]);
 
-  private moviesSet = computed(() => {
+  private readonly videoStreamingDomain = resource({
+    loader: async () => {
+      return (await this.httpService.get<VideoDomain>(`/api/video-streaming-domain`)).domain;
+    }
+  })
+
+  private readonly showsLists = resource({
+    loader: async () => {
+      return await this.firebaseService.fetchShows();
+    }
+  })
+
+  readonly movies = computed(() => this.showsLists.value()?.movies || []);
+  readonly tvSeries = computed(() => this.showsLists.value()?.tvSeries || []);
+
+  private readonly moviesSet = computed(() => {
     return new Set(this.movies().map(s => s.tmdb_id))
   });
-  private tvSeriesSet = computed(() => {
+  private readonly tvSeriesSet = computed(() => {
     return new Set(this.tvSeries().map(s => s.tmdb_id))
   });
 
-  constructor() {
-    this.fetchShows();
-  }
-
-  getMovies() {
-    return this.movies.asReadonly();
-  }
-
-  getTvSeries() {
-    return this.tvSeries.asReadonly();
+  getVideoStreamingDomain() {
+    return this.videoStreamingDomain.value.asReadonly();
   }
 
   isAvailable(id: number, type: ShowTypeEnum) {
@@ -40,13 +48,7 @@ export class StreamService {
   }
 
   async refreshShows() {
-    await this.fetchShows();
-  }
-
-  private async fetchShows() {
-    const showsList = await this.firebaseService.fetchShows();
-    this.movies.set(showsList.movies);
-    this.tvSeries.set(showsList.tvSeries);
+    this.showsLists.reload();
   }
 
 }

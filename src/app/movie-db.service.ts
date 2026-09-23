@@ -1,4 +1,4 @@
-import {Injectable, signal, WritableSignal} from '@angular/core';
+import {inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {
   ShowDetails,
   ShowLanguage,
@@ -11,11 +11,15 @@ import {
 } from '../interfaces/show';
 import {environment} from '../environments/environment';
 import {UserListItem} from '../interfaces/users';
+import {HttpService} from './http.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MovieDBService {
+
+  private readonly httpService = inject(HttpService);
+
   private readonly language: WritableSignal<string> = signal(this.initLanguage());
 
   // =========
@@ -40,7 +44,7 @@ export class MovieDBService {
   }
 
   async getLanguages() {
-    return await this.get<ShowLanguage[]>(`https://api.themoviedb.org/3/configuration/languages`)
+    return await this.get<ShowLanguage[]>(`${environment.movieDBDomain}/3/configuration/languages`)
   }
 
   // =================
@@ -52,29 +56,29 @@ export class MovieDBService {
   }
 
   async getInfoMovie(showId: number, abortSignal?: AbortSignal): Promise<ShowDetails> {
-    const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/movie/${showId}`, abortSignal);
+    const showDetails = await this.get<ShowDetails>(`${environment.movieDBDomain}/3/movie/${showId}`, abortSignal);
     showDetails.id = this.castNumber(showDetails.id.toString())!
     if (this.language()) {
-      showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/movie/${showId}/translations`, abortSignal);
+      showDetails.translations = await this.get<ShowTranslationsList>(`${environment.movieDBDomain}/3/movie/${showId}/translations`, abortSignal);
     }
     return showDetails;
   }
 
   async getInfoTvSeries(showId: number, abortSignal?: AbortSignal): Promise<ShowDetails> {
-    const showDetails = await this.get<ShowDetails>(`https://api.themoviedb.org/3/tv/${showId}`, abortSignal);
+    const showDetails = await this.get<ShowDetails>(`${environment.movieDBDomain}/3/tv/${showId}`, abortSignal);
     showDetails.id = this.castNumber(showDetails.id.toString())!
     if (this.language()) {
-      showDetails.translations = await this.get<ShowTranslationsList>(`https://api.themoviedb.org/3/tv/${showId}/translations`, abortSignal);
+      showDetails.translations = await this.get<ShowTranslationsList>(`${environment.movieDBDomain}/3/tv/${showId}/translations`, abortSignal);
     }
     return showDetails;
   }
 
   async getProvidersMovie(showId: number): Promise<ShowProvidersList> {
-    return await this.get<ShowProvidersList>(`https://api.themoviedb.org/3/movie/${showId}/watch/providers`);
+    return await this.get<ShowProvidersList>(`${environment.movieDBDomain}/3/movie/${showId}/watch/providers`);
   }
 
   async getProvidersTvSeries(showId: number): Promise<ShowProvidersList> {
-    return await this.get<ShowProvidersList>(`https://api.themoviedb.org/3/tv/${showId}/watch/providers`);
+    return await this.get<ShowProvidersList>(`${environment.movieDBDomain}/3/tv/${showId}/watch/providers`);
   }
 
   // ===========
@@ -89,11 +93,11 @@ export class MovieDBService {
     if (page) {
       params.append("page", page.toString());
     }
-    return await this.get<ShowResultsList>(`https://api.themoviedb.org/3/search/multi?${params}`, abortSignal);
+    return await this.get<ShowResultsList>(`${environment.movieDBDomain}/3/search/multi?${params}`, abortSignal);
   }
 
   async getShowsFromCategory(link: string, type: ShowTypeEnum) {
-    const categoryShows = await this.get<ShowResultsList>(`https://api.themoviedb.org/3/${link}`);
+    const categoryShows = await this.get<ShowResultsList>(`${environment.movieDBDomain}/3/${link}`);
     return categoryShows.results.map(cs => {
       return {
         id: cs.id,
@@ -120,51 +124,25 @@ export class MovieDBService {
   }
 
   async loadRecommendationsMovie(id: number) {
-    return await this.get<ShowRecommendationList>(`https://api.themoviedb.org/3/movie/${id}/recommendations`);
+    return await this.get<ShowRecommendationList>(`${environment.movieDBDomain}/3/movie/${id}/recommendations`);
   }
 
   async loadRecommendationsTvSeries(id: number) {
-    return await this.get<ShowRecommendationList>(`https://api.themoviedb.org/3/tv/${id}/recommendations`);
+    return await this.get<ShowRecommendationList>(`${environment.movieDBDomain}/3/tv/${id}/recommendations`);
   }
 
   // =====
   // UTILS
   // =====
 
-  private async get<T>(url: string, abortSignal?: AbortSignal): Promise<T> {
-    try {
-      const response = await fetch(
-        url,
-        {
-          method: 'GET',
-          headers: this.generateHeaders(),
-          signal: abortSignal,
-        },
-      );
-
-      return await response.json() as T;
-    }catch (e) {
-      if ((e as Error)?.name === 'AbortError') {
-        throw e;
-      }
-      console.error('Error while retrieving data: ', e);
-    }
-    return {} as T;
+  private get<T>(url: string, abortSignal?: AbortSignal): Promise<T> {
+    return this.httpService.get<T>(url, this.getAuthHeader(), abortSignal);
   }
 
-  private generateHeaders(headers?: {
-    [key: string]: string | null;
-  }) {
-    const httpHeaders = new Headers();
-    httpHeaders.set('Authorization', `Bearer ${(environment.movieDBKey)}`)
-    if (headers) {
-      Object.entries(headers).forEach(([key, value]) => {
-        if (value) {
-          httpHeaders.set(key, value);
-        }
-      })
-    }
-    return httpHeaders;
+  private getAuthHeader() {
+    return {
+      'Authorization': `Bearer ${(environment.movieDBKey)}`
+    };
   }
 
   private castNumber(number: string | null | undefined) {

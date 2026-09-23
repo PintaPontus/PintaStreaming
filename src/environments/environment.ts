@@ -2,7 +2,7 @@ export const environment = {
   production: true,
   defaultLanguage: 'it',
   movieDBKey: 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhYjk4MWI1OGNmNjIxYTkwMTQ2YjYyNDUzMTRmMjYxZCIsIm5iZiI6MTc1NjEzODAxMy45OTQsInN1YiI6IjY4YWM4YTFkNmZhN2JjM2FkYmE5YTc4MyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.yMfw2nt-XbBEbfcdKH2mnb6uis_-tWYdwu2ho3wlv-8',
-  videoStreamingDomain: 'https://vixsrc.to',
+  movieDBDomain: 'https://api.themoviedb.org',
   firebaseConfig: {
     apiKey: "AIzaSyD9MEQB9aOgXqRiUIm4Q5FDd6bjEpTfHMo",
     authDomain: "pintastreaming.firebaseapp.com",
