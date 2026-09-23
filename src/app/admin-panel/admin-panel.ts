@@ -9,6 +9,7 @@ import {FormsModule} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatFabButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
+import {HttpService} from '../http.service';
 
 @Component({
   selector: 'app-admin-panel',
@@ -28,6 +29,7 @@ export class AdminPanel {
 
   private readonly firebaseService = inject(FirebaseService);
   private readonly streamService = inject(StreamService);
+  private readonly httpService = inject(HttpService);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly videoStreamingDomain = this.streamService.getVideoStreamingDomain();
@@ -60,6 +62,12 @@ export class AdminPanel {
     } else {
       this.openSnackBar("You need to fill the fields!");
     }
+  }
+
+  async autoUpdateShows() {
+    await this.httpService.get('/api/update-stream-list');
+    await this.streamService.refreshShows();
+    this.openSnackBar("Shows auto updated!");
   }
 
   openSnackBar(message: string) {

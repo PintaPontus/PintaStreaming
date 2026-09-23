@@ -11,14 +11,14 @@ const SKEW_MS = 60_000;
 export async function getServiceAccountAccessToken(env: Env): Promise<string> {
   const now = Date.now();
 
-  if (memoryCache && memoryCache.expiresAt - SKEW_MS > now) {
-    return memoryCache.token;
+  if (isTokenStillValid(memoryCache, now)) {
+    return memoryCache!.token;
   }
 
   const fromKv = await env.PUBLIC_JWK_CACHE_KV.get<CachedToken>(KV_KEY, 'json');
-  if (fromKv && fromKv.expiresAt - SKEW_MS > now) {
+  if (isTokenStillValid(fromKv, now)) {
     memoryCache = fromKv;
-    return fromKv.token;
+    return fromKv!.token;
   }
 
   const credential = new ServiceAccountCredential(env.SERVICE_ACCOUNT_JSON);
@@ -35,6 +35,10 @@ export async function getServiceAccountAccessToken(env: Env): Promise<string> {
   });
 
   return access_token;
+}
+
+function isTokenStillValid(token: CachedToken | null, now: number = Date.now()) {
+  return (token && token.expiresAt - SKEW_MS > now) ?? false;
 }
 
 export type FirestoreValue =
@@ -164,5 +168,13 @@ export class FirestoreRestClient {
 
   async delete(collection: string, documentId: string): Promise<void> {
     await this.request<unknown>(`/${collection}/${documentId}`, {method: 'DELETE'});
+  }
+
+  async query(structuredQuery: Record<string, unknown>): Promise<FirestoreDocument[]> {
+    const rows = await this.request<Array<{ document?: FirestoreDocument }>>(':runQuery', {
+      method: 'POST',
+      body: JSON.stringify({structuredQuery}),
+    });
+    return rows.filter((r) => r.document).map((r) => r.document!);
   }
 }

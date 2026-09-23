@@ -15,3 +15,30 @@ export async function updateShows(
     tvSeries: newTvSeries,
   });
 }
+
+export async function deleteOldShowsLists(
+  env: Env
+) {
+  const accessToken = await getServiceAccountAccessToken(env);
+  const db = new FirestoreRestClient(env.FIREBASE_PROJECT_ID, accessToken);
+
+  const structuredQuery = {
+    from: [{collectionId: 'shows'}],
+    orderBy: [
+      {
+        field: {fieldPath: 'date'},
+        direction: 'DESCENDING',
+      },
+    ],
+    offset: 24,
+  };
+
+  const rawDocs = await db.query(structuredQuery);
+
+  await Promise.allSettled(rawDocs.map(rd => {
+    const docID = rd.name.substring(rd.name.lastIndexOf("/") + 1);
+    return db.delete('shows', docID)
+  }));
+
+  return rawDocs.length;
+}
