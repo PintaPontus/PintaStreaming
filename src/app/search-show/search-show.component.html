@@ -34,11 +34,13 @@
             <a class="search-result-title"
                [routerLink]="element.playerUrl"
                [matTooltip]="element.isAvailable ? '' : 'Non disponibile a sistema'">
-              {{ element.title || element.name || element.original_title }}
+              <span class="material-symbols-outlined">{{ element.media_type }}</span>
+              <span class="title-text">{{ element.title || element.name || element.original_title }}</span>
             </a>
           } @else {
             <span class="search-result-title search-action" (click)="toggle(element)">
-              {{ element.title || element.name || element.original_title }}
+              <span class="material-symbols-outlined">person</span>
+              <span class="title-text">{{ element.title || element.name || element.original_title }}</span>
             </span>
           }
         </mat-cell>
@@ -48,11 +50,6 @@
         <mat-cell *matCellDef="let element">
           @if (element.isShow) {
             @if (element.isAvailable) {
-              <a class="material-symbols-outlined"
-                 [routerLink]="element.playerUrl"
-                 [matTooltip]="element.media_type === 'movie' ? 'Guarda il film' : 'Guarda la serie tv'">
-                {{ element.media_type }}
-              </a>
               <a class="material-symbols-outlined"
                  [href]="element.playerUrl"
                  matTooltip="Apri sorgente video">
@@ -102,15 +99,11 @@
                   </div>
                   <a class="person-content-element-title"
                      [routerLink]="show.playerUrl">
-                    {{ show.title || show.name || show.original_title }}
+                    <span class="material-symbols-outlined">{{ show.media_type }}</span>
+                    <span class="title-text">{{ show.title || show.name || show.original_title }}</span>
                   </a>
                   <div class="person-content-element-actions">
                     @if (show.isAvailable) {
-                      <a class="material-symbols-outlined"
-                         [routerLink]="show.playerUrl"
-                         [matTooltip]="show.media_type === 'movie' ? 'Guarda il film' : 'Guarda la serie tv'">
-                        {{ show.media_type }}
-                      </a>
                       <a class="material-symbols-outlined"
                          [href]="show.playerUrl"
                          matTooltip="Apri sorgente video">

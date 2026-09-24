@@ -5,6 +5,8 @@
   align-items: center;
   padding: 2rem;
   gap: 2rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .show-details{
@@ -23,6 +25,8 @@
   flex-direction: column;
   justify-content: stretch;
   align-items: stretch;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .video-player {
@@ -37,6 +41,17 @@
   flex: 1;
 }
 
+.next-prev-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.next-prev-btn {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
 .episode-selector-container {
   display: flex;
   gap: 0.7rem;
@@ -46,7 +61,20 @@
 }
 
 .episode-selector {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overflow-y: hidden;
+
+  mat-button-toggle-group {
+    display: inline-flex;
+    width: max-content;
+
+    mat-button-toggle {
+      flex: 0 0 auto;
+    }
+  }
 }
 
 .episode-selector-container h3 {

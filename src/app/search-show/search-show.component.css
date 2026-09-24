@@ -59,7 +59,15 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+
+  .material-symbols-outlined {
+    font-size: 1.1em;
+    line-height: 1;
+  }
 }
 
 mat-row.person-content-row {
@@ -110,6 +118,15 @@ mat-row.person-content-row.collapsed {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+
+  .material-symbols-outlined {
+    font-size: 1.1em;
+    line-height: 1;
+  }
 }
 
 .person-content-element-actions {

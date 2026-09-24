@@ -5,24 +5,38 @@
     }
   </div>
   @if (type() === 'tv-series') {
+    <div class="next-prev-container">
+      <button class="next-prev-btn" matButton [disabled]="isFirstEpisode()" (click)="goPrevious()">
+        <mat-icon>skip_previous</mat-icon>
+        Precedente
+      </button>
+      <button class="next-prev-btn" matButton [disabled]="isLastEpisode()" (click)="goNext()">
+        <mat-icon>skip_next</mat-icon>
+        Successivo
+      </button>
+    </div>
     <div class="episode-selector-container">
       <h3>Stagione</h3>
-      <mat-button-toggle-group class="episode-selector">
-        @for (seas of seasons(); track seas.id) {
-          <mat-button-toggle [checked]="seas.season_number === currentSeason()"
-                             (click)="goToSelectedSeason(seas.season_number)">
-            {{ seas.season_number }}
-          </mat-button-toggle>
-        }
-      </mat-button-toggle-group>
+      <div class="episode-selector" #seasonWrapper>
+        <mat-button-toggle-group>
+          @for (seas of seasons(); track seas.id) {
+            <mat-button-toggle [checked]="seas.season_number === currentSeason()"
+                               (click)="goToSelectedSeason(seas.season_number)">
+              {{ seas.season_number }}
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
       <h3>Episodio</h3>
-      <mat-button-toggle-group class="episode-selector">
-        @for (ep of episodes(); track ep.id) {
-          <mat-button-toggle (click)="goToSelectedEpisode(ep.id)" [checked]="ep.id === currentEpisode()">
-            {{ ep.id }}
-          </mat-button-toggle>
-        }
-      </mat-button-toggle-group>
+      <div class="episode-selector" #episodeWrapper>
+        <mat-button-toggle-group>
+          @for (ep of episodes(); track ep.id) {
+            <mat-button-toggle (click)="goToSelectedEpisode(ep.id)" [checked]="ep.id === currentEpisode()">
+              {{ ep.id }}
+            </mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+      </div>
     </div>
   }
 </div>

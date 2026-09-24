@@ -1,4 +1,16 @@
-import {afterNextRender, Component, computed, DestroyRef, effect, inject, resource, Signal} from '@angular/core';
+import {
+  afterNextRender,
+  afterRenderEffect,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  resource,
+  Signal,
+  viewChild
+} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {MovieDBService} from '../movie-db.service';
 import {DomSanitizer, SafeResourceUrl, Title} from '@angular/platform-browser';
@@ -13,6 +25,9 @@ import {PlayerCard} from '../player-card/player-card';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {fromEvent} from 'rxjs';
 import {StreamService} from '../stream.service';
+import {MatButton} from '@angular/material/button';
+import {MatIcon} from '@angular/material/icon';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-player',
@@ -21,6 +36,8 @@ import {StreamService} from '../stream.service';
     MatButtonToggle,
     PlayerCard,
     MatProgressSpinner,
+    MatButton,
+    MatIcon,
   ],
   templateUrl: './player.html',
   styleUrl: './player.css'
@@ -34,11 +51,15 @@ export class Player {
   private readonly firebaseService = inject(FirebaseService);
   private readonly router = inject(Router);
   private readonly title = inject(Title);
+  private readonly snackBar = inject(MatSnackBar);
   private readonly sanitizer = inject(DomSanitizer);
 
   private readonly routeData = toSignal(this.route.data) as Signal<PlayerRouteInfo>;
   private readonly routeParamMap = toSignal(this.route.paramMap) as Signal<ParamMap>;
   private readonly routeQueryMap = toSignal(this.route.queryParamMap) as Signal<ParamMap>;
+
+  private readonly seasonWrapper = viewChild<ElementRef<HTMLElement>>('seasonWrapper');
+  private readonly episodeWrapper = viewChild<ElementRef<HTMLElement>>('episodeWrapper');
 
   readonly type = computed(() => this.routeData().type)
   readonly language = this.movieDBService.getLanguage();
@@ -56,6 +77,10 @@ export class Player {
     }
     return undefined;
   });
+  readonly autoplay: Signal<boolean> = computed(() => {
+    return this.routeQueryMap().get('autoplay') ? this.routeQueryMap().get('autoplay') === "true" : false;
+  });
+
   readonly playerUrlParams = computed(() => {
     const startTimeSession = JSON.parse(sessionStorage.getItem("checkpoint") || "{}") as ShowTime
     const startTimeParam = this.castNumber(this.routeQueryMap().get("time"))
@@ -66,7 +91,7 @@ export class Player {
     urlParams.append("primaryColor", this.pickFromLightDark(rawPrimary))
     urlParams.append("secondaryColor", this.pickFromLightDark(rawSecondary))
     urlParams.append("lang", this.language())
-    urlParams.append("autoplay", "false")
+    urlParams.append("autoplay", this.autoplay().toString())
     if (
       !!startTimeSession.time
       && startTimeSession.showId === this.showId()
@@ -84,8 +109,18 @@ export class Player {
     }
     return urlParams;
   });
+
+  readonly currentSeason: Signal<number> = computed(() => {
+    return this.routeParamMap().get('season') ? Number.parseInt(this.routeParamMap().get('season')!) : 1;
+  });
+  readonly currentEpisode: Signal<number> = computed(() => {
+    return this.routeParamMap().get('episode') ? Number.parseInt(this.routeParamMap().get('episode')!) : 1;
+  });
+
+  readonly seasons = computed(() => this.showInfo.value()?.seasons || []);
+  readonly currentSeasonInfo = computed(() => this.seasons().find(s => s.season_number === this.currentSeason()))
   readonly episodes = computed(() => {
-    const currentSeasonInfo = this.seasons().find(s => s.season_number === this.currentSeason())
+    const currentSeasonInfo = this.currentSeasonInfo()
     return currentSeasonInfo?.episode_count
       ? Array.from(
         {length: currentSeasonInfo.episode_count},
@@ -93,11 +128,19 @@ export class Player {
       ).map(i => ({id: i}))
       : [];
   });
-  readonly currentSeason: Signal<number> = computed(() => {
-    return this.routeParamMap().get('season') ? Number.parseInt(this.routeParamMap().get('season')!) : 1;
+  readonly isFirstEpisode: Signal<boolean> = computed(() => {
+    if (this.type() !== ShowTypeEnum.TV_SERIES) {
+      return true;
+    }
+    return this.currentSeason() === this.seasons()[0]?.season_number
+      && this.currentEpisode() === 1;
   });
-  readonly currentEpisode: Signal<number> = computed(() => {
-    return this.routeParamMap().get('episode') ? Number.parseInt(this.routeParamMap().get('episode')!) : 1;
+  readonly isLastEpisode: Signal<boolean> = computed(() => {
+    if (this.type() !== ShowTypeEnum.TV_SERIES) {
+      return true;
+    }
+    return this.currentSeason() === this.seasons()[this.seasons().length - 1]?.season_number
+      && this.currentEpisode() === this.currentSeasonInfo()?.episode_count;
   });
   readonly showId: Signal<number | undefined> = computed(() => {
     return this.routeParamMap().get('id') ? Number.parseInt(this.routeParamMap().get('id')!) : undefined;
@@ -121,7 +164,6 @@ export class Player {
       return;
     },
   });
-  readonly seasons = computed(() => this.showInfo.value()?.seasons || []);
 
   checkpointTimeoutFlag = false;
 
@@ -130,7 +172,7 @@ export class Player {
       if (this.type() === ShowTypeEnum.TV_SERIES) {
         const paramSeason = this.castNumber(this.routeParamMap().get('season'));
         const paramEpisode = this.castNumber(this.routeParamMap().get('episode'));
-        if (!paramSeason || !paramEpisode) {
+        if (paramSeason === undefined || paramEpisode === undefined) {
           console.error("No season or episode");
           this.router.navigate(['/player/tv-series', this.showId(), paramSeason || 1, paramEpisode || 1]);
         }
@@ -138,7 +180,17 @@ export class Player {
       const showInfo = this.showInfo.value();
       this.title.setTitle('PintaStreaming - ' + (showInfo?.title || showInfo?.name || showInfo?.original_title))
     });
-    afterNextRender(() => this.listenPlayerEvents())
+    afterNextRender(() => {
+      this.listenPlayerEvents()
+    })
+    afterRenderEffect(() => {
+      this.seasons();
+      this.currentSeason();
+      this.scrollSeasonEpisode(this.seasonWrapper()?.nativeElement);
+      this.episodes();
+      this.currentEpisode();
+      this.scrollSeasonEpisode(this.episodeWrapper()?.nativeElement);
+    });
   }
 
   // ======================
@@ -154,9 +206,30 @@ export class Player {
     this.router.navigate(['/player/tv-series', this.showInfo.value()?.id, id, finalEpisode]);
   }
 
-  goToSelectedEpisode(id: number) {
+  goToSelectedEpisode(id: number, autoplay: boolean | undefined = undefined) {
+    let finalEpisode = id;
+    let finalSeason = this.currentSeason();
+    const currentSeasonInfo = this.currentSeasonInfo();
+    if (finalEpisode > (currentSeasonInfo?.episode_count ?? 0)) {
+      finalSeason++;
+      finalEpisode = 1;
+    }
+    if (finalEpisode < 1) {
+      finalSeason--;
+      finalEpisode = this.seasons().find(s => s.season_number === ((currentSeasonInfo?.season_number ?? 0) - 1))!.episode_count;
+    }
     // noinspection JSIgnoredPromiseFromCall
-    this.router.navigate(['/player/tv-series', this.showInfo.value()?.id, this.currentSeason(), id]);
+    this.router.navigate(['/player/tv-series', this.showInfo.value()?.id, finalSeason, finalEpisode], {
+      queryParams: {autoplay},
+    });
+  }
+
+  goPrevious() {
+    this.goToSelectedEpisode(this.currentEpisode() - 1);
+  }
+
+  goNext(autoplay: boolean | undefined = undefined) {
+    this.goToSelectedEpisode(this.currentEpisode() + 1, autoplay);
   }
 
   // =============
@@ -184,6 +257,11 @@ export class Player {
   }
 
   private handleEndedEvent() {
+    if (this.type() === ShowTypeEnum.TV_SERIES && !this.isLastEpisode()) {
+      // TODO: switch autoplay to true when it works
+      setTimeout(() => this.goNext(false), 5000);
+      this.snackBar.open("Prossimo episodio in 1 secondi", "OK", {duration: 5000});
+    }
     this.firebaseService.removeContinueToWatch(this.createWatchCheckpoint())
   }
 
@@ -225,6 +303,24 @@ export class Player {
   // ========
   // PRIVATES
   // ========
+
+  private scrollSeasonEpisode(wrapper: HTMLElement | undefined): void {
+    if (!wrapper) return;
+
+    const checked = wrapper.querySelector<HTMLElement>('.mat-button-toggle-checked');
+    if (!checked) return;
+
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const checkedRect = checked.getBoundingClientRect();
+
+    // Centra il pulsante selezionato nel wrapper
+    const left =
+      wrapper.scrollLeft +
+      (checkedRect.left - wrapperRect.left) -
+      (wrapperRect.width - checkedRect.width) / 2;
+
+    wrapper.scrollTo({left, behavior: 'smooth'});
+  }
 
   private castNumber(number: string | null | undefined) {
     return !number || Number.isNaN(Number.parseInt(number)) ? undefined : Number.parseInt(number);
