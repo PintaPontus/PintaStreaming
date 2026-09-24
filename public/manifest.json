@@ -1,0 +1,21 @@
+{
+  "name": "PintaStreaming",
+  "short_name": "PintaStreaming",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "icons": [
+    {
+      "src": "/icons/B 2.0 512x512.png.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/B 2.0 512x512.png.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
