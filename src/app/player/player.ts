@@ -262,7 +262,9 @@ export class Player {
       setTimeout(() => this.goNext(false), 5000);
       this.snackBar.open("Prossimo episodio in 1 secondi", "OK", {duration: 5000});
     }
-    this.firebaseService.removeContinueToWatch(this.createWatchCheckpoint())
+    if (this.type() !== ShowTypeEnum.TV_SERIES || this.isLastEpisode()) {
+      this.firebaseService.removeContinueToWatch(this.createWatchCheckpoint())
+    }
   }
 
   private handleTimeUpdateEvent(plEvent: PlayerEventData) {
