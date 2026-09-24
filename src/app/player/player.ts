@@ -259,8 +259,8 @@ export class Player {
   private handleEndedEvent() {
     if (this.type() === ShowTypeEnum.TV_SERIES && !this.isLastEpisode()) {
       // TODO: switch autoplay to true when it works
-      setTimeout(() => this.goNext(false), 5000);
-      this.snackBar.open("Prossimo episodio in 1 secondi", "OK", {duration: 5000});
+      setTimeout(() => this.goNext(undefined), 5000);
+      this.snackBar.open("Prossimo episodio in 5 secondi", "OK", {duration: 5000});
     }
     if (this.type() !== ShowTypeEnum.TV_SERIES || this.isLastEpisode()) {
       this.firebaseService.removeContinueToWatch(this.createWatchCheckpoint())
