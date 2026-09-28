@@ -58,10 +58,7 @@ export class MovieDBService {
     const params = new URLSearchParams();
     params.append("language", this.language());
     const showDetails = await this.get<ShowDetails>(`${environment.movieDBDomain}/3/movie/${showId}?${params}`, abortSignal);
-    showDetails.id = this.castNumber(showDetails.id.toString())!
-    // if (this.language()) {
-    //   showDetails.translations = await this.get<ShowTranslationsList>(`${environment.movieDBDomain}/3/movie/${showId}/translations`, abortSignal);
-    // }
+    showDetails.id = this.castNumber(showDetails.id.toString())!;
     return showDetails;
   }
 
@@ -69,10 +66,7 @@ export class MovieDBService {
     const params = new URLSearchParams();
     params.append("language", this.language());
     const showDetails = await this.get<ShowDetails>(`${environment.movieDBDomain}/3/tv/${showId}?${params}`, abortSignal);
-    showDetails.id = this.castNumber(showDetails.id.toString())!
-    // if (this.language()) {
-    //   showDetails.translations = await this.get<ShowTranslationsList>(`${environment.movieDBDomain}/3/tv/${showId}/translations`, abortSignal);
-    // }
+    showDetails.id = this.castNumber(showDetails.id.toString())!;
     return showDetails;
   }
 
@@ -129,11 +123,15 @@ export class MovieDBService {
   }
 
   async loadRecommendationsMovie(id: number) {
-    return await this.get<ShowRecommendationList>(`${environment.movieDBDomain}/3/movie/${id}/recommendations`);
+    const params = new URLSearchParams();
+    params.append("language", this.language());
+    return await this.get<ShowRecommendationList>(`${environment.movieDBDomain}/3/movie/${id}/recommendations?${params}`);
   }
 
   async loadRecommendationsTvSeries(id: number) {
-    return await this.get<ShowRecommendationList>(`${environment.movieDBDomain}/3/tv/${id}/recommendations`);
+    const params = new URLSearchParams();
+    params.append("language", this.language());
+    return await this.get<ShowRecommendationList>(`${environment.movieDBDomain}/3/tv/${id}/recommendations?${params}`);
   }
 
   // =====

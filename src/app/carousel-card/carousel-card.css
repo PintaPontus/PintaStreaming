@@ -9,12 +9,18 @@ a {
 
 .poster {
   width: var(--poster-width);
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  object-position: center;
   border-radius: var(--mat-card-elevated-container-shape, var(--mat-sys-corner-medium));
 }
 
 .unavailable-show {
-  opacity: 0.2;
-  cursor: default;
+  cursor: not-allowed;
+}
+
+.unavailable-poster {
+  filter: brightness(0.25) grayscale(80%);
 }
 
 .show-card {

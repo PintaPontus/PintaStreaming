@@ -15,6 +15,11 @@
   gap: 0.7rem;
   padding: 0 0 1rem;
   scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
+
+app-carousel-card {
+  scroll-snap-align: start;
 }
 
 .carousel-title {
