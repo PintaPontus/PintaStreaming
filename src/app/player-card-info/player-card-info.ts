@@ -7,7 +7,7 @@ import {
   MatExpansionPanelTitle
 } from '@angular/material/expansion';
 import {MatChip, MatChipSet} from '@angular/material/chips';
-import {ShowDetails, ShowSeason, ShowTranslation, ShowTypeEnum} from '../../interfaces/show';
+import {ShowDetails, ShowSeason, ShowTypeEnum} from '../../interfaces/show';
 import {MovieDBService} from '../movie-db.service';
 import {RecommendationCard} from '../recommendation-card/recommendation-card';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
@@ -35,11 +35,6 @@ export class PlayerCardInfo {
   readonly currentSeasonInfo: InputSignal<ShowSeason | undefined> = input();
   readonly showInfo = input<ShowDetails | undefined>({} as ShowDetails);
   readonly showType = input(ShowTypeEnum.MOVIES);
-  readonly showTranslation: InputSignal<ShowTranslation | undefined> = input();
-  readonly showCardOverview = computed(() => {
-    return this.showTranslation()?.data.overview
-      || this.showInfo()?.overview;
-  });
   readonly showCardSeasonTitle = computed(() => {
     const currSeason = this.currentSeasonInfo();
     return currSeason?.name || ("Season " + currSeason?.season_number);

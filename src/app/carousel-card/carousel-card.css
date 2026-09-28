@@ -1,10 +1,14 @@
+:host {
+  --poster-width: clamp(100px, 18vw, 200px);
+}
+
 a {
   margin: 0;
   padding: 0;
 }
 
 .poster {
-  max-width: 12rem;
+  width: var(--poster-width);
   border-radius: var(--mat-card-elevated-container-shape, var(--mat-sys-corner-medium));
 }
 
@@ -16,7 +20,7 @@ a {
 .show-card {
   display: inline-block;
   white-space: normal;
-  max-width: 200px;
+  width: var(--poster-width);
 }
 
 .progress-overlay {
@@ -24,7 +28,7 @@ a {
   bottom: 0;
   left: 0;
   right: 0;
-  max-width: 12rem;
+  width: var(--poster-width);
   z-index: 10;
   pointer-events: none;
 }
@@ -47,10 +51,11 @@ a {
 
 .actions-button {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: clamp(3px, 0.5vw, 6px);
+  right: clamp(3px, 0.5vw, 6px);
   z-index: 20;
   background: color-mix(in srgb, var(--mat-sys-surface) 60%, transparent);
   color: var(--mat-sys-on-surface);
   border-radius: 100%;
+  scale: 0.8;
 }

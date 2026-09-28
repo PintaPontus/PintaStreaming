@@ -1,6 +1,5 @@
 @if (!isCategorySelected() && continueToWatch().length > 0) {
   <app-carousel
-    [title]="'Continua a guardare'"
     [listType]="UserListTypeEnum.CONTINUE"
     [showList]="continueToWatch()"
   ></app-carousel>
@@ -8,7 +7,6 @@
 }
 @if (!isCategorySelected() && favorites().length > 0) {
   <app-carousel
-    [title]="'La mia lista'"
     [listType]="UserListTypeEnum.FAVORITES"
     [showList]="favorites()"
   ></app-carousel>

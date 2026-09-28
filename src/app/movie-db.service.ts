@@ -6,7 +6,6 @@ import {
   ShowRecommendationList,
   ShowReference,
   ShowResultsList,
-  ShowTranslationsList,
   ShowTypeEnum
 } from '../interfaces/show';
 import {environment} from '../environments/environment';
@@ -56,20 +55,24 @@ export class MovieDBService {
   }
 
   async getInfoMovie(showId: number, abortSignal?: AbortSignal): Promise<ShowDetails> {
-    const showDetails = await this.get<ShowDetails>(`${environment.movieDBDomain}/3/movie/${showId}`, abortSignal);
+    const params = new URLSearchParams();
+    params.append("language", this.language());
+    const showDetails = await this.get<ShowDetails>(`${environment.movieDBDomain}/3/movie/${showId}?${params}`, abortSignal);
     showDetails.id = this.castNumber(showDetails.id.toString())!
-    if (this.language()) {
-      showDetails.translations = await this.get<ShowTranslationsList>(`${environment.movieDBDomain}/3/movie/${showId}/translations`, abortSignal);
-    }
+    // if (this.language()) {
+    //   showDetails.translations = await this.get<ShowTranslationsList>(`${environment.movieDBDomain}/3/movie/${showId}/translations`, abortSignal);
+    // }
     return showDetails;
   }
 
   async getInfoTvSeries(showId: number, abortSignal?: AbortSignal): Promise<ShowDetails> {
-    const showDetails = await this.get<ShowDetails>(`${environment.movieDBDomain}/3/tv/${showId}`, abortSignal);
+    const params = new URLSearchParams();
+    params.append("language", this.language());
+    const showDetails = await this.get<ShowDetails>(`${environment.movieDBDomain}/3/tv/${showId}?${params}`, abortSignal);
     showDetails.id = this.castNumber(showDetails.id.toString())!
-    if (this.language()) {
-      showDetails.translations = await this.get<ShowTranslationsList>(`${environment.movieDBDomain}/3/tv/${showId}/translations`, abortSignal);
-    }
+    // if (this.language()) {
+    //   showDetails.translations = await this.get<ShowTranslationsList>(`${environment.movieDBDomain}/3/tv/${showId}/translations`, abortSignal);
+    // }
     return showDetails;
   }
 
@@ -97,7 +100,9 @@ export class MovieDBService {
   }
 
   async getShowsFromCategory(link: string, type: ShowTypeEnum) {
-    const categoryShows = await this.get<ShowResultsList>(`${environment.movieDBDomain}/3/${link}`);
+    const params = new URLSearchParams();
+    params.append("language", this.language());
+    const categoryShows = await this.get<ShowResultsList>(`${environment.movieDBDomain}/3/${link}?${params}`);
     return categoryShows.results.map(cs => {
       return {
         id: cs.id,

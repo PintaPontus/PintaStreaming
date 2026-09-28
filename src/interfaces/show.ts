@@ -30,8 +30,7 @@ export interface ShowDetails {
   last_air_date: string;
   production_companies: ShowCompany[];
   genres: ShowGenre[];
-  seasons: undefined | ShowSeason[]
-  translations: ShowTranslationsList | undefined;
+  seasons: undefined | ShowSeason[];
 }
 
 export interface ShowGenre {

@@ -83,12 +83,6 @@ export class PlayerCard {
   });
   readonly showType = input(ShowTypeEnum.MOVIES);
   readonly language = this.movieDBService.getLanguage();
-  readonly showTranslation = computed(() => {
-    const language = this.language();
-    return this.showInfo()?.translations?.translations.find(t =>
-      t.iso_639_1 === language
-    )
-  });
   readonly userInfos = this.firebaseService.getUserInfosDetails();
   readonly isFavorite = computed(() => {
     return !!(this.userInfos()?.favorites || [])
@@ -98,8 +92,7 @@ export class PlayerCard {
       )
   });
   readonly cardTitle = computed(() => {
-    return this.showTranslation()?.data.title
-      || this.showInfo()?.title
+    return this.showInfo()?.title
       || this.showInfo()?.name
       || this.showInfo()?.original_title;
   });

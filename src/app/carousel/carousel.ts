@@ -1,13 +1,15 @@
-import {Component, inject, input, InputSignal, resource} from '@angular/core';
+import {Component, ElementRef, inject, input, InputSignal, resource, viewChild} from '@angular/core';
 import {ShowTypeEnum} from '../../interfaces/show';
 import {MovieDBService} from '../movie-db.service';
 import {CarouselCard} from '../carousel-card/carousel-card';
 import {UserListItem, UserListTypeEnum} from '../../interfaces/users';
+import {MatIconButton} from '@angular/material/button';
 
 @Component({
   selector: 'app-carousel',
   imports: [
-    CarouselCard
+    CarouselCard,
+    MatIconButton
   ],
   templateUrl: './carousel.html',
   styleUrl: './carousel.css'
@@ -15,6 +17,8 @@ import {UserListItem, UserListTypeEnum} from '../../interfaces/users';
 export class Carousel {
 
   private readonly movieDBService = inject(MovieDBService);
+
+  showsList = viewChild<ElementRef<HTMLDivElement>>('showsList');
 
   readonly title: InputSignal<string | undefined> = input();
   readonly link: InputSignal<string | undefined> = input();
@@ -41,4 +45,19 @@ export class Carousel {
     return await this.movieDBService.getShowsFromCategory(categoryLink, type)
   }
 
+  protected prevPage() {
+    const el = this.showsList()?.nativeElement;
+    if (el) {
+      el.scrollBy({left: (-(el.clientWidth)) * 0.9, behavior: 'smooth'});
+    }
+  }
+
+  protected nextPage() {
+    const el = this.showsList()?.nativeElement;
+    if (el) {
+      el.scrollBy({left: (el.clientWidth) * 0.9, behavior: 'smooth'});
+    }
+  }
+
+  protected readonly UserListTypeEnum = UserListTypeEnum;
 }

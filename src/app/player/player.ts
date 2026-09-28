@@ -178,7 +178,7 @@ export class Player {
         }
       }
       const showInfo = this.showInfo.value();
-      this.title.setTitle('PintaStreaming - ' + (showInfo?.title || showInfo?.name || showInfo?.original_title))
+      this.title.setTitle((showInfo?.title || showInfo?.name || showInfo?.original_title) ?? 'PintaStreaming')
     });
     afterNextRender(() => {
       this.listenPlayerEvents()

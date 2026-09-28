@@ -1,10 +1,33 @@
-<h1 class="carousel-title">{{ title() }}</h1>
-<div class="shows-list">
-  @for (show of shows.value(); track show.id) {
-    <app-carousel-card
-      [show]="show"
-      [listType]="listType()"
-    >
-    </app-carousel-card>
+<h1 class="carousel-title">
+  @if (listType() === UserListTypeEnum.CONTINUE) {
+    <span class="material-symbols-outlined">play_pause</span> Continua a guardare
+  } @else if (listType() === UserListTypeEnum.FAVORITES) {
+    <span class="material-symbols-outlined">favorite</span> La mia lista
+  } @else {
+    {{ title() }}
   }
+</h1>
+<div class="shows-list-container">
+  <button
+    matIconButton
+    class="scroll-button scroll-button-prev material-symbols-outlined"
+    (click)="prevPage()"
+  >arrow_back
+  </button>
+  <div class="shows-list" #showsList>
+    @for (show of shows.value(); track show.id) {
+      <app-carousel-card
+        [show]="show"
+        [listType]="listType()"
+      >
+      </app-carousel-card>
+    }
+  </div>
+  <button
+    matIconButton
+    class="scroll-button scroll-button-next material-symbols-outlined"
+    (click)="nextPage()"
+  >arrow_forward
+  </button>
 </div>
+
