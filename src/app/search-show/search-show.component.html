@@ -67,20 +67,21 @@
                   class="search-action material-symbols-outlined">
                 {{ element.isFavorite ? 'heart_minus' : 'heart_plus' }}
               </span>
-          } @else if (element.popularity) {
-            <div [matTooltip]="`Valutazione ${element.popularity.toFixed(2)}`">
-              @for (_ of Array.from({length: 5}); track $index) {
-                <span class="material-symbols-outlined" [class.filled]="element.popularity - ($index * 2) > 1.5">
-                    {{ element.popularity - ($index * 2) > 0.5 && element.popularity - ($index * 2) < 1.5 ? 'star_half' : 'star' }}
-                  </span>
-              }
-            </div>
           }
           <a class="material-symbols-outlined"
-             [href]="element.infoUrl"
-             matTooltip="Ulteriori dettagli">
+             target="_blank"
+             [href]="element.movieDBInfoUrl"
+             matTooltip="Info TMDB">
             info
           </a>
+          @if (element.imdbInfoUrl) {
+            <a class="material-symbols-outlined"
+               target="_blank"
+               [href]="element.imdbInfoUrl"
+               matTooltip="Info IMDb">
+              movie_info
+            </a>
+          }
         </mat-cell>
       </ng-container>
 
@@ -122,10 +123,19 @@
                       {{ show.isFavorite ? 'heart_minus' : 'heart_plus' }}
                     </span>
                     <a class="material-symbols-outlined"
-                       [href]="show.infoUrl"
-                       matTooltip="Ulteriori dettagli">
+                       target="_blank"
+                       [href]="show.movieDBInfoUrl"
+                       matTooltip="Info TMDB">
                       info
                     </a>
+                    @if (show.imdbInfoUrl) {
+                      <a class="material-symbols-outlined"
+                         target="_blank"
+                         [href]="show.imdbInfoUrl"
+                         matTooltip="Info IMDb">
+                        movie_info
+                      </a>
+                    }
                   </div>
                 </div>
               </mat-list-item>

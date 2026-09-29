@@ -38,22 +38,6 @@ export interface ShowGenre {
   name: string
 }
 
-export interface ShowTranslationsList {
-  "id": number,
-  "translations": ShowTranslation[]
-}
-
-export interface ShowTranslation {
-  iso_3166_1: string,
-  iso_639_1: string,
-  name: string,
-  english_name: string,
-  data: {
-    title: string,
-    overview: string,
-  }
-}
-
 export interface ShowCompany {
   id: number,
   logo_path: string,
@@ -108,6 +92,7 @@ export interface ShowResourceLibrary {
 
 export interface ShowResource {
   tmdb_id: number;
+  imdb_id: string;
 }
 
 // LANGUAGES

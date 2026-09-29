@@ -75,14 +75,15 @@ export class SearchShow {
             isShow: this.isShow(knownItem),
             isFavorite: this.isFavorite(knownItem),
             playerUrl: this.getPlayerUrl(knownItem),
-            infoUrl: this.getInfoUrl(knownItem)
+            infoUrl: this.getMovieDBInfoUrl(knownItem)
           }
         }),
         isAvailable: this.isAvailable(item),
         isShow: this.isShow(item),
         isFavorite: this.isFavorite(item),
         playerUrl: this.getPlayerUrl(item),
-        infoUrl: this.getInfoUrl(item)
+        movieDBInfoUrl: this.getMovieDBInfoUrl(item),
+        imdbInfoUrl: this.getIMDBInfoUrl(item)
       })
     );
   });
@@ -152,24 +153,24 @@ export class SearchShow {
   }
 
   private getPlayerUrl(item: ShowResultItem) {
-    const type = this.translateMediaType(item.media_type);
-    if (type === ShowTypeEnum.TV_SERIES) {
-      return `/player/${type}/${item.id}/1/1`;
-    } else if (type === ShowTypeEnum.MOVIES) {
-      return `/player/${type}/${item.id}`;
+    const translatedType = this.translateMediaType(item.media_type);
+    if (translatedType === ShowTypeEnum.TV_SERIES) {
+      return `/player/${translatedType}/${item.id}/1/1`;
+    } else if (translatedType === ShowTypeEnum.MOVIES) {
+      return `/player/${translatedType}/${item.id}`;
     }
     return;
   }
 
-  private getInfoUrl(item: ShowResultItem) {
-    const type = this.translateMediaType(item.media_type)
+  private getMovieDBInfoUrl(item: ShowResultItem) {
+    const translatedType = this.translateMediaType(item.media_type)
     if (item.id !== undefined) {
-      if (type === ShowTypeEnum.MOVIES) {
+      if (translatedType === ShowTypeEnum.MOVIES) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(
           `https://www.themoviedb.org/movie/${item.id}`
         );
       }
-      if (type === ShowTypeEnum.TV_SERIES) {
+      if (translatedType === ShowTypeEnum.TV_SERIES) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(
           `https://www.themoviedb.org/tv/${item.id}`
         );
@@ -177,6 +178,19 @@ export class SearchShow {
       if (item.media_type === 'person') {
         return this.sanitizer.bypassSecurityTrustResourceUrl(
           `https://www.themoviedb.org/person/${item.id}`
+        );
+      }
+    }
+    return;
+  }
+
+  private getIMDBInfoUrl(item: ShowResultItem) {
+    const translatedType = this.translateMediaType(item.media_type);
+    if (translatedType && item.id !== undefined) {
+      const imdbID = this.streamService.getShowIDs(item.id, translatedType)?.imdb_id;
+      if (imdbID) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(
+          `https://www.imdb.com/it/title/${imdbID}`
         );
       }
     }

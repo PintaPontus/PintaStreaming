@@ -27,11 +27,11 @@ export class StreamService {
   readonly movies = computed(() => this.showsLists.value()?.movies || []);
   readonly tvSeries = computed(() => this.showsLists.value()?.tvSeries || []);
 
-  private readonly moviesSet = computed(() => {
-    return new Set(this.movies().map(s => s.tmdb_id))
+  private readonly moviesMap = computed(() => {
+    return new Map(this.movies().map(s => [s.tmdb_id, s]))
   });
-  private readonly tvSeriesSet = computed(() => {
-    return new Set(this.tvSeries().map(s => s.tmdb_id))
+  private readonly tvSeriesMap = computed(() => {
+    return new Map(this.tvSeries().map(s => [s.tmdb_id, s]))
   });
 
   getVideoStreamingDomain() {
@@ -40,11 +40,20 @@ export class StreamService {
 
   isAvailable(id: number, type: ShowTypeEnum) {
     if (type === ShowTypeEnum.MOVIES) {
-      return this.moviesSet().has(id);
+      return this.moviesMap().has(id);
     } else if (type === ShowTypeEnum.TV_SERIES) {
-      return this.tvSeriesSet().has(id);
+      return this.tvSeriesMap().has(id);
     }
     return false;
+  }
+
+  getShowIDs(id: number, type: ShowTypeEnum) {
+    if (type === ShowTypeEnum.MOVIES) {
+      return this.moviesMap().get(id);
+    } else if (type === ShowTypeEnum.TV_SERIES) {
+      return this.tvSeriesMap().get(id);
+    }
+    return;
   }
 
   async refreshShows() {
