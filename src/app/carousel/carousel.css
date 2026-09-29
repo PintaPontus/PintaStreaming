@@ -16,6 +16,7 @@
   padding: 0 0 1rem;
   scrollbar-width: none;
   scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
 }
 
 app-carousel-card {

@@ -48,14 +48,14 @@ export class Carousel {
   protected prevPage() {
     const el = this.showsList()?.nativeElement;
     if (el) {
-      el.scrollBy({left: (-(el.clientWidth)) * 0.9, behavior: 'smooth'});
+      el.scrollBy({left: (-(el.clientWidth)) * 0.9});
     }
   }
 
   protected nextPage() {
     const el = this.showsList()?.nativeElement;
     if (el) {
-      el.scrollBy({left: (el.clientWidth) * 0.9, behavior: 'smooth'});
+      el.scrollBy({left: (el.clientWidth) * 0.9});
     }
   }
 
