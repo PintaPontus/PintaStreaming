@@ -51,6 +51,7 @@
           @if (element.isShow) {
             @if (element.isAvailable) {
               <a class="material-symbols-outlined"
+                 target="_blank"
                  [href]="element.playerUrl"
                  matTooltip="Apri sorgente video">
                 open_in_new
@@ -70,7 +71,7 @@
           }
           <a class="material-symbols-outlined"
              target="_blank"
-             [href]="element.movieDBInfoUrl"
+             [href]="element.tmdbInfoUrl"
              matTooltip="Info TMDB">
             info
           </a>
@@ -106,6 +107,7 @@
                   <div class="person-content-element-actions">
                     @if (show.isAvailable) {
                       <a class="material-symbols-outlined"
+                         target="_blank"
                          [href]="show.playerUrl"
                          matTooltip="Apri sorgente video">
                         open_in_new
@@ -124,7 +126,7 @@
                     </span>
                     <a class="material-symbols-outlined"
                        target="_blank"
-                       [href]="show.movieDBInfoUrl"
+                       [href]="show.tmdbInfoUrl"
                        matTooltip="Info TMDB">
                       info
                     </a>

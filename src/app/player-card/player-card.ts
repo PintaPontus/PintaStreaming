@@ -22,6 +22,7 @@ import {MatTooltip} from '@angular/material/tooltip';
 import {toSignal} from '@angular/core/rxjs-interop';
 import {BigPictureDialog, BigPictureDialogData} from '../big-picture-dialog/big-picture-dialog';
 import {MatDialog} from '@angular/material/dialog';
+import {StreamService} from '../stream.service';
 
 @Component({
   selector: 'app-player-card',
@@ -47,6 +48,7 @@ export class PlayerCard {
 
   private readonly route = inject(ActivatedRoute);
   private readonly movieDBService = inject(MovieDBService);
+  private readonly streamService = inject(StreamService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly firebaseService = inject(FirebaseService);
   private readonly dialog = inject(MatDialog);
@@ -54,9 +56,9 @@ export class PlayerCard {
   readonly routeParamMap = toSignal(this.route.paramMap)
 
   readonly videoUrl: InputSignal<SafeResourceUrl | undefined> = input();
-  readonly infoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
+  readonly tmdbInfoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
     const showIDSnap = this.showId();
-    const showTypeSnap = this.showType()
+    const showTypeSnap = this.showType();
     if (showIDSnap !== undefined) {
       if (showTypeSnap === ShowTypeEnum.MOVIES) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(
@@ -66,6 +68,19 @@ export class PlayerCard {
       if (showTypeSnap === ShowTypeEnum.TV_SERIES) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(
           `https://www.themoviedb.org/tv/${showIDSnap}`
+        );
+      }
+    }
+    return;
+  });
+  readonly imdbInfoUrl: Signal<SafeResourceUrl | undefined> = computed(() => {
+    const showIDSnap = this.showId();
+    const showTypeSnap = this.showType();
+    if (showIDSnap) {
+      const imdbID = this.streamService.getShowIDs(showIDSnap, showTypeSnap)?.imdb_id;
+      if (imdbID) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(
+          `https://www.imdb.com/it/title/${imdbID}`
         );
       }
     }

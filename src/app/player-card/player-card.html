@@ -36,8 +36,13 @@
             [matTooltip]="isFavorite() ? 'Rimuovi dalla lista' : 'Aggiungi alla lista'"
             class="show-details-action material-symbols-outlined">{{ isFavorite() ? 'heart_minus' : 'heart_plus' }}</span>
     }
-    <a [href]="infoUrl()" [matTooltip]="'Ulteriori dettagli'"
+    <a [href]="tmdbInfoUrl()" target="_blank" matTooltip="Info TMDB"
        class="show-details-action material-symbols-outlined">info</a>
-    <a [href]="videoUrl()" [matTooltip]="'Apri sorgente video'" class="show-details-action material-symbols-outlined">open_in_new</a>
+    @if (imdbInfoUrl()) {
+      <a [href]="imdbInfoUrl()" target="_blank" matTooltip="Info IMDb"
+         class="show-details-action material-symbols-outlined">movie_info</a>
+    }
+    <a [href]="videoUrl()" target="_blank" matTooltip="Apri sorgente video"
+       class="show-details-action material-symbols-outlined">open_in_new</a>
   </mat-card-actions>
 </mat-card>

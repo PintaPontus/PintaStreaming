@@ -75,15 +75,16 @@ export class SearchShow {
             isShow: this.isShow(knownItem),
             isFavorite: this.isFavorite(knownItem),
             playerUrl: this.getPlayerUrl(knownItem),
-            infoUrl: this.getMovieDBInfoUrl(knownItem)
+            tmdbInfoUrl: this.getTMDBInfoUrl(knownItem),
+            imdbInfoUrl: this.getIMDbInfoUrl(item)
           }
         }),
         isAvailable: this.isAvailable(item),
         isShow: this.isShow(item),
         isFavorite: this.isFavorite(item),
         playerUrl: this.getPlayerUrl(item),
-        movieDBInfoUrl: this.getMovieDBInfoUrl(item),
-        imdbInfoUrl: this.getIMDBInfoUrl(item)
+        tmdbInfoUrl: this.getTMDBInfoUrl(item),
+        imdbInfoUrl: this.getIMDbInfoUrl(item)
       })
     );
   });
@@ -162,7 +163,7 @@ export class SearchShow {
     return;
   }
 
-  private getMovieDBInfoUrl(item: ShowResultItem) {
+  private getTMDBInfoUrl(item: ShowResultItem) {
     const translatedType = this.translateMediaType(item.media_type)
     if (item.id !== undefined) {
       if (translatedType === ShowTypeEnum.MOVIES) {
@@ -184,7 +185,7 @@ export class SearchShow {
     return;
   }
 
-  private getIMDBInfoUrl(item: ShowResultItem) {
+  private getIMDbInfoUrl(item: ShowResultItem) {
     const translatedType = this.translateMediaType(item.media_type);
     if (translatedType && item.id !== undefined) {
       const imdbID = this.streamService.getShowIDs(item.id, translatedType)?.imdb_id;
