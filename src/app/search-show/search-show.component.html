@@ -1,5 +1,6 @@
 <div class="search-container">
   <mat-form-field class="search-input">
+    <mat-label>Ricerca</mat-label>
     <input
       [(ngModel)]="textSearch //noinspection ConstantReassignment"
       class="search-input-box"
@@ -7,159 +8,167 @@
       placeholder="Cerca su PintaStreaming"
     />
   </mat-form-field>
-  @if (searchResource.isLoading()) {
-    <div class="search-spinner">
-      <mat-spinner></mat-spinner>
-    </div>
-  } @else if (textSearch().trim() === '') {
-    <div class="search-results-empty"></div>
-  } @else if (searchResults().length === 0) {
-    <div class="search-results-empty">Nessun risultato trovato.</div>
-  } @else {
-    <mat-table [dataSource]="searchResults()" class="search-results-table" multiTemplateDataRows>
-      <ng-container matColumnDef="poster">
-        <mat-cell *matCellDef="let element"
-                  (click)="openBigPicture(element)"
-                  class="search-action"
-                  [class.disabled-cell]="element.isShow && !element.isAvailable">
-          <img class="search-result-poster"
-               [src]="`https://image.tmdb.org/t/p/w300/${element.isShow ? element.poster_path : element.profile_path}`"
-               alt="">
-        </mat-cell>
-      </ng-container>
+  <mat-form-field>
+    <mat-label>Filtro</mat-label>
+    <mat-select [(value)]="typeSearch">
+      <mat-option value="multi">Tutto</mat-option>
+      <mat-option value="movie">Film</mat-option>
+      <mat-option value="tv">Serie TV</mat-option>
+      <mat-option value="person">Persona</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+@if (searchResource.isLoading()) {
+  <div class="search-spinner">
+    <mat-spinner></mat-spinner>
+  </div>
+} @else if (textSearch().trim() === '') {
+  <div class="search-results-empty"></div>
+} @else if (searchResults().length === 0) {
+  <div class="search-results-empty">Nessun risultato trovato.</div>
+} @else {
+  <mat-table [dataSource]="searchResults()" class="search-results-table" multiTemplateDataRows>
+    <ng-container matColumnDef="poster">
+      <mat-cell *matCellDef="let element"
+                (click)="openBigPicture(element)"
+                class="search-action"
+                [class.disabled-cell]="element.isShow && !element.isAvailable">
+        <img class="search-result-poster"
+             [src]="`https://image.tmdb.org/t/p/w300/${element.isShow ? element.poster_path : element.profile_path}`"
+             alt="">
+      </mat-cell>
+    </ng-container>
 
-      <ng-container matColumnDef="title">
-        <mat-cell *matCellDef="let element" [class.disabled-cell]="element.isShow && !element.isAvailable">
-          @if (element.isShow) {
-            <a class="search-result-title"
-               [routerLink]="element.playerUrl"
-               [matTooltip]="element.isAvailable ? '' : 'Non disponibile a sistema'">
-              <span class="material-symbols-outlined">{{ element.media_type }}</span>
-              <span class="title-text">{{ element.title || element.name || element.original_title }}</span>
-            </a>
-          } @else {
-            <span class="search-result-title search-action" (click)="toggle(element)">
-              <span class="material-symbols-outlined">person</span>
-              <span class="title-text">{{ element.title || element.name || element.original_title }}</span>
-            </span>
-          }
-        </mat-cell>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <mat-cell *matCellDef="let element">
-          @if (element.isShow) {
-            @if (element.isAvailable) {
-              <a class="material-symbols-outlined"
-                 target="_blank"
-                 [href]="element.playerUrl"
-                 matTooltip="Apri sorgente video">
-                open_in_new
-              </a>
-            } @else {
-              <span
-                matTooltip="Contenuto non disponibile"
-                class="material-symbols-outlined">
-                block
-              </span>
-            }
-            <span (click)="toggleShowToFavorites(element)"
-                  [matTooltip]="element.isFavorite ? 'Rimuovi dalla lista' : 'Aggiungi alla lista'"
-                  class="search-action material-symbols-outlined">
-                {{ element.isFavorite ? 'heart_minus' : 'heart_plus' }}
-              </span>
-          }
-          <a class="material-symbols-outlined"
-             target="_blank"
-             [href]="element.tmdbInfoUrl"
-             matTooltip="Info TMDB">
-            info
+    <ng-container matColumnDef="title">
+      <mat-cell *matCellDef="let element" [class.disabled-cell]="element.isShow && !element.isAvailable">
+        @if (element.isShow) {
+          <a class="search-result-title"
+             [routerLink]="element.playerUrl"
+             [matTooltip]="element.isAvailable ? '' : 'Non disponibile a sistema'">
+            <span class="material-symbols-outlined">{{ element.media_type }}</span>
+            <span class="title-text">{{ element.title || element.name || element.original_title }}</span>
           </a>
-          @if (element.imdbInfoUrl) {
+        } @else {
+          <span class="search-result-title search-action" (click)="toggle(element)">
+            <span class="material-symbols-outlined">person</span>
+            <span class="title-text">{{ element.title || element.name || element.original_title }}</span>
+          </span>
+        }
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-cell *matCellDef="let element">
+        @if (element.isShow) {
+          @if (element.isAvailable) {
             <a class="material-symbols-outlined"
                target="_blank"
-               [href]="element.imdbInfoUrl"
-               matTooltip="Info IMDb">
-              movie_info
+               [href]="element.playerUrl"
+               matTooltip="Apri sorgente video">
+              open_in_new
             </a>
+          } @else {
+            <span
+              matTooltip="Contenuto non disponibile"
+              class="material-symbols-outlined">
+              block
+            </span>
           }
-        </mat-cell>
-      </ng-container>
+          <span (click)="toggleShowToFavorites(element)"
+                [matTooltip]="element.isFavorite ? 'Rimuovi dalla lista' : 'Aggiungi alla lista'"
+                class="search-action material-symbols-outlined">
+              {{ element.isFavorite ? 'heart_minus' : 'heart_plus' }}
+            </span>
+        }
+        <a class="material-symbols-outlined"
+           target="_blank"
+           [href]="element.tmdbInfoUrl"
+           matTooltip="Info TMDB">
+          info
+        </a>
+        @if (element.imdbInfoUrl) {
+          <a class="material-symbols-outlined"
+             target="_blank"
+             [href]="element.imdbInfoUrl"
+             matTooltip="Info IMDb">
+            movie_info
+          </a>
+        }
+      </mat-cell>
+    </ng-container>
 
-      <ng-container matColumnDef="personContents">
-        <mat-cell *matCellDef="let element">
-          <mat-list class="person-content-list">
-            @for (show of element.known_for; track $index) {
-              @if ($index > 0) {
-                <mat-divider class="person-content-divider"></mat-divider>
-              }
-              <mat-list-item class="person-content-element">
-                <div class="person-content-element-container">
-                  <div class="person-content-element-poster-container search-action" (click)="openBigPicture(show)">
-                    <img class="person-content-element-poster"
-                         [src]="`https://image.tmdb.org/t/p/w300/${show.poster_path}`" alt="">
-                  </div>
-                  <a class="person-content-element-title"
-                     [routerLink]="show.playerUrl">
-                    <span class="material-symbols-outlined">{{ show.media_type }}</span>
-                    <span class="title-text">{{ show.title || show.name || show.original_title }}</span>
-                  </a>
-                  <div class="person-content-element-actions">
-                    @if (show.isAvailable) {
-                      <a class="material-symbols-outlined"
-                         target="_blank"
-                         [href]="show.playerUrl"
-                         matTooltip="Apri sorgente video">
-                        open_in_new
-                      </a>
-                    } @else {
-                      <span
-                        matTooltip="Contenuto non disponibile"
-                        class="material-symbols-outlined">
-                        block
-                      </span>
-                    }
-                    <span (click)="toggleShowToFavorites(show)"
-                          [matTooltip]="show.isFavorite ? 'Rimuovi dalla lista' : 'Aggiungi alla lista'"
-                          class="search-action material-symbols-outlined">
-                      {{ show.isFavorite ? 'heart_minus' : 'heart_plus' }}
-                    </span>
+    <ng-container matColumnDef="personContents">
+      <mat-cell *matCellDef="let element">
+        <mat-list class="person-content-list">
+          @for (show of element.known_for; track $index) {
+            @if ($index > 0) {
+              <mat-divider class="person-content-divider"></mat-divider>
+            }
+            <mat-list-item class="person-content-element">
+              <div class="person-content-element-container">
+                <div class="person-content-element-poster-container search-action" (click)="openBigPicture(show)">
+                  <img class="person-content-element-poster"
+                       [src]="`https://image.tmdb.org/t/p/w300/${show.poster_path}`" alt="">
+                </div>
+                <a class="person-content-element-title"
+                   [routerLink]="show.playerUrl">
+                  <span class="material-symbols-outlined">{{ show.media_type }}</span>
+                  <span class="title-text">{{ show.title || show.name || show.original_title }}</span>
+                </a>
+                <div class="person-content-element-actions">
+                  @if (show.isAvailable) {
                     <a class="material-symbols-outlined"
                        target="_blank"
-                       [href]="show.tmdbInfoUrl"
-                       matTooltip="Info TMDB">
-                      info
+                       [href]="show.playerUrl"
+                       matTooltip="Apri sorgente video">
+                      open_in_new
                     </a>
-                    @if (show.imdbInfoUrl) {
-                      <a class="material-symbols-outlined"
-                         target="_blank"
-                         [href]="show.imdbInfoUrl"
-                         matTooltip="Info IMDb">
-                        movie_info
-                      </a>
-                    }
-                  </div>
+                  } @else {
+                    <span
+                      matTooltip="Contenuto non disponibile"
+                      class="material-symbols-outlined">
+                      block
+                    </span>
+                  }
+                  <span (click)="toggleShowToFavorites(show)"
+                        [matTooltip]="show.isFavorite ? 'Rimuovi dalla lista' : 'Aggiungi alla lista'"
+                        class="search-action material-symbols-outlined">
+                    {{ show.isFavorite ? 'heart_minus' : 'heart_plus' }}
+                  </span>
+                  <a class="material-symbols-outlined"
+                     target="_blank"
+                     [href]="show.tmdbInfoUrl"
+                     matTooltip="Info TMDB">
+                    info
+                  </a>
+                  @if (show.imdbInfoUrl) {
+                    <a class="material-symbols-outlined"
+                       target="_blank"
+                       [href]="show.imdbInfoUrl"
+                       matTooltip="Info IMDb">
+                      movie_info
+                    </a>
+                  }
                 </div>
-              </mat-list-item>
-            }
-          </mat-list>
-        </mat-cell>
-      </ng-container>
+              </div>
+            </mat-list-item>
+          }
+        </mat-list>
+      </mat-cell>
+    </ng-container>
 
-      <mat-row *matRowDef="let _; columns: searchResultsColumns;"></mat-row>
-      <!-- Riga Dettaglio -->
-      <mat-row *matRowDef="let row; columns: ['personContents']"
-               class="person-content-row"
-               [class.collapsed]="!isExpanded(row)">
-      </mat-row>
-    </mat-table>
-  }
-
-  <mat-paginator
+    <mat-row *matRowDef="let _; columns: searchResultsColumns;"></mat-row>
+    <!-- Riga Dettaglio -->
+    <mat-row *matRowDef="let row; columns: ['personContents']"
+             class="person-content-row"
+             [class.collapsed]="!isExpanded(row)">
+    </mat-row>
+  </mat-table>
+}
+<mat-paginator
     [length]="searchResource.value().total_results"
     [pageSize]="20"
     [hidePageSize]="true"
     (page)="changePage($event)"
   >
   </mat-paginator>
-</div>

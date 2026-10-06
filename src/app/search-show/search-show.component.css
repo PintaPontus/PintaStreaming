@@ -1,15 +1,21 @@
-.search-container {
+:host {
   display: flex;
   flex-direction: column;
   height: 100%;
   padding: 0 1rem;
 }
 
-.search-input {
+.search-container {
+  display: flex;
   padding-top: 1rem;
+  gap: 1rem;
 }
 
-.search-input, .search-input-box {
+.search-input {
+  flex: 1;
+}
+
+.search-input-box {
   width: 100%;
 }
 
@@ -160,6 +166,11 @@ mat-paginator {
 }
 
 @media (max-width: 1000px) {
+  .search-container {
+    flex-direction: column;
+    gap: 0;
+  }
+
   .mat-column-actions {
     display: none;
   }

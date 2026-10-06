@@ -56,6 +56,13 @@ export interface ShowSeason {
 
 // SHOW SEARCH RESULTS
 
+export enum SearchType {
+  ALL = 'multi',
+  MOVIES = 'movie',
+  TV_SERIES = 'tv',
+  PERSONS = 'person',
+}
+
 export interface ShowResultsList {
   results: ShowResultItem[];
   page: number;

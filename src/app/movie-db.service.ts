@@ -1,5 +1,6 @@
 import {inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {
+  SearchType,
   ShowDetails,
   ShowLanguage,
   ShowProvidersList,
@@ -82,7 +83,7 @@ export class MovieDBService {
   // SHOWS LISTS
   // ===========
 
-  async search(textSearch: string, page?: number, abortSignal?: AbortSignal): Promise<ShowResultsList> {
+  async search(textSearch: string, type: SearchType, page?: number, abortSignal?: AbortSignal): Promise<ShowResultsList> {
     const params = new URLSearchParams();
     params.append("query", textSearch);
     params.append("include_adult", true.toString());
@@ -90,7 +91,13 @@ export class MovieDBService {
     if (page) {
       params.append("page", page.toString());
     }
-    return await this.get<ShowResultsList>(`${environment.movieDBDomain}/3/search/multi?${params}`, abortSignal);
+    let searchUrl = `${environment.movieDBDomain}/3/search/multi?${params}`;
+    if (type) {
+      searchUrl = `${environment.movieDBDomain}/3/search/${type}?${params}`;
+    }
+    console.log(searchUrl);
+    console.log(type);
+    return await this.get<ShowResultsList>(searchUrl, abortSignal);
   }
 
   async getShowsFromCategory(link: string, type: ShowTypeEnum) {

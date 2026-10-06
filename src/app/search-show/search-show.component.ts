@@ -1,9 +1,9 @@
 import {afterNextRender, Component, computed, inject, resource, signal, viewChild} from '@angular/core';
-import {MatFormField} from '@angular/material/form-field';
+import {MatFormField, MatLabel} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
 import {MatInput} from '@angular/material/input';
 import {MovieDBService} from '../movie-db.service';
-import {ShowResultItem, ShowResultsList, ShowTypeEnum} from '../../interfaces/show';
+import {SearchType, ShowResultItem, ShowResultsList, ShowTypeEnum} from '../../interfaces/show';
 import {RouterLink} from '@angular/router';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
@@ -16,6 +16,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {MatDialog} from '@angular/material/dialog';
 import {MatDivider, MatList, MatListItem} from '@angular/material/list';
 import {BigPictureDialog, BigPictureDialogData} from '../big-picture-dialog/big-picture-dialog';
+import {MatOption, MatSelect} from '@angular/material/select';
 
 const EMPTY_RESULTS: ShowResultsList = {results: [], page: 1, total_results: 0, total_pages: 0};
 
@@ -38,6 +39,9 @@ const EMPTY_RESULTS: ShowResultsList = {results: [], page: 1, total_results: 0, 
     MatList,
     MatListItem,
     MatDivider,
+    MatLabel,
+    MatSelect,
+    MatOption,
   ],
   templateUrl: './search-show.component.html',
   styleUrl: './search-show.component.css'
@@ -53,19 +57,20 @@ export class SearchShow {
   readonly userInfos = this.firebaseService.getUserInfosDetails();
   readonly searchInput = viewChild.required(MatInput);
   readonly textSearch = signal('');
+  readonly typeSearch = signal<SearchType>(SearchType.ALL);
   readonly page = signal(1);
   readonly searchResource = resource({
-    params: () => ({query: this.textSearch(), page: this.page()}),
+    params: () => ({query: this.textSearch(), type: this.typeSearch(), page: this.page()}),
     loader: async ({params, abortSignal}) => {
       if (params.query.length <= 2) {
         return EMPTY_RESULTS;
       }
-      return await this.movieDBService.search(params.query, params.page, abortSignal);
+      return await this.movieDBService.search(params.query, params.type, params.page, abortSignal);
     },
     defaultValue: EMPTY_RESULTS,
   });
-  readonly searchResults = computed(() => {
-    return (this.searchResource.value()?.results || []).map(item => (
+  readonly searchResults = computed(() =>
+    (this.searchResource.value()?.results || []).map(item => (
       {
         ...item,
         known_for: (item.known_for || []).map(knownItem => {
@@ -79,6 +84,7 @@ export class SearchShow {
             imdbInfoUrl: this.getIMDbInfoUrl(item)
           }
         }),
+        media_type: item.media_type ?? this.typeSearch(),
         isAvailable: this.isAvailable(item),
         isShow: this.isShow(item),
         isFavorite: this.isFavorite(item),
@@ -86,8 +92,8 @@ export class SearchShow {
         tmdbInfoUrl: this.getTMDBInfoUrl(item),
         imdbInfoUrl: this.getIMDbInfoUrl(item)
       })
-    );
-  });
+    )
+  );
   readonly searchResultsColumns: string[] = ['poster', 'title', 'actions'];
   expandedElement: ShowResultItem | null = null;
   searchResultsDetailsColumns: string[] = [];
@@ -198,10 +204,11 @@ export class SearchShow {
     return;
   }
 
-  private translateMediaType(mediaType: string) {
-    if (mediaType === 'tv') {
+  private translateMediaType(mediaType: string | undefined) {
+    let selectedType = mediaType ?? this.typeSearch();
+    if (selectedType === 'tv') {
       return ShowTypeEnum.TV_SERIES;
-    } else if (mediaType === 'movie') {
+    } else if (selectedType === 'movie') {
       return ShowTypeEnum.MOVIES;
     }
     return;
